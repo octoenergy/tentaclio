@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[requires]
+python_version = "3.6.6"
+
+[packages]
+# Symlink to project root
+dataio = {editable = true, path = "."}
+# Lib-dependencies already defined within `setup.py`
+
+[dev-packages]
+# Linter
+flake8 = "*"
+mypy = "*"
+# Testing
+moto = "*"
+pytest = "*"
+pytest-mock = "*"
