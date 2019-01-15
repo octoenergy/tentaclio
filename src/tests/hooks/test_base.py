@@ -1,5 +1,5 @@
 import pytest
-from dataio.hooks import base
+from dataio.hooks import base_hook
 
 
 class TestCredential:
@@ -8,7 +8,7 @@ class TestCredential:
 
     def test_missing_uri(self):
         with pytest.raises(ValueError):
-            base.Credential()
+            base_hook.Credential()
 
     @pytest.mark.parametrize(
         "uri",
@@ -26,7 +26,7 @@ class TestCredential:
     )
     def test_unknown_uri_scheme(self, uri):
         with pytest.raises(AssertionError):
-            base.Credential(uri=uri)
+            base_hook.Credential(uri=uri)
 
     # File URI:
 
@@ -35,7 +35,7 @@ class TestCredential:
         [("file:///test.file", "/test.file"), ("file:///dir/test.file", "/dir/test.file")],
     )
     def test_parsing_file_uri(self, uri, path):
-        cred = base.Credential(uri=uri)
+        cred = base_hook.Credential(uri=uri)
 
         assert cred.scheme == "file"
         assert cred.hostname is None
@@ -56,7 +56,7 @@ class TestCredential:
         ],
     )
     def test_parsing_s3_uri(self, uri, username, password, hostname, path):
-        cred = base.Credential(uri=uri)
+        cred = base_hook.Credential(uri=uri)
 
         assert cred.scheme == "s3"
         assert cred.hostname == hostname
@@ -77,7 +77,7 @@ class TestCredential:
         ],
     )
     def test_postgres_uri(self, uri, username, password, hostname, port, path):
-        cred = base.Credential(uri=uri)
+        cred = base_hook.Credential(uri=uri)
 
         assert cred.scheme == "postgres"
         assert cred.hostname == hostname
