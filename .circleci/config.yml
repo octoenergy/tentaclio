@@ -37,6 +37,9 @@ jobs:
       - run:
           name: Run type checker
           command:  make type
+      - run:
+          name: Run test suite
+          command:  make test
 
 workflows:
 
