@@ -1,0 +1,47 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+
+version: 2.0
+
+jobs:
+
+  build:
+
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+
+    steps:
+      - checkout
+      - restore_cache:
+          # Increasingly general patterns to restore
+          # https://circleci.com/docs/2.0/caching/#using-keys-and-templates
+          keys:
+            - {{ .Environment.CACHE_VERSION }}-pip-cache-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - {{ .Environment.CACHE_VERSION }}-pip-cache-{{ .Branch }}-
+            - {{ .Environment.CACHE_VERSION }}-pip-cache-
+      - run:
+          name: Install Python packages
+          command: make update
+      - save_cache:
+          # Pipenv venv and pip cached wheels
+          paths:
+            - "~/.local"
+            - "~/.cache"
+          key: {{ .Environment.CACHE_VERSION }}-pip-cache-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Run linter
+          command: make lint
+      - run:
+          name: Run type checker
+          command:  make type
+
+workflows:
+
+  version: 2
+
+  test-build:
+    jobs:
+      - build
