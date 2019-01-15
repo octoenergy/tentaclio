@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all reset install clean update circleci lint type test package
+.PHONY: all reset update clean sync circleci lint type test package
 
 all: install server
 
@@ -8,7 +8,7 @@ all: install server
 
 reset: clean install
 
-install:
+update:
 	pipenv update --dev
 	pipenv clean
 
@@ -16,7 +16,7 @@ clean:
 	-rm -rf build dist
 	-find src -type d -name __pycache__ -delete
 
-update:
+sync:
 	pipenv sync --dev
 	pipenv clean
 
@@ -31,7 +31,7 @@ type:
 	pipenv run mypy src
 
 test:
-	pipenv run pytest src/tests
+	pipenv run pytest tests
 
 # Deployment
 
