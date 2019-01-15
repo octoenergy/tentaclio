@@ -27,7 +27,7 @@ setup_args = dict(
     # Description
     name="dataio",
     version=VERSION,
-    description="Single repository regrouping all IO connectors used in the data world",
+    description="Single repository regrouping all IO connectors used within the data world",
     long_description=README,
     # Credentials
     author="Octopus Energy",

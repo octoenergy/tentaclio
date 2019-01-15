@@ -24,7 +24,7 @@ jobs:
             - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-
       - run:
           name: Install Python packages
-          command: make update
+          command: make sync
       - save_cache:
           # Pipenv venv and pip cached wheels
           paths:
