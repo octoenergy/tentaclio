@@ -80,3 +80,27 @@ class BaseClient(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_conn(self):
         raise NotImplementedError()
+
+
+class check_conn:
+    """
+    Decorator for testing the status of a client connection
+    """
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, func):
+
+        def _wrapper(*args, **kwargs):
+            # Instance is passed as first positional argument
+            inst = args[0]
+
+            if hasattr(inst, 'conn'):
+                if inst.conn is None:
+                    raise exceptions.ConnectionError("Inactive client connection")
+                raise AttributeError("Missing instance connection attribute")
+
+            return func(*args, **kwargs)
+
+        return _wrapper
