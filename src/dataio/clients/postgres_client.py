@@ -57,34 +57,34 @@ class PostgresClient(base_client.BaseClient):
         meta_data.drop_all(bind=self.conn)
 
     # Sql methods
+    @base_client.check_conn()
     def query(self, sql_query: str, **params) -> typing.List[dict]:
         """
-        Execute a read-only SQL query, and return results.
+        Execute a read-only SQL query, and return results
 
         Will not commit any changes to DB.
         """
-        assert self.conn is not None
-        raw_result = self.conn.execute(sql_query, params=params)
+        raw_result = self.conn.execute(sql_query, params=params)  # type: ignore
         result = [dict(r) for r in raw_result]
         return result
 
+    @base_client.check_conn()
     def execute(self, sql_query: str, **params) -> None:
         """
-        Execute a raw SQL query command.
+        Execute a raw SQL query command
         """
-        assert self.conn is not None
-        trans = self.conn.begin()
+        trans = self.conn.begin()  # type: ignore
         try:
-            self.conn.execute(sql_query, params=params)
+            self.conn.execute(sql_query, params=params)  # type: ignore
         except Exception:
             trans.rollback()
             raise
 
+    @base_client.check_conn()
     def get_df(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
         """
-        Run a raw SQL query and return a dataframe
+        Run a raw SQL query and return a data frame
         """
-        assert self.conn is not None
         df = pd.read_sql(sql_query, self.conn, params=params, **kwargs)
         if df.empty:
             raise ValueError("Empty Pandas dataframe content")
