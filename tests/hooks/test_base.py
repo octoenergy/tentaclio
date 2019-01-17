@@ -1,5 +1,4 @@
 import pytest
-
 from dataio.clients import base_client, exceptions
 
 
@@ -11,27 +10,30 @@ class TestCredential:
         with pytest.raises(exceptions.URIError):
             base_client.URL(None)
 
-    @pytest.mark.parametrize("url", [
-        "ftp://:@localhost",
-        "sftp://:@localhost",
-        "http://localhost/path",
-        "https://localhost:port/path",
-        "/path",
-        "/path/fragment",
-        "postgresql://:@localhost:port",
-        "pgsql://:@localhost:port/path",
-        "awss3://:@s3",
-    ])
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "ftp://:@localhost",
+            "sftp://:@localhost",
+            "http://localhost/path",
+            "https://localhost:port/path",
+            "/path",
+            "/path/fragment",
+            "postgresql://:@localhost:port",
+            "pgsql://:@localhost:port/path",
+            "awss3://:@s3",
+        ],
+    )
     def test_unknown_url_scheme(self, url):
         with pytest.raises(exceptions.URIError):
             base_client.URL(url)
 
     # File URL:
 
-    @pytest.mark.parametrize("url,path", [
-        ("file:///test.file", "/test.file"),
-        ("file:///dir/test.file", "/dir/test.file"),
-    ])
+    @pytest.mark.parametrize(
+        "url,path",
+        [("file:///test.file", "/test.file"), ("file:///dir/test.file", "/dir/test.file")],
+    )
     def test_parsing_file_url(self, url, path):
         parsed_url = base_client.URL(url)
 
@@ -44,12 +46,15 @@ class TestCredential:
 
     # S3 URL:
 
-    @pytest.mark.parametrize("url,username,password,hostname,path", [
-        ("s3://:@s3", "", "", None, ""),
-        ("s3://public_key:private_key@s3", "public_key", "private_key", None, ""),
-        ("s3://:@bucket_name", "", "", "bucket_name", ""),
-        ("s3://:@bucket_name/key", "", "", "bucket_name", "key"),
-    ])
+    @pytest.mark.parametrize(
+        "url,username,password,hostname,path",
+        [
+            ("s3://:@s3", "", "", None, ""),
+            ("s3://public_key:private_key@s3", "public_key", "private_key", None, ""),
+            ("s3://:@bucket_name", "", "", "bucket_name", ""),
+            ("s3://:@bucket_name/key", "", "", "bucket_name", "key"),
+        ],
+    )
     def test_parsing_s3_url(self, url, username, password, hostname, path):
         parsed_url = base_client.URL(url)
 
@@ -62,12 +67,15 @@ class TestCredential:
 
     # Postgres URL:
 
-    @pytest.mark.parametrize("url,username,password,hostname,port,path", [
-        ("postgres://:@localhost", "", "", "localhost", None, ""),
-        ("postgres://login:pass@localhost", "login", "pass", "localhost", None, ""),
-        ("postgres://:@localhost:5432", "", "", "localhost", 5432, ""),
-        ("postgres://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
-    ])
+    @pytest.mark.parametrize(
+        "url,username,password,hostname,port,path",
+        [
+            ("postgres://:@localhost", "", "", "localhost", None, ""),
+            ("postgres://login:pass@localhost", "login", "pass", "localhost", None, ""),
+            ("postgres://:@localhost:5432", "", "", "localhost", 5432, ""),
+            ("postgres://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
+        ],
+    )
     def test_postgres_url(self, url, username, password, hostname, port, path):
         parsed_url = base_client.URL(url)
 
@@ -80,7 +88,6 @@ class TestCredential:
 
 
 class TestBaseClient:
-
     def test_client_url_scheme(self):
         url = "file:///path"
 

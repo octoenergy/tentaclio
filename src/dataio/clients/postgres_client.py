@@ -1,28 +1,33 @@
 import contextlib
-import typing
+from typing import Generator, List, Optional, Union
 
 import pandas as pd
-from sqlalchemy.engine import create_engine, Connection, url as sqla_url
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import Connection, create_engine
+from sqlalchemy.engine import url as sqla_url
+from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
 from . import base_client
 
-
 __all__ = ["PostgresClient", "bound_session", "atomic_session"]
+
+
+NoneString = Union[str, None]
+SessionGenerator = Generator[None, session.Session, None]
 
 
 class PostgresClient(base_client.BaseClient):
     """
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
-    conn: typing.Optional[Connection]
+
+    conn: Optional[Connection]
     execution_options: dict
     connect_args: dict
 
-    def __init__(self, url: typing.Union[str, None],
-                 execution_options: dict = None,
-                 connect_args: dict = None) -> None:
+    def __init__(
+        self, url: NoneString, execution_options: dict = None, connect_args: dict = None
+    ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
         super().__init__(url)
@@ -39,9 +44,7 @@ class PostgresClient(base_client.BaseClient):
             database=self.url.path,
         )
         engine = create_engine(
-            parsed_url,
-            execution_options=self.execution_options,
-            connect_args=self.connect_args,
+            parsed_url, execution_options=self.execution_options, connect_args=self.connect_args
         )
         return engine.connect()
 
@@ -55,7 +58,7 @@ class PostgresClient(base_client.BaseClient):
 
     # Sql methods
     @base_client.check_conn()
-    def query(self, sql_query: str, **params) -> typing.List[dict]:
+    def query(self, sql_query: str, **params) -> List[dict]:
         """
         Execute a read-only SQL query, and return results
 
@@ -92,7 +95,7 @@ class PostgresClient(base_client.BaseClient):
 
 
 @contextlib.contextmanager
-def bound_session(connection):
+def bound_session(connection: Connection) -> SessionGenerator:
     Session = sessionmaker()
     sess = Session(bind=connection)
     try:
@@ -102,7 +105,7 @@ def bound_session(connection):
 
 
 @contextlib.contextmanager
-def atomic_session(connection):
+def atomic_session(connection: Connection) -> SessionGenerator:
     Session = sessionmaker()
     sess = Session(bind=connection)
     try:
