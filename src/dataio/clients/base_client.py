@@ -7,7 +7,7 @@ from . import exceptions
 T = TypeVar("T")
 NoneString = Union[str, None]
 
-SCHEMES = ("file", "s3", "postgres")
+SCHEMES = ("file", "s3", "postgresql")
 
 
 class URL:
@@ -48,7 +48,7 @@ class URL:
                 self.hostname = None
 
         # Exception: path - S3 & Postgres
-        if self.scheme in ("s3", "postgres"):
+        if self.scheme in ("s3", "postgresql"):
             if self.path != "":
                 self.path = parsed_url.path[1:]
 

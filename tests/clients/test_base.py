@@ -19,7 +19,7 @@ class TestCredential:
             "https://localhost:port/path",
             "/path",
             "/path/fragment",
-            "postgresql://:@localhost:port",
+            "postgres://:@localhost:port",
             "pgsql://:@localhost:port/path",
             "awss3://:@s3",
         ],
@@ -70,16 +70,16 @@ class TestCredential:
     @pytest.mark.parametrize(
         "url,username,password,hostname,port,path",
         [
-            ("postgres://:@localhost", "", "", "localhost", None, ""),
-            ("postgres://login:pass@localhost", "login", "pass", "localhost", None, ""),
-            ("postgres://:@localhost:5432", "", "", "localhost", 5432, ""),
-            ("postgres://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
+            ("postgresql://:@localhost", "", "", "localhost", None, ""),
+            ("postgresql://login:pass@localhost", "login", "pass", "localhost", None, ""),
+            ("postgresql://:@localhost:5432", "", "", "localhost", 5432, ""),
+            ("postgresql://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
         ],
     )
     def test_postgres_url(self, url, username, password, hostname, port, path):
         parsed_url = base_client.URL(url)
 
-        assert parsed_url.scheme == "postgres"
+        assert parsed_url.scheme == "postgresql"
         assert parsed_url.hostname == hostname
         assert parsed_url.username == username
         assert parsed_url.password == password
