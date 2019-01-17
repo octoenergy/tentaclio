@@ -4,9 +4,6 @@ from urllib import parse
 
 from . import exceptions
 
-__all__ = ["BaseClient"]
-
-
 T = TypeVar("T")
 NoneString = Union[str, None]
 
@@ -67,7 +64,7 @@ class BaseClient(metaclass=abc.ABCMeta):
         self.url = URL(url)
         self.conn = None
 
-    # Context manager
+    # Context manager:
 
     def __enter__(self) -> "BaseClient":
         self.conn = self.get_conn()
@@ -78,7 +75,7 @@ class BaseClient(metaclass=abc.ABCMeta):
             self.conn.close()
             self.conn = None
 
-    # Connection methods
+    # Connection methods:
 
     @abc.abstractmethod
     def get_conn(self):
