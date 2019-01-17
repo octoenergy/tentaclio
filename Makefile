@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all reset install clean update circleci lint test package
+.PHONY: all reset update clean sync circleci lint test package
 
 all: install server
 
