@@ -32,14 +32,8 @@ jobs:
             - "~/.cache"
           key: pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Run linter
-          command: make lint
-      - run:
-          name: Run type checker
-          command:  make type
-      - run:
-          name: Run test suite
-          command:  make test
+          name: Run linters and tests
+          command: make circleci
 
 workflows:
 
