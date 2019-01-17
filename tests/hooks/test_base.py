@@ -113,3 +113,32 @@ class TestBaseClient:
 
         mocked_conn.close.assert_called()
         assert test_client.conn is None
+
+
+class TestCheckConn:
+    def test_missing_connection_attribute(self):
+        class TestClient:
+            @base_client.check_conn()
+            def query(self):
+                return True
+
+        test_client = TestClient()
+
+        with pytest.raises(AttributeError):
+            test_client.query()
+
+    def test_inactive_client_connection(self):
+        uri = "file:///path"
+
+        class TestClient(base_client.BaseClient):
+            def get_conn(self):
+                return True
+
+            @base_client.check_conn()
+            def query(self):
+                return True
+
+        test_client = TestClient(uri)
+
+        with pytest.raises(exceptions.ConnectionError):
+            test_client.query()
