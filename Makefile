@@ -29,6 +29,7 @@ lint:
 	pipenv run mypy src
 
 test:
+	pipenv run mypy tests --check-untyped-defs
 	pipenv run pytest tests
 
 # Deployment
