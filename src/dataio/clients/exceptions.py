@@ -14,3 +14,9 @@ class ConnectionError(ClientError):
     """
     Exception encountered while calling a client connection
     """
+
+
+class PostgresError(Exception):
+    """
+    Exception encountered over a Postgres client connection
+    """
