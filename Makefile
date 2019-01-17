@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all reset update clean sync circleci lint type test package
+.PHONY: all reset install clean update circleci lint test package
 
 all: install server
 
@@ -22,12 +22,10 @@ sync:
 
 # Testing
 
-circleci: lint type test
+circleci: lint test
 
 lint:
 	pipenv run flake8 src
-
-type:
 	pipenv run mypy src
 
 test:
