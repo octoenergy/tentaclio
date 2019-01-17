@@ -101,6 +101,7 @@ class check_conn:
             if hasattr(inst, "conn"):
                 if inst.conn is None:
                     raise exceptions.ConnectionError("Inactive client connection")
+            else:
                 raise AttributeError("Missing instance connection attribute")
 
             return func(*args, **kwargs)
