@@ -20,6 +20,8 @@ REQUIREMENTS = [
     "sqlalchemy>=1.1,<1.3",
     # SFTP
     "pysftp",
+    # protocols typing
+    "typing-extensions",
 ]
 
 
