@@ -10,7 +10,6 @@ python_version = "3.6.6"
 # Symlink to project root
 dataio = {editable = true,path = "."}
 # Lib-dependencies already defined within `setup.py`
-typing-extensions= "*"
 
 [dev-packages]
 # Linter
