@@ -6,7 +6,7 @@ TEST_TABLE_NAME = "dump_test"
 TABLE_COLUMNS = ["column_int", "column_str", "column_float"]
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def test_db(db_client):
     sql_query = f"""
     CREATE TABLE {TEST_TABLE_NAME} (

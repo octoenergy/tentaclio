@@ -10,7 +10,6 @@ class Reader(Protocol):
 
 
 class Writer(Protocol):
-
     @abstractmethod
     def write(self, content) -> int:
         pass

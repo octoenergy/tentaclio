@@ -20,3 +20,9 @@ class PostgresError(Exception):
     """
     Exception encountered over a Postgres client connection
     """
+
+
+class FTPError(Exception):
+    """
+    Exception encountered over a FTP client connection
+    """
