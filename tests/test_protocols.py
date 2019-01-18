@@ -1,6 +1,9 @@
 # Sanity checks on protocols
-import pytest
+# These are not unit test but a check that the typing system works
+# for the expected inputs.
 from dataio import Reader, Writer
+
+import pytest
 
 
 class MyReader(object):
