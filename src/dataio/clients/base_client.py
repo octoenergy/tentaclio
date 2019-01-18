@@ -1,10 +1,11 @@
 import abc
-from typing import Optional, Union
+from typing import Iterable, Optional, TypeVar, Union
 from urllib import parse
 
 from . import exceptions
 
 
+T = TypeVar("T")
 NoneString = Union[str, None]
 
 SCHEMES = ("file", "s3", "postgresql")
@@ -80,3 +81,31 @@ class BaseClient(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_conn(self):
         raise NotImplementedError()
+
+
+class QueryableMixin:
+    """
+    Interface for sequal-based connections
+    """
+
+    # Sequal methods:
+
+    def execute(self, sql_query: str, **params) -> None:
+        raise NotImplementedError
+
+    def query(self, sql_query: str, **params) -> Iterable:
+        raise NotImplementedError
+
+
+class ReadableMixing:
+    """
+    Interface for document-based connections
+    """
+
+    # Document methods:
+
+    def get(self, **params) -> T:
+        raise NotImplementedError
+
+    def put(self, **params) -> None:
+        raise NotImplementedError

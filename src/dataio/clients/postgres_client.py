@@ -1,9 +1,9 @@
 import contextlib
 import tempfile
-from typing import Generator, List, Optional, Union
+from typing import Generator, Optional, Union
 
 import pandas as pd
-from sqlalchemy.engine import Connection, create_engine
+from sqlalchemy.engine import Connection, create_engine, result
 from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
@@ -18,7 +18,7 @@ NoneString = Union[str, None]
 SessionGenerator = Generator[None, session.Session, None]
 
 
-class PostgresClient(base_client.BaseClient):
+class PostgresClient(base_client.BaseClient, base_client.QueryableMixin):
     """
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
@@ -50,26 +50,16 @@ class PostgresClient(base_client.BaseClient):
         )
         return engine.connect()
 
-    # Schema methods:
-
-    def set_schema(self, meta_data: MetaData) -> None:
-        meta_data.create_all(bind=self.conn)
-
-    def delete_schema(self, meta_data: MetaData) -> None:
-        meta_data.drop_all(bind=self.conn)
-
     # Sequal methods:
 
     @decorators.check_conn()
-    def query(self, sql_query: str, **params) -> List[dict]:
+    def query(self, sql_query: str, **params) -> result.ResultProxy:
         """
         Execute a read-only SQL query, and return results
 
         Remark: will NOT commit any changes to DB
         """
-        raw_result = self.conn.execute(sql_query, params=params)  # type: ignore
-        result = [dict(r) for r in raw_result]
-        return result
+        return self.conn.execute(sql_query, params=params)  # type: ignore
 
     @decorators.check_conn()
     def execute(self, sql_query: str, **params) -> None:
@@ -86,6 +76,14 @@ class PostgresClient(base_client.BaseClient):
             raise
         else:
             trans.commit()
+
+    # Schema methods:
+
+    def set_schema(self, meta_data: MetaData) -> None:
+        meta_data.create_all(bind=self.conn)
+
+    def delete_schema(self, meta_data: MetaData) -> None:
+        meta_data.drop_all(bind=self.conn)
 
     # Dataframe methods:
 
