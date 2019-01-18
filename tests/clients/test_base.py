@@ -14,8 +14,6 @@ class TestCredential:
     @pytest.mark.parametrize(
         "url",
         [
-            "ftp://:@localhost",
-            "sftp://:@localhost",
             "http://localhost/path",
             "https://localhost:port/path",
             "/path",

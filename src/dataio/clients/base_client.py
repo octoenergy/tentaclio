@@ -1,14 +1,11 @@
 import abc
-from typing import Iterable, Optional, TypeVar, Union
+from typing import Iterable, Optional
 from urllib import parse
 
-from . import exceptions
+from . import exceptions, types
 
 
-T = TypeVar("T")
-NoneString = Union[str, None]
-
-SCHEMES = ("file", "s3", "postgresql")
+SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
 
 
 class URL:
@@ -23,7 +20,7 @@ class URL:
     port: Optional[int]
     path: Optional[str]
 
-    def __init__(self, url: NoneString) -> None:
+    def __init__(self, url: types.NoneString) -> None:
         if url is None:
             raise exceptions.URIError("Provide an URI to initialise a connection")
 
@@ -60,8 +57,9 @@ class BaseClient(metaclass=abc.ABCMeta):
     """
 
     url: URL
+    conn: Optional[types.Closable]
 
-    def __init__(self, url: NoneString) -> None:
+    def __init__(self, url: types.NoneString) -> None:
         self.url = URL(url)
         self.conn = None
 
@@ -79,7 +77,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     # Connection methods:
 
     @abc.abstractmethod
-    def get_conn(self):
+    def get_conn(self) -> types.Closable:
         raise NotImplementedError()
 
 
@@ -104,7 +102,7 @@ class ReadableMixing:
 
     # Document methods:
 
-    def get(self, **params) -> T:
+    def get(self, **params) -> types.T:
         raise NotImplementedError
 
     def put(self, **params) -> None:

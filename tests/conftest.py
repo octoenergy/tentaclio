@@ -16,7 +16,7 @@ from dataio import clients
 POSTGRES_TEST_URI = os.getenv("POSTGRES_TEST_URI")
 
 
-@pytest.yield_fixture(scope="session")
+@pytest.fixture(scope="session")
 def db_client():
     """
     Create and tear down the session-wide SQLAlchemy Db connection

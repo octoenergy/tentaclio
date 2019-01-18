@@ -1,6 +1,6 @@
 import contextlib
 import tempfile
-from typing import Generator, Optional, Union
+from typing import Generator
 
 import pandas as pd
 from sqlalchemy.engine import Connection, create_engine, result
@@ -8,13 +8,12 @@ from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from . import base_client, decorators, exceptions
+from . import base_client, decorators, exceptions, types
 
 
 __all__ = ["PostgresClient", "bound_session", "atomic_session"]
 
 
-NoneString = Union[str, None]
 SessionGenerator = Generator[None, session.Session, None]
 
 
@@ -23,12 +22,11 @@ class PostgresClient(base_client.BaseClient, base_client.QueryableMixin):
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
 
-    conn: Optional[Connection]
     execution_options: dict
     connect_args: dict
 
     def __init__(
-        self, url: NoneString, execution_options: dict = None, connect_args: dict = None
+        self, url: types.NoneString, execution_options: dict = None, connect_args: dict = None
     ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
