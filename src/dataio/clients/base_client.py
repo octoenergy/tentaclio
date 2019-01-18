@@ -1,11 +1,10 @@
 import abc
-from typing import Callable, Optional, TypeVar, Union
+from typing import Optional, Union
 from urllib import parse
 
 from . import exceptions
 
 
-T = TypeVar("T")
 NoneString = Union[str, None]
 
 SCHEMES = ("file", "s3", "postgresql")
@@ -81,27 +80,3 @@ class BaseClient(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_conn(self):
         raise NotImplementedError()
-
-
-class check_conn:
-    """
-    Decorator for testing the status of a client connection
-    """
-
-    def __init__(self, *args, **kwargs) -> None:
-        pass
-
-    def __call__(self, func: Callable) -> Callable:
-        def _wrapper(*args, **kwargs) -> T:
-            # Instance is passed as first positional argument
-            inst = args[0]
-
-            if hasattr(inst, "conn"):
-                if inst.conn is None:
-                    raise exceptions.ConnectionError("Inactive client connection")
-            else:
-                raise AttributeError("Missing instance connection attribute")
-
-            return func(*args, **kwargs)
-
-        return _wrapper

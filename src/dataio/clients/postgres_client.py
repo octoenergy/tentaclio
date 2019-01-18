@@ -8,7 +8,7 @@ from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from . import base_client, exceptions
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["PostgresClient", "bound_session", "atomic_session"]
@@ -58,9 +58,9 @@ class PostgresClient(base_client.BaseClient):
     def delete_schema(self, meta_data: MetaData) -> None:
         meta_data.drop_all(bind=self.conn)
 
-    # Sql methods:
+    # Sequal methods:
 
-    @base_client.check_conn()
+    @decorators.check_conn()
     def query(self, sql_query: str, **params) -> List[dict]:
         """
         Execute a read-only SQL query, and return results
@@ -71,7 +71,7 @@ class PostgresClient(base_client.BaseClient):
         result = [dict(r) for r in raw_result]
         return result
 
-    @base_client.check_conn()
+    @decorators.check_conn()
     def execute(self, sql_query: str, **params) -> None:
         """
         Execute a raw SQL query command
@@ -89,7 +89,7 @@ class PostgresClient(base_client.BaseClient):
 
     # Dataframe methods:
 
-    @base_client.check_conn()
+    @decorators.check_conn()
     def get_df(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
         """
         Run a raw SQL query and return a data frame
@@ -99,7 +99,7 @@ class PostgresClient(base_client.BaseClient):
             raise exceptions.PostgresError("Empty Pandas dataframe content")
         return df
 
-    @base_client.check_conn()
+    @decorators.check_conn()
     def dump_df(self, df: pd.DataFrame, dest_table: str) -> None:
         """
         Dump a data frame into an existing Postgres table
