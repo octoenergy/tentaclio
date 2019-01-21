@@ -52,16 +52,25 @@ class URL:
             raise exceptions.URIError("URI scheme currently not implemented")
 
         self.scheme = parsed_url.scheme
+        self.username = parsed_url.username
+        self.password = parsed_url.password
         self.hostname = parsed_url.hostname
         self.port = parsed_url.port
         self.path = parsed_url.path
-        self.query = parse.parse_qs(parsed_url.query)
+        self.query = parsed_url.query
 
         # Replace %xx escapes - ONLY for username & password
         if parsed_url.username is not None:
-            self.username = parse.unquote(parsed_url.username)
+            self.username = parse.unquote(self.username)
         if parsed_url.password is not None:
-            self.password = parse.unquote(parsed_url.password)
+            self.password = parse.unquote(self.password)
+
+        if self.query:
+            # Assuming string values
+            self.query = parse.parse_qsl(parsed_url.query, strict_parsing=True)
+            self.query = {key: value for key, value in self.query}
+        else:
+            self.query = None
 
     @classmethod
     def from_parts(
@@ -79,7 +88,8 @@ class URL:
             username=username, password=password, hostname=hostname, port=port
         )
         params = None
-        query = parse.urlencode(query)
+        if query:
+            query = parse.urlencode(query)
         fragment = None
         components = (scheme, netloc, path, params, query, fragment)
         url = parse.urlunparse(components)

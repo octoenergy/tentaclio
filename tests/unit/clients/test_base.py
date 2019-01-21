@@ -61,6 +61,7 @@ class TestURL:
     @pytest.mark.parametrize(
         "url,scheme,username,password,hostname,port,path,query",
         [
+            ("file:///path/to", "file", None, None, None, None, "/path/to", None),
             (
                 "postgres://login:pass@localhost?key=value",
                 "postgres",
@@ -81,6 +82,16 @@ class TestURL:
                 "database",
                 {},
             ),
+            (
+                "postgres://log%3Ain:pass%2Fword@localhost/path/to?spaced+key=odd%2Fva%3B%3Alue",
+                "postgres",
+                "log:in",
+                "pass/word",
+                "localhost",
+                None,
+                "path/to",
+                {"spaced key": "odd/va;:lue"},
+            ),
         ],
     )
     def test_url_from_parts(self, url, scheme, username, password, hostname, port, path, query):
@@ -94,6 +105,13 @@ class TestURL:
             query=query,
         )
         assert parsed_url.url == url
+        assert parsed_url.scheme == scheme
+        assert parsed_url.username == username
+        assert parsed_url.password == password
+        assert parsed_url.hostname == hostname
+        assert parsed_url.port == port
+        assert parsed_url.path == path
+        assert (parsed_url.query == query) or (not query and parsed_url.query is None)
 
 
 class TestBaseClient:
