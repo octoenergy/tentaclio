@@ -16,15 +16,17 @@ def _netloc_from_parts(
     port=None
 ):
     """Constract network location in accordance with urllib."""
-    username = username or ''
-    password = password or ''
+    netloc = ''
+    if username is not None:
+        netloc += parse.quote(username)
+        if password is not None:
+            netloc += ':' + parse.quote(password)
+        netloc += '@'
     hostname = hostname or ''
-    username = parse.quote(username)
-    password = parse.quote(password)
-    url = f'{username}:{password}@{hostname}'
-    if port:
-        url = f'{url}:{port}'
-    return url
+    netloc += hostname
+    if port is not None:
+        netloc += ':' + str(port)
+    return netloc
 
 
 class URL:
