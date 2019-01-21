@@ -73,9 +73,9 @@ class BaseClient(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
 
-class QueryableMixin:
+class QueryMixin:
     """
-    Interface for sequal-based connections
+    Interface for query-based connections
     """
 
     # Sequal methods:
@@ -87,9 +87,9 @@ class QueryableMixin:
         raise NotImplementedError
 
 
-class ReadableMixin:
+class StreamMixin:
     """
-    Interface for document-based connections
+    Interface for stream-based connections
     """
 
     # Document methods:
