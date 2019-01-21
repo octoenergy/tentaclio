@@ -51,11 +51,10 @@ class BaseClient(metaclass=abc.ABCMeta):
     """
 
     url: URL
-    conn: Optional[types.Closable]
+    conn: Optional[types.Closable] = None
 
     def __init__(self, url: types.NoneString) -> None:
         self.url = URL(url)
-        self.conn = None
 
     # Context manager:
 
@@ -89,7 +88,7 @@ class QueryableMixin:
         raise NotImplementedError
 
 
-class ReadableMixing:
+class ReadableMixin:
     """
     Interface for document-based connections
     """
@@ -99,5 +98,5 @@ class ReadableMixing:
     def get(self, **params) -> types.T:
         raise NotImplementedError
 
-    def put(self, **params) -> None:
+    def put(self, file_obj: types.T, **params) -> None:
         raise NotImplementedError

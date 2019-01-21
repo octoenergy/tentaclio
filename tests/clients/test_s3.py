@@ -14,10 +14,10 @@ class TestS3Client:
     @pytest.mark.parametrize(
         "url,username,password,hostname,path",
         [
-            ("s3://:@s3", "", "", None, ""),
+            ("s3://:@s3", None, None, None, ""),
             ("s3://public_key:private_key@s3", "public_key", "private_key", None, ""),
-            ("s3://:@bucket_name", "", "", "bucket_name", ""),
-            ("s3://:@bucket_name/key", "", "", "bucket_name", "key"),
+            ("s3://:@bucket", None, None, "bucket", ""),
+            ("s3://:@bucket/prefix", None, None, "bucket", "prefix"),
         ],
     )
     def test_parsing_s3_url(self, url, username, password, hostname, path):
