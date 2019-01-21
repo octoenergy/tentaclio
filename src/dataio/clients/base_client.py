@@ -14,9 +14,9 @@ def _netloc_from_parts(username=None, password=None, hostname=None, port=None):
     """Constract network location in accordance with urllib."""
     netloc = ""
     if username is not None:
-        netloc += parse.quote(username)
+        netloc += parse.quote(username, safe="")
         if password is not None:
-            netloc += ":" + parse.quote(password)
+            netloc += ":" + parse.quote(password, safe="")
         netloc += "@"
     hostname = hostname or ""
     netloc += hostname
