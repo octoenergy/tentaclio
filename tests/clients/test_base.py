@@ -40,7 +40,7 @@ class TestCredential:
         assert parsed_url.username == username
         assert parsed_url.password == password
 
-    # File URL:BrA@``ZC$$@5%Ky/7v/}
+    # File URL:
 
     @pytest.mark.parametrize(
         "url,path",

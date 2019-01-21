@@ -2,6 +2,8 @@ from abc import abstractmethod
 
 from typing_extensions import Protocol
 
+__all__ = ["Reader", "Writer", "ReaderWriter"]
+
 
 class Reader(Protocol):
     @abstractmethod

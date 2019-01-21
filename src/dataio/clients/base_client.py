@@ -78,7 +78,7 @@ class QueryMixin:
     Interface for query-based connections
     """
 
-    # Sequal methods:
+    # Query methods:
 
     def execute(self, sql_query: str, **params) -> None:
         raise NotImplementedError
@@ -92,7 +92,7 @@ class StreamMixin:
     Interface for stream-based connections
     """
 
-    # Document methods:
+    # Stream methods:
 
     def get(self, **params) -> types.T:
         raise NotImplementedError

@@ -1,8 +1,8 @@
-from typing import Callable, TypeVar
+from typing import Callable
 
 from dataio.clients import exceptions
 
-T = TypeVar("T")
+from . import types
 
 
 class check_conn:
@@ -14,7 +14,7 @@ class check_conn:
         pass
 
     def __call__(self, func: Callable) -> Callable:
-        def _wrapper(*args, **kwargs) -> T:
+        def _wrapper(*args, **kwargs) -> types.T:
             # Instance is passed as first positional argument
             inst = args[0]
 

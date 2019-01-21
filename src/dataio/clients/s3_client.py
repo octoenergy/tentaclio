@@ -59,7 +59,7 @@ class S3Client(base_client.BaseClient, base_client.StreamMixin):
             # No close method necessary on AWS API
             self.conn = None
 
-    # Document methods:
+    # Stream methods:
 
     @decorators.check_conn()
     def get(self, bucket_name: str = None, key_name: str = None) -> io.BytesIO:

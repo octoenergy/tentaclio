@@ -55,7 +55,7 @@ class PostgresClient(base_client.BaseClient, base_client.QueryMixin):
         )
         return engine.connect()
 
-    # Sequal methods:
+    # Query methods:
 
     @decorators.check_conn()
     def query(self, sql_query: str, **params) -> result.ResultProxy:
