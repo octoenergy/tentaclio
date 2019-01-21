@@ -9,7 +9,7 @@ from . import base_client, decorators, exceptions, types
 __all__ = ["FTPClient", "SFTPClient"]
 
 
-class FTPClient(base_client.BaseClient, base_client.ReadableMixing):
+class FTPClient(base_client.BaseClient, base_client.ReadableMixin):
     """
     Generic FTP hook
     """
@@ -44,12 +44,12 @@ class FTPClient(base_client.BaseClient, base_client.ReadableMixing):
         self.conn.retrbinary("RETR %s" % remote_path, f.write)  # type: ignore
         return f
 
-    def put(self, **params) -> None:
+    def put(self, file_obj: types.T, **params) -> None:
         raise NotImplementedError
 
     # Helpers:
 
-    def _isfile(self, file_path) -> bool:
+    def _isfile(self, file_path: str) -> bool:
         """
         Caveat for missing method on standard FTPlib
         """
@@ -63,7 +63,7 @@ class FTPClient(base_client.BaseClient, base_client.ReadableMixing):
             return False
 
 
-class SFTPClient(base_client.BaseClient, base_client.ReadableMixing):
+class SFTPClient(base_client.BaseClient, base_client.ReadableMixin):
     """
     Generic SFTP hook
     """
@@ -104,5 +104,5 @@ class SFTPClient(base_client.BaseClient, base_client.ReadableMixing):
         self.conn.getfo(remote_path, f, callback=None)  # type: ignore
         return f
 
-    def put(self, **params) -> None:
+    def put(self, file_obj: types.T, **params) -> None:
         raise NotImplementedError
