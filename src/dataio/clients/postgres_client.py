@@ -17,7 +17,7 @@ __all__ = ["PostgresClient", "bound_session", "atomic_session"]
 SessionGenerator = Generator[None, session.Session, None]
 
 
-class PostgresClient(base_client.BaseClient, base_client.QueryableMixin):
+class PostgresClient(base_client.BaseClient, base_client.QueryMixin):
     """
     Generic Postgres hook, backed by a SQLAlchemy connection
     """

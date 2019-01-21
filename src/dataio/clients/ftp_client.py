@@ -10,7 +10,7 @@ from . import base_client, decorators, exceptions, types
 __all__ = ["FTPClient", "SFTPClient"]
 
 
-class FTPClient(base_client.BaseClient, base_client.ReadableMixin):
+class FTPClient(base_client.BaseClient, base_client.StreamMixin):
     """
     Generic FTP hook
     """
@@ -64,7 +64,7 @@ class FTPClient(base_client.BaseClient, base_client.ReadableMixin):
             return False
 
 
-class SFTPClient(base_client.BaseClient, base_client.ReadableMixin):
+class SFTPClient(base_client.BaseClient, base_client.StreamMixin):
     """
     Generic SFTP hook
     """
