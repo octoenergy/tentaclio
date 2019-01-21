@@ -12,12 +12,12 @@ class URL:
     Placeholder to process and store information for a given URL
     """
 
-    scheme: Optional[str]
-    username: Optional[str]
-    password: Optional[str]
+    scheme: str
+    path: str
     hostname: Optional[str]
     port: Optional[int]
-    path: Optional[str]
+    username: Optional[str] = None
+    password: Optional[str] = None
 
     def __init__(self, url: types.NoneString) -> None:
         if url is None:
@@ -33,21 +33,15 @@ class URL:
             raise exceptions.URIError("URI scheme currently not implemented")
 
         self.scheme = parsed_url.scheme
-        self.username = parsed_url.username
-        self.password = parsed_url.password
         self.hostname = parsed_url.hostname
         self.port = parsed_url.port
         self.path = parsed_url.path
 
-        # Exception: hostname - S3
-        if self.scheme == "s3":
-            if self.hostname == "s3":
-                self.hostname = None
-
-        # Exception: path - S3 & Postgres
-        if self.scheme in ("s3", "postgresql"):
-            if self.path != "":
-                self.path = parsed_url.path[1:]
+        # Replace %xx escapes - ONLY for username & password
+        if parsed_url.username is not None:
+            self.username = parse.unquote(parsed_url.username)
+        if parsed_url.password is not None:
+            self.password = parse.unquote(parsed_url.password)
 
 
 class BaseClient(metaclass=abc.ABCMeta):

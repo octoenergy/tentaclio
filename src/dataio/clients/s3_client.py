@@ -1,7 +1,7 @@
 import boto3
 from boto3.resources import base
 
-from . import base_client, types
+from . import base_client, exceptions, types
 
 __all__ = ["S3Client"]
 
@@ -16,6 +16,17 @@ class S3Client(base_client.BaseClient):
         # 1/ environment variables
         # 2/ a config file with a specific profile
         super().__init__(url)
+
+        if self.url.scheme != "s3":
+            raise exceptions.S3Error(f"Incorrect scheme {self.url.scheme}")
+
+        # Exception: s3 not a valid hostname
+        if self.url.hostname == 's3':
+            self.url.hostname = None
+
+        # Exception: prefix not a path
+        if self.url.path != "":
+            self.url.path = self.url.path[1:]
 
     # Connection methods:
 

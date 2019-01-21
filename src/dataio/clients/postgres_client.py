@@ -1,6 +1,6 @@
 import contextlib
 import tempfile
-from typing import Generator
+from typing import Generator, Optional
 
 import pandas as pd
 from sqlalchemy.engine import Connection, create_engine, result
@@ -21,6 +21,7 @@ class PostgresClient(base_client.BaseClient, base_client.QueryableMixin):
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
 
+    conn: Optional[Connection]
     execution_options: dict
     connect_args: dict
 
@@ -30,6 +31,13 @@ class PostgresClient(base_client.BaseClient, base_client.QueryableMixin):
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
         super().__init__(url)
+
+        if self.url.scheme != "postgresql":
+            raise exceptions.PostgresError(f"Incorrect scheme {self.url.scheme}")
+
+        # Exception: database not a path
+        if self.url.path != "":
+            self.url.path = self.url.path[1:]
 
     # Connection methods:
 
