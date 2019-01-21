@@ -1,5 +1,5 @@
 import io
-from typing import Optional
+from typing import Optional, Tuple
 
 import boto3
 from botocore import client as boto_client
@@ -12,6 +12,8 @@ __all__ = ["S3Client"]
 class S3Client(base_client.BaseClient, base_client.StreamMixin):
     """
     Generic S3 hook, backed by boto3
+
+    Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html
     """
 
     conn: Optional[boto_client.BaseClient]
@@ -52,17 +54,16 @@ class S3Client(base_client.BaseClient, base_client.StreamMixin):
         )
         return session.client("s3")
 
+    def __exit__(self, *args) -> None:
+        if self.conn is not None:
+            # No close method necessary on AWS API
+            self.conn = None
+
     # Document methods:
 
     @decorators.check_conn()
     def get(self, bucket_name: str = None, key_name: str = None) -> io.BytesIO:
-        s3_bucket = bucket_name or self.url.hostname
-        if s3_bucket is None:
-            raise exceptions.S3Error("Missing remote bucket")
-
-        s3_key = key_name or self.url.path
-        if s3_key == "":
-            raise exceptions.S3Error("Missing remote key")
+        s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
         if not self._isfile(s3_bucket, s3_key):
             raise exceptions.S3Error("Unable to fetch the remote file")
@@ -73,13 +74,7 @@ class S3Client(base_client.BaseClient, base_client.StreamMixin):
 
     @decorators.check_conn()
     def put(self, file_obj: io.BytesIO, bucket_name: str = None, key_name: str = None) -> None:
-        s3_bucket = bucket_name or self.url.hostname
-        if s3_bucket is None:
-            raise exceptions.S3Error("Missing remote bucket")
-
-        s3_key = key_name or self.url.path
-        if s3_key == "":
-            raise exceptions.S3Error("Missing remote key")
+        s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
         extra_args = {}
         if self.conn_encrypt:
@@ -88,6 +83,17 @@ class S3Client(base_client.BaseClient, base_client.StreamMixin):
         self.conn.upload_fileobj(file_obj, s3_bucket, s3_key, ExtraArgs=extra_args)  # type: ignore
 
     # Helpers:
+
+    def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
+        bucket_name = bucket or self.url.hostname
+        if bucket_name is None:
+            raise exceptions.S3Error("Missing remote bucket")
+
+        key_name = key or self.url.path
+        if key_name == "":
+            raise exceptions.S3Error("Missing remote key")
+
+        return bucket_name, key_name
 
     def _isfile(self, bucket: str, key: str) -> bool:
         """
