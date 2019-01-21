@@ -57,6 +57,44 @@ class TestURL:
         assert parsed_url.port is None
         assert parsed_url.path == path
 
+    # Test URL from parts
+    @pytest.mark.parametrize(
+        "url,scheme,username,password,hostname,port,path,query",
+        [
+            (
+                "postgres://login:pass@localhost?key=value",
+                "postgres",
+                "login",
+                "pass",
+                "localhost",
+                None,
+                "",
+                {"key": "value"},
+            ),
+            (
+                "postgres://:@localhost:5432/database",
+                "postgres",
+                "",
+                "",
+                "localhost",
+                5432,
+                "database",
+                {},
+            ),
+        ],
+    )
+    def test_url_from_parts(self, url, scheme, username, password, hostname, port, path, query):
+        parsed_url = base_client.URL.from_parts(
+            scheme=scheme,
+            username=username,
+            password=password,
+            hostname=hostname,
+            port=port,
+            path=path,
+            query=query,
+        )
+        assert parsed_url.url == url
+
 
 class TestBaseClient:
     def test_client_url_scheme(self):
