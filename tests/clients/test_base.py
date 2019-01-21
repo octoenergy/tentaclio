@@ -15,11 +15,11 @@ class TestCredential:
         "url",
         [
             "http://localhost/path",
-            "https://localhost:port/path",
+            "https://localhost:8888/path",
             "/path",
             "/path/fragment",
-            "postgres://:@localhost:port",
-            "pgsql://:@localhost:port/path",
+            "postgres://:@localhost:5432/path",
+            "mysql://:@localhost:3306/path",
             "awss3://:@s3",
         ],
     )
@@ -27,7 +27,21 @@ class TestCredential:
         with pytest.raises(exceptions.URIError):
             base_client.URL(url)
 
-    # File URL:
+    @pytest.mark.parametrize(
+        "url,username,password",
+        [
+            ("ftp://:@localhost", "", ""),
+            ("ftp://abc_def%40123.com:@localhost", "abc_def@123.com", ""),
+            ("ftp://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost", "", "@``Z_$-$@5%Ky/"),
+        ],
+    )
+    def test_url_escaped_credentials(self, url, username, password):
+        parsed_url = base_client.URL(url)
+
+        assert parsed_url.username == username
+        assert parsed_url.password == password
+
+    # File URL:BrA@``ZC$$@5%Ky/7v/}
 
     @pytest.mark.parametrize(
         "url,path",
@@ -41,48 +55,6 @@ class TestCredential:
         assert parsed_url.username is None
         assert parsed_url.password is None
         assert parsed_url.port is None
-        assert parsed_url.path == path
-
-    # S3 URL:
-
-    @pytest.mark.parametrize(
-        "url,username,password,hostname,path",
-        [
-            ("s3://:@s3", "", "", None, ""),
-            ("s3://public_key:private_key@s3", "public_key", "private_key", None, ""),
-            ("s3://:@bucket_name", "", "", "bucket_name", ""),
-            ("s3://:@bucket_name/key", "", "", "bucket_name", "key"),
-        ],
-    )
-    def test_parsing_s3_url(self, url, username, password, hostname, path):
-        parsed_url = base_client.URL(url)
-
-        assert parsed_url.scheme == "s3"
-        assert parsed_url.hostname == hostname
-        assert parsed_url.username == username
-        assert parsed_url.password == password
-        assert parsed_url.port is None
-        assert parsed_url.path == path
-
-    # Postgres URL:
-
-    @pytest.mark.parametrize(
-        "url,username,password,hostname,port,path",
-        [
-            ("postgresql://:@localhost", "", "", "localhost", None, ""),
-            ("postgresql://login:pass@localhost", "login", "pass", "localhost", None, ""),
-            ("postgresql://:@localhost:5432", "", "", "localhost", 5432, ""),
-            ("postgresql://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
-        ],
-    )
-    def test_postgres_url(self, url, username, password, hostname, port, path):
-        parsed_url = base_client.URL(url)
-
-        assert parsed_url.scheme == "postgresql"
-        assert parsed_url.hostname == hostname
-        assert parsed_url.username == username
-        assert parsed_url.password == password
-        assert parsed_url.port == port
         assert parsed_url.path == path
 
 

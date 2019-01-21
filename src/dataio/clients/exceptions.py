@@ -26,3 +26,9 @@ class FTPError(Exception):
     """
     Exception encountered over a FTP client connection
     """
+
+
+class S3Error(Exception):
+    """
+    Exception encountered over a S3 client connection
+    """

@@ -20,6 +20,9 @@ class FTPClient(base_client.BaseClient, base_client.ReadableMixing):
     def __init__(self, url: types.NoneString) -> None:
         super().__init__(url)
 
+        if self.url.scheme != "ftp":
+            raise exceptions.FTPError(f"Incorrect scheme {self.url.scheme}")
+
     # Connection methods:
 
     def get_conn(self) -> ftplib.FTP:
@@ -70,6 +73,9 @@ class SFTPClient(base_client.BaseClient, base_client.ReadableMixing):
 
     def __init__(self, url: types.NoneString) -> None:
         super().__init__(url)
+
+        if self.url.scheme != "sftp":
+            raise exceptions.FTPError(f"Incorrect scheme {self.url.scheme}")
 
     # Connection methods:
 
