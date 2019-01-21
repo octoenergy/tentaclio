@@ -30,7 +30,7 @@ class FTPClient(base_client.BaseClient, base_client.StreamMixin):
             self.url.hostname or "", self.url.username or "", self.url.password or ""
         )
 
-    # Document methods:
+    # Stream methods:
 
     @decorators.check_conn()
     def get(self, file_path: str = None) -> io.BytesIO:
@@ -90,7 +90,7 @@ class SFTPClient(base_client.BaseClient, base_client.StreamMixin):
             port=self.url.port,
         )
 
-    # Document methods:
+    # Stream methods:
 
     @decorators.check_conn()
     def get(self, file_path: str = None) -> io.BytesIO:
