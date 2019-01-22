@@ -7,7 +7,6 @@ from dataio.buffers import s3_buffer
 
 AWS_PUBLIC_KEY = "public_key"
 AWS_PRIVATE_KEY = "private_key"
-TEST_BUCKET = "test-bucket"
 
 
 @pytest.fixture()

@@ -20,13 +20,11 @@ class S3Buffer(base_buffer.BaseBuffer):
     s3_kwargs: dict
     buffer: io.BytesIO
 
-    def __init__(
-        self, url: str, bucket_name: str = None, key_name: str = None, s3_kwargs: dict = None
-    ):
+    def __init__(self, url: str, bucket_name: str = None, key_name: str = None, **kwargs):
         self.url = url
         self.bucket_name = bucket_name
         self.key_name = key_name
-        self.s3_kwargs = s3_kwargs or {}
+        self.s3_kwargs = kwargs or {}
 
     def __enter__(self) -> io.BytesIO:
         raise NotImplementedError()
