@@ -13,7 +13,7 @@ from dataio import clients
 # Database fixtures:
 
 
-POSTGRES_TEST_URI = os.getenv("POSTGRES_TEST_URI")
+POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
 
 
 @pytest.fixture(scope="session")
@@ -21,6 +21,6 @@ def db_client():
     """
     Create and tear down the session-wide SQLAlchemy Db connection
     """
-    assert POSTGRES_TEST_URI is not None
-    with clients.PostgresClient(POSTGRES_TEST_URI) as client:
+    assert POSTGRES_TEST_URL is not None
+    with clients.PostgresClient(POSTGRES_TEST_URL) as client:
         yield client
