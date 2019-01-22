@@ -31,12 +31,6 @@ lint:
 	pipenv run flake8 tests
 	pipenv run mypy tests --check-untyped-defs
 
-[tool:pytest]
-python_files = test_*.py
-python_classes = Test
-python_functions = test_*
-filterwarnings = error::RuntimeWarning
-
 test:
 	pipenv run pytest tests
 

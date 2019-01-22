@@ -14,12 +14,12 @@ REQUIREMENTS = [
     # Domain
     "pandas>=0.23.4,<0.24",
     # AWS S3
-    "s3fs",
+    "boto3>=1.9.81,<1.10",
     # Postgres
     "psycopg2-binary",
     "sqlalchemy>=1.1,<1.3",
     # SFTP
-    "pysftp",
+    "pysftp>=0.2.9,<0.3",
     # protocols typing
     "typing-extensions",
 ]

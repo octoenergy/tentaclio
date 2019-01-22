@@ -14,7 +14,9 @@ Let's suppose that we are going to write a function that loads a csv file, does 
 
 ```python
 import pandas as pd
-def sum(input_file: str, output_file: str) -> :
+
+
+def sum(input_file: str, output_file: str) -> None:
     df = pd.read_csv(input_file, index="index")
     transformed_df = _transform(df)
     pd.to_csv(output_file, transformed_df)
@@ -33,7 +35,8 @@ We could refactor this piece of code using the classes from the `io` package to 
 import pandas as pd
 from io import RawIOBase
 
-def sum(input_file: RawIOBase, output_file: RawIOBase): # this won't work by the way
+
+def sum(input_file: RawIOBase, output_file: RawIOBase) -> None: # this won't work by the way
     df = pd.read_csv(input_file, index="index")
     transformed_df = _transform(df)
     pd.to_csv(output_file, transformed_df)
@@ -46,14 +49,15 @@ In order to have a more neat typed function that actually requires a read functi
 
 ```python
 from abc import abstractmethod
+from typing_extensions import Protocol
 
-from typing_extensions import Protocols
 
 class Reader(Protocol):
 
     @abstractmethod
     def read(self, i: int = -1):
         pass
+
 
 class Writer(Protocol):
 
@@ -69,11 +73,11 @@ Our function will look like something like this:
 import pandas as pd
 from dataio import Reader, Writer
 
-def sum(reader: Reader, writer: Writer) -> :
+
+def sum(reader: Reader, writer: Writer) -> None:
     df = pd.read_csv(reader, index="index")
     transformed_df = _transform(df)
     pd.to_csv(writer, transformed_df)
-
 ```
 
 In the new signature we force our input just to have a `read` method, likewise the output just needs a `write` method. 
@@ -81,13 +85,13 @@ In the new signature we force our input just to have a `read` method, likewise t
 Why is this cool? 
 * Now we can accept anything that fulfills the protocol expected by pandas while we are checking its type.
 * When creating new readers, we don't need to implement redundant methods to match any of the `io` base types.
-* Testing becomes less cumbersome as we can send a `StringIO` rather than an actual file, or create some kind of fake class that has a `read` mehtod. 
+* Testing becomes less cumbersome as we can send a `StringIO` rather than an actual file, or create some kind of fake class that has a `read` method. 
 
 Caveats:
 * the typing of the `pickle.dump` function is not consistent with its documentation and actual implementation, so you'll have to comment `# type: ignore` in order to use a `Writer` when calling `dump`.
 
 ## Pandas functions compatible with our Reader and Writer protocols. 
 
-Anything that expects a _filepath_or_buffer_. The full list of io functions for pandas is [here](https://pandas.pydata.org/pandas-docs/stable/io.html#io-sql), althogh they are not fully documented, i.e. parquet works eventhough it's not documented.
+Anything that expects a _filepath_or_buffer_. The full list of io functions for pandas is [here](https://pandas.pydata.org/pandas-docs/stable/io.html#io-sql), although they are not fully documented, i.e. parquet works even though it's not documented.
 
 

@@ -1,28 +1,27 @@
 import abc
-import typing
+from typing import Iterable, Optional, Union
 from urllib import parse
+
+from dataio import protocols
 
 from . import exceptions
 
-
-__all__ = ["BaseClient"]
-
-
-SCHEMES = ("file", "s3", "postgres")
+SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
 
 
 class URL:
     """
     Placeholder to process and store information for a given URL
     """
-    scheme: typing.Optional[str]
-    username: typing.Optional[str]
-    password: typing.Optional[str]
-    hostname: typing.Optional[str]
-    port: typing.Optional[int]
-    path: typing.Optional[str]
 
-    def __init__(self, url: typing.Union[str, None]) -> None:
+    scheme: str
+    path: str
+    hostname: Optional[str]
+    port: Optional[int]
+    username: Optional[str] = None
+    password: Optional[str] = None
+
+    def __init__(self, url: Union[str, None]) -> None:
         if url is None:
             raise exceptions.URIError("Provide an URI to initialise a connection")
 
@@ -36,38 +35,32 @@ class URL:
             raise exceptions.URIError("URI scheme currently not implemented")
 
         self.scheme = parsed_url.scheme
-        self.username = parsed_url.username
-        self.password = parsed_url.password
         self.hostname = parsed_url.hostname
         self.port = parsed_url.port
         self.path = parsed_url.path
 
-        # Exception: hostname - S3
-        if self.scheme == "s3":
-            if self.hostname == "s3":
-                self.hostname = None
-
-        # Exception: path - S3 & Postgres
-        if self.scheme in ("s3", "postgres"):
-            if self.path != "":
-                self.path = parsed_url.path[1:]
+        # Replace %xx escapes - ONLY for username & password
+        if parsed_url.username is not None:
+            self.username = parse.unquote(parsed_url.username)
+        if parsed_url.password is not None:
+            self.password = parse.unquote(parsed_url.password)
 
 
 class BaseClient(metaclass=abc.ABCMeta):
     """
     Abstract base class for clients, wrapping a connection
     """
+
     url: URL
-    conn = None
+    conn: Optional[protocols.Closable] = None
 
-    def __init__(self, url: typing.Union[str, None]) -> None:
+    def __init__(self, url: str) -> None:
         self.url = URL(url)
-        self.conn = None
 
-    # Context manager
+    # Context manager:
 
     def __enter__(self) -> "BaseClient":
-        self.conn = self.get_conn()
+        self.conn = self.connect()
         return self
 
     def __exit__(self, *args) -> None:
@@ -75,32 +68,40 @@ class BaseClient(metaclass=abc.ABCMeta):
             self.conn.close()
             self.conn = None
 
-    # Connection methods
+    # Connection methods:
 
     @abc.abstractmethod
-    def get_conn(self):
-        raise NotImplementedError()
+    def connect(self) -> protocols.Closable:
+        ...
 
 
-class check_conn:
+class QueryClient(BaseClient):
     """
-    Decorator for testing the status of a client connection
+    Interface for query-based connections
     """
 
-    def __init__(self, *args, **kwargs):
-        pass
+    # Query methods:
 
-    def __call__(self, func):
+    @abc.abstractmethod
+    def execute(self, sql_query: str, **params) -> None:
+        ...
 
-        def _wrapper(*args, **kwargs):
-            # Instance is passed as first positional argument
-            inst = args[0]
+    @abc.abstractmethod
+    def query(self, sql_query: str, **params) -> Iterable:
+        ...
 
-            if hasattr(inst, 'conn'):
-                if inst.conn is None:
-                    raise exceptions.ConnectionError("Inactive client connection")
-                raise AttributeError("Missing instance connection attribute")
 
-            return func(*args, **kwargs)
+class StreamClient(BaseClient):
+    """
+    Interface for stream-based connections
+    """
 
-        return _wrapper
+    # Stream methods:
+
+    @abc.abstractmethod
+    def get(self, **params) -> protocols.Reader:
+        ...
+
+    @abc.abstractmethod
+    def put(self, file_obj: protocols.Writer, **params) -> None:
+        ...
