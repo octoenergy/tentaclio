@@ -1,10 +1,10 @@
 import ftplib
 import io
-from typing import Optional
+from typing import Optional, Any
 
 import pysftp
 
-from . import base_client, decorators, exceptions, types
+from . import base_client, decorators, exceptions
 
 __all__ = ["FTPClient", "SFTPClient"]
 
@@ -16,7 +16,7 @@ class FTPClient(base_client.StreamClient):
 
     conn: Optional[ftplib.FTP]
 
-    def __init__(self, url: types.NoneString) -> None:
+    def __init__(self, url: str) -> None:
         super().__init__(url)
 
         if self.url.scheme != "ftp":
@@ -44,7 +44,7 @@ class FTPClient(base_client.StreamClient):
         self.conn.retrbinary("RETR %s" % remote_path, f.write)  # type: ignore
         return f
 
-    def put(self, file_obj: types.T, **params) -> None:
+    def put(self, file_obj: Any, **params) -> None:
         raise NotImplementedError
 
     # Helpers:
@@ -70,7 +70,7 @@ class SFTPClient(base_client.StreamClient):
 
     conn: Optional[pysftp.Connection]
 
-    def __init__(self, url: types.NoneString) -> None:
+    def __init__(self, url: str) -> None:
         super().__init__(url)
 
         if self.url.scheme != "sftp":
@@ -104,5 +104,5 @@ class SFTPClient(base_client.StreamClient):
         self.conn.getfo(remote_path, f, callback=None)  # type: ignore
         return f
 
-    def put(self, file_obj: types.T, **params) -> None:
+    def put(self, file_obj: Any, **params) -> None:
         raise NotImplementedError

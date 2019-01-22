@@ -1,10 +1,10 @@
 import abc
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 from urllib import parse
 
 from dataio import protocols
 
-from . import exceptions, types
+from . import exceptions
 
 SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
 
@@ -21,7 +21,7 @@ class URL:
     username: Optional[str] = None
     password: Optional[str] = None
 
-    def __init__(self, url: types.NoneString) -> None:
+    def __init__(self, url: Union[str, None]) -> None:
         if url is None:
             raise exceptions.URIError("Provide an URI to initialise a connection")
 
@@ -54,7 +54,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     url: URL
     conn: Optional[protocols.Closable] = None
 
-    def __init__(self, url: types.NoneString) -> None:
+    def __init__(self, url: str) -> None:
         self.url = URL(url)
 
     # Context manager:
