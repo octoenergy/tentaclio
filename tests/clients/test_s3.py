@@ -12,7 +12,7 @@ def mocked_conn(mocker):
 
 
 @pytest.fixture()
-def test_conn():
+def fixture_conn():
     with moto.mock_s3():
         yield
 
@@ -61,7 +61,7 @@ class TestS3Client:
             ("s3://public_key:private_key@test-bucket/test.key", None, None),
         ],
     )
-    def test_get_raises_missing_file(self, url, bucket, key, test_conn):
+    def test_get_raises_missing_file(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             client.conn.create_bucket(Bucket=bucket or client.url.hostname)
 
@@ -75,7 +75,7 @@ class TestS3Client:
             ("s3://public_key:private_key@test-bucket/test.key", None, None),
         ],
     )
-    def test_get_file_in_bucket(self, url, bucket, key, test_conn):
+    def test_get_file_in_bucket(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             stream = "tested stream"
             client.conn.create_bucket(Bucket=bucket or client.url.hostname)
@@ -94,7 +94,7 @@ class TestS3Client:
             ("s3://public_key:private_key@test-bucket/test.key", None, None),
         ],
     )
-    def test_put_file_in_bucket(self, url, bucket, key, test_conn):
+    def test_put_file_in_bucket(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             stream = "tested stream"
             buffer = io.BytesIO(stream.encode())
