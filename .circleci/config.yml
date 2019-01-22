@@ -12,6 +12,8 @@ jobs:
 
     docker:
       - image: circleci/python:3.6.6
+        environment:
+          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
       - image: circleci/postgres:9.5.10
         environment:
           # CircleCI img run under `circleci` user
