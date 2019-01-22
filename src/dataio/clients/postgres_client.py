@@ -56,6 +56,14 @@ class PostgresClient(base_client.BaseClient, base_client.QueryMixin):
         )
         return engine.connect()
 
+    # Schema methods:
+
+    def set_schema(self, meta_data: MetaData) -> None:
+        meta_data.create_all(bind=self.conn)
+
+    def delete_schema(self, meta_data: MetaData) -> None:
+        meta_data.drop_all(bind=self.conn)
+
     # Query methods:
 
     @decorators.check_conn()
@@ -83,14 +91,6 @@ class PostgresClient(base_client.BaseClient, base_client.QueryMixin):
         else:
             trans.commit()
 
-    # Schema methods:
-
-    def set_schema(self, meta_data: MetaData) -> None:
-        meta_data.create_all(bind=self.conn)
-
-    def delete_schema(self, meta_data: MetaData) -> None:
-        meta_data.drop_all(bind=self.conn)
-
     # Dataframe methods:
 
     @decorators.check_conn()
@@ -108,11 +108,9 @@ class PostgresClient(base_client.BaseClient, base_client.QueryMixin):
         """
         Dump a data frame into an existing Postgres table
         """
-        sql_query = f"""
-                    COPY {dest_table} ({', '.join(df.columns)}) FROM STDIN
-                    WITH CSV HEADER DELIMITER AS ','
-                    NULL AS 'NULL';
-                    """
+        sql_query = f"""COPY {dest_table} ({', '.join(df.columns)}) FROM STDIN
+                        WITH CSV HEADER DELIMITER AS ','
+                        NULL AS 'NULL';"""
         with tempfile.TemporaryFile(mode="w+") as f:
             df.to_csv(f, index=False)
             f.seek(0)

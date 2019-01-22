@@ -22,7 +22,7 @@ class TestS3Client:
     @pytest.mark.parametrize(
         "url", ["file:///test.file", "ftp://:@localhost", "postgresql://:@localhost"]
     )
-    def test_init_raises_invalid_scheme(self, url):
+    def test_invalid_scheme(self, url):
         with pytest.raises(exceptions.S3Error):
             s3_client.S3Client(url)
 
@@ -35,7 +35,7 @@ class TestS3Client:
             ("s3://:@bucket/prefix", None, None, "bucket", "prefix"),
         ],
     )
-    def test_init_parses_url(self, url, username, password, hostname, path):
+    def test_parsing_s3_url(self, url, username, password, hostname, path):
         parsed_url = s3_client.S3Client(url).url
 
         assert parsed_url.scheme == "s3"
@@ -49,7 +49,7 @@ class TestS3Client:
         "url,bucket,key",
         [("s3://:@s3", None, None), ("s3://:@s3", "bucket", None), ("s3://:@bucket", None, None)],
     )
-    def test_get_raises_invalid_path(self, url, bucket, key, mocked_conn):
+    def test_get_invalid_path(self, url, bucket, key, mocked_conn):
         with s3_client.S3Client(url) as client:
 
             with pytest.raises(exceptions.S3Error):
@@ -62,7 +62,7 @@ class TestS3Client:
             ("s3://public_key:private_key@test-bucket/test.key", None, None),
         ],
     )
-    def test_get_raises_missing_file(self, url, bucket, key, fixture_conn):
+    def test_get_missing_file(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             client.conn.create_bucket(Bucket=bucket or client.url.hostname)
 
