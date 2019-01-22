@@ -61,7 +61,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     # Context manager:
 
     def __enter__(self) -> "BaseClient":
-        self.conn = self.get_conn()
+        self.conn = self.connect()
         return self
 
     def __exit__(self, *args) -> None:
@@ -72,7 +72,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     # Connection methods:
 
     @abc.abstractmethod
-    def get_conn(self) -> protocols.Closable:
+    def connect(self) -> protocols.Closable:
         ...
 
 

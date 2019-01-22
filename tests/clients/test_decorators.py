@@ -19,7 +19,7 @@ class TestCheckConn:
         url = "file:///path"
 
         class TestClient(base_client.BaseClient):
-            def get_conn(self):
+            def connect(self):
                 return True
 
             @decorators.check_conn()

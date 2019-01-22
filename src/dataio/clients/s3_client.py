@@ -45,7 +45,7 @@ class S3Client(base_client.StreamClient):
 
     # Connection methods:
 
-    def get_conn(self) -> boto_client.BaseClient:
+    def connect(self) -> boto_client.BaseClient:
         session = boto3.session.Session(
             aws_access_key_id=self.url.username,
             aws_secret_access_key=self.url.password,

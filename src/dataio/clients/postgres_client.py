@@ -42,7 +42,7 @@ class PostgresClient(base_client.QueryClient):
 
     # Connection methods:
 
-    def get_conn(self) -> Connection:
+    def connect(self) -> Connection:
         parsed_url = sqla_url.URL(
             drivername=self.url.scheme,
             username=self.url.username,
