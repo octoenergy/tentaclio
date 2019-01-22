@@ -2,6 +2,8 @@ import abc
 from typing import Iterable, Optional
 from urllib import parse
 
+from dataio import protocols
+
 from . import exceptions, types
 
 SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
@@ -70,32 +72,36 @@ class BaseClient(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_conn(self) -> types.Closable:
-        raise NotImplementedError()
+        ...
 
 
-class QueryMixin:
+class QueryClient(BaseClient):
     """
     Interface for query-based connections
     """
 
     # Query methods:
 
+    @abc.abstractmethod
     def execute(self, sql_query: str, **params) -> None:
-        raise NotImplementedError
+        ...
 
+    @abc.abstractmethod
     def query(self, sql_query: str, **params) -> Iterable:
-        raise NotImplementedError
+        ...
 
 
-class StreamMixin:
+class StreamClient(BaseClient):
     """
     Interface for stream-based connections
     """
 
     # Stream methods:
 
-    def get(self, **params) -> types.T:
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get(self, **params) -> protocols.Reader:
+        ...
 
-    def put(self, file_obj: types.T, **params) -> None:
-        raise NotImplementedError
+    @abc.abstractmethod
+    def put(self, file_obj: protocols.Writer, **params) -> None:
+        ...

@@ -1,21 +1,25 @@
-from abc import abstractmethod
+from typing import TypeVar, Union
 
 from typing_extensions import Protocol
 
-__all__ = ["Reader", "Writer", "ReaderWriter"]
+__all__ = ["Reader", "Writer", "ReaderWriter", "AnyReaderWriter"]
+
+
+T = TypeVar("T")
 
 
 class Reader(Protocol):
-    @abstractmethod
-    def read(self, i: int = -1):
-        pass
+    def read(self, size: int = -1) -> T:
+        ...
 
 
 class Writer(Protocol):
-    @abstractmethod
-    def write(self, content) -> int:
-        pass
+    def write(self, content: T) -> int:
+        ...
 
 
 class ReaderWriter(Reader, Writer):
-    pass
+    ...
+
+
+AnyReaderWriter = Union[Reader, Writer, ReaderWriter]

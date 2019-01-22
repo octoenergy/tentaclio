@@ -9,7 +9,7 @@ from . import base_client, decorators, exceptions, types
 __all__ = ["S3Client"]
 
 
-class S3Client(base_client.BaseClient, base_client.StreamMixin):
+class S3Client(base_client.StreamClient):
     """
     Generic S3 hook, backed by boto3
 
