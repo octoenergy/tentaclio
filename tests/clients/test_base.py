@@ -3,7 +3,7 @@ import pytest
 from dataio.clients import base_client, exceptions
 
 
-class TestCredential:
+class TestURL:
 
     # Generic parsing rules:
 
@@ -35,7 +35,7 @@ class TestCredential:
             ("ftp://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost", "", "@``Z_$-$@5%Ky/"),
         ],
     )
-    def test_url_escaped_credentials(self, url, username, password):
+    def test_url_escaped_fields(self, url, username, password):
         parsed_url = base_client.URL(url)
 
         assert parsed_url.username == username
