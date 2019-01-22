@@ -35,7 +35,7 @@ class FTPClient(base_client.BaseClient, base_client.StreamMixin):
     @decorators.check_conn()
     def get(self, file_path: str = None) -> io.BytesIO:
         remote_path = file_path or self.url.path
-        if remote_path is None:
+        if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
         if not self._isfile(remote_path):
@@ -95,7 +95,7 @@ class SFTPClient(base_client.BaseClient, base_client.StreamMixin):
     @decorators.check_conn()
     def get(self, file_path: str = None) -> io.BytesIO:
         remote_path = file_path or self.url.path
-        if remote_path is None:
+        if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
         if not self.conn.isfile(remote_path):  # type: ignore
