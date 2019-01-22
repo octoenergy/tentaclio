@@ -1,20 +1,22 @@
-from typing import TypeVar, Union
+from typing import Any, Union
 
 from typing_extensions import Protocol
 
-__all__ = ["Reader", "Writer", "ReaderWriter", "AnyReaderWriter"]
+__all__ = ["Closable", "Reader", "Writer", "ReaderWriter", "AnyReaderWriter"]
 
 
-T = TypeVar("T")
+class Closable(Protocol):
+    def close(self) -> None:
+        ...
 
 
 class Reader(Protocol):
-    def read(self, size: int = -1) -> T:
+    def read(self, size: int = -1) -> Any:
         ...
 
 
 class Writer(Protocol):
-    def write(self, content: T) -> int:
+    def write(self, content: Any) -> int:
         ...
 
 

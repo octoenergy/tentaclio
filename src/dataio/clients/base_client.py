@@ -52,7 +52,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     """
 
     url: URL
-    conn: Optional[types.Closable] = None
+    conn: Optional[protocols.Closable] = None
 
     def __init__(self, url: types.NoneString) -> None:
         self.url = URL(url)
@@ -71,7 +71,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     # Connection methods:
 
     @abc.abstractmethod
-    def get_conn(self) -> types.Closable:
+    def get_conn(self) -> protocols.Closable:
         ...
 
 
