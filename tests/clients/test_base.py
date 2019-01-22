@@ -62,7 +62,7 @@ class TestBaseClient:
         url = "file:///path"
 
         class TestClient(base_client.BaseClient):
-            def get_conn(self):
+            def connect(self):
                 return None
 
         test_client = TestClient(url)
@@ -74,7 +74,7 @@ class TestBaseClient:
         mocked_conn = mocker.Mock()
 
         class TestClient(base_client.BaseClient):
-            def get_conn(self):
+            def connect(self):
                 return mocked_conn
 
         with TestClient(url) as test_client:
