@@ -71,7 +71,7 @@ Our function will look like something like this:
 
 ```python
 import pandas as pd
-from dataio.protocols import Reader, Writer
+from dataio import Reader, Writer
 
 
 def sum(reader: Reader, writer: Writer) -> None:
