@@ -41,6 +41,8 @@ class open_s3_reader(S3Buffer):
             self.buffer = client.get(  # type: ignore
                 bucket_name=self.bucket_name, key_name=self.key_name
             )
+            # Reposition to start of the stream
+            self.buffer.seek(0)
             return self.buffer
 
     def __exit__(self, *args) -> None:
@@ -54,6 +56,8 @@ class open_s3_writer(S3Buffer):
 
     def __exit__(self, *args) -> None:
         with s3_client.S3Client(self.url, **self.s3_kwargs) as client:
+            # Reposition to start of the stream
+            self.buffer.seek(0)
             client.put(  # type: ignore
                 self.buffer, bucket_name=self.bucket_name, key_name=self.key_name
             )

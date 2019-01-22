@@ -7,6 +7,7 @@ from dataio.buffers import s3_buffer
 
 AWS_PUBLIC_KEY = "public_key"
 AWS_PRIVATE_KEY = "private_key"
+TEST_BUCKET = "test-bucket"
 
 
 @pytest.fixture()
@@ -35,8 +36,7 @@ class TestS3Buffer:
         "url,bucket,key",
         [(f"s3://{AWS_PUBLIC_KEY}:{AWS_PRIVATE_KEY}@s3", "test-bucket", "test.key")],
     )
-    @moto.mock_s3
-    def test_writing_and_reading_key(self, url, bucket, key, fixture_conn):
+    def test_writing_key(self, url, bucket, key, fixture_conn):
         stream = "tested stream"
         conn = boto3.session.Session(
             aws_access_key_id=AWS_PUBLIC_KEY, aws_secret_access_key=AWS_PRIVATE_KEY
@@ -46,5 +46,5 @@ class TestS3Buffer:
         with s3_buffer.open_s3_writer(url, bucket_name=bucket, key_name=key) as writer:
             writer.write(stream.encode())
 
-        with s3_buffer.open_s3_reader(url, bucket_name=bucket, key_name=key) as reader:
-            assert reader.read().decode() == stream
+        s3_obj = conn.get_object(Bucket=bucket, Key=key)["Body"]
+        assert s3_obj.read().decode() == stream
