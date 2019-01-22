@@ -8,7 +8,7 @@ from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from . import base_client, decorators, exceptions, types
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["PostgresClient", "bound_session", "atomic_session"]
@@ -27,7 +27,7 @@ class PostgresClient(base_client.QueryClient):
     connect_args: dict
 
     def __init__(
-        self, url: types.NoneString, execution_options: dict = None, connect_args: dict = None
+        self, url: str, execution_options: dict = None, connect_args: dict = None
     ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}

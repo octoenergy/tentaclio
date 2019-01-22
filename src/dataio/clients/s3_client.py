@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 import boto3
 from botocore import client as boto_client
 
-from . import base_client, decorators, exceptions, types
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["S3Client"]
@@ -21,9 +21,7 @@ class S3Client(base_client.StreamClient):
     aws_profile: Optional[str]
     conn_encrypt: bool
 
-    def __init__(
-        self, url: types.NoneString, aws_profile: str = None, conn_encrypt: bool = False
-    ) -> None:
+    def __init__(self, url: str, aws_profile: str = None, conn_encrypt: bool = False) -> None:
         self.aws_profile = aws_profile
         self.conn_encrypt = conn_encrypt
         super().__init__(url)
