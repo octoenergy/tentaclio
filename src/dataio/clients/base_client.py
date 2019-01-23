@@ -1,31 +1,51 @@
 import abc
-from typing import Iterable, Optional, Union, Dict
+from typing import Dict, Iterable, Optional, Union
 from urllib import parse
 
 from dataio import protocols
 
 from . import exceptions
 
-SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
+
+class URLHandler(abc.ABC):
+    @abc.abstractmethod
+    def open_reader_for(url) -> protocols.Reader:
+        # i.e. open_s3_buffer(s3)
+        # we register the implemented handlers on startup
+        # client code can register their own
+        pass
 
 
-def _netloc_from_components(
-    username=None,
-    password=None,
-    hostname=None,
-    port=None
-):
+class URLHandlerRegistry(object):
+    def __init__(self):
+        super(URLHandler, self).__init__()
+        self.registry: Dict[str, URLHandler] = {}
+
+    def register(self, url_handler: URLHandler, scheme: str):
+        if scheme not in self.registry:
+            self.registry[scheme] = url_handler
+
+    def get_handler(self, scheme: str):
+        if scheme not in self.registry:
+            raise Exception(f"Schema {scheme} not found in the registry")
+        return self.registry[scheme]
+
+    def __contains__(self, scheme: str) -> bool:
+        return scheme in self.registry
+
+
+def _netloc_from_components(username=None, password=None, hostname=None, port=None):
     """Constract network location in accordance with urllib."""
-    netloc = ''
+    netloc = ""
     if username is not None:
-        netloc += parse.quote(username, safe='')
+        netloc += parse.quote(username, safe="")
         if password is not None:
-            netloc += ':' + parse.quote(password, safe='')
-        netloc += '@'
-    hostname = hostname or ''
+            netloc += ":" + parse.quote(password, safe="")
+        netloc += "@"
+    hostname = hostname or ""
     netloc += hostname
     if port is not None:
-        netloc += ':' + str(port)
+        netloc += ":" + str(port)
     return netloc
 
 
@@ -33,6 +53,8 @@ class URL:
     """
     Placeholder to process and store information for a given URL
     """
+
+    _handler_registry: URLHandlerRegistry = URLHandlerRegistry()
 
     scheme: str
     username: Optional[str] = None
@@ -52,8 +74,8 @@ class URL:
 
     def _parse_url(self, url: str) -> None:
         parsed_url = parse.urlparse(url)
-        if parsed_url.scheme not in SCHEMES:
-            raise exceptions.URIError("URI scheme currently not implemented")
+        if parsed_url.scheme not in self.registry:
+            raise exceptions.URIError("URI scheme {parse_url.scheme} not supported")
 
         self.scheme = parsed_url.scheme
         self.username = parsed_url.username
@@ -86,7 +108,7 @@ class URL:
         hostname=None,
         port=None,
         path=None,
-        query=None
+        query=None,
     ):
         """Construct a URL object from parts."""
         netloc = _netloc_from_components(
@@ -104,7 +126,15 @@ class URL:
         return self.url
 
     def __repr__(self):
-        return f'URL({self.url})'
+        return f"URL({self.url})"
+
+    # probably a context manager than returns a reader really
+    def open_reader(self) -> protocols.Reader:
+        return self.registry.get_handler(self.scheme).open_reader()
+
+    @classmethod
+    def register_handler(cls, url_handler: URLHandler, scheme: str) -> None:
+        cls._handler_registry.register(url_handler, scheme)
 
 
 class BaseClient(metaclass=abc.ABCMeta):
@@ -125,6 +155,9 @@ class BaseClient(metaclass=abc.ABCMeta):
         return self
 
     def __exit__(self, *args) -> None:
+        self.close()
+
+    def close(self):
         if self.conn is not None:
             self.conn.close()
             self.conn = None
