@@ -31,8 +31,10 @@ class TestComposeURL:
 
     def test_key_value_pairs(self, mock_compose_url):
         result = CliRunner().invoke(
-            command_compose_url,
-            ['--scheme', 'file', '--path', '/path/to', '--key', 'key1', 'value1', '--key', 'key2', 'value2']
+            command_compose_url, [
+                '--scheme', 'file', '--path', '/path/to',
+                '--key', 'key1', 'value1', '--key', 'key2', 'value2'
+            ]
         )
 
         assert result.exit_code == 0

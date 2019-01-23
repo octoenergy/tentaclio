@@ -88,6 +88,7 @@ class TestURL:
         assert parsed_url.path == path
         assert (parsed_url.query == query) or (not query and parsed_url.query is None)
 
+
 class TestBaseClient:
     def test_client_url_scheme(self):
         url = "file:///path"
