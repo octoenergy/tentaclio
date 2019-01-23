@@ -69,8 +69,10 @@ class TestURL:
             "postgresql", "log:in", "pass/word", "localhost",
             None, "/path/to", {'spaced key': 'odd/va;:lue'}),
     ])
-    def test_url_from_parts(self, url, scheme, username, password, hostname, port, path, query):
-        parsed_url = base_client.URL.from_parts(
+    def test_url_from_components(
+        self, url, scheme, username, password, hostname, port, path, query
+    ):
+        parsed_url = base_client.URL.from_components(
             scheme=scheme,
             username=username,
             password=password,

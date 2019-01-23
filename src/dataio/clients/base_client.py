@@ -9,7 +9,7 @@ from . import exceptions
 SCHEMES = ("file", "s3", "postgresql", "ftp", "sftp")
 
 
-def _netloc_from_parts(
+def _netloc_from_components(
     username=None,
     password=None,
     hostname=None,
@@ -51,7 +51,6 @@ class URL:
     # Helpers:
 
     def _parse_url(self, url: str) -> None:
-
         parsed_url = parse.urlparse(url)
         if parsed_url.scheme not in SCHEMES:
             raise exceptions.URIError("URI scheme currently not implemented")
@@ -79,7 +78,7 @@ class URL:
             self.query = None
 
     @classmethod
-    def from_parts(
+    def from_components(
         cls,
         scheme=None,
         username=None,
@@ -90,7 +89,7 @@ class URL:
         query=None
     ):
         """Construct a URL object from parts."""
-        netloc = _netloc_from_parts(
+        netloc = _netloc_from_components(
             username=username, password=password, hostname=hostname, port=port
         )
         params = None
