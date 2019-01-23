@@ -4,7 +4,7 @@ from ..clients import base_client
 
 
 def _compose_url(scheme, username, password, hostname, port, path, query):
-    url = base_client.URL.from_parts(
+    url = base_client.URL.from_components(
         scheme=scheme,
         username=username,
         password=username,
