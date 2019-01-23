@@ -6,15 +6,15 @@ all: install server
 
 # Local installation
 
-reset: clean install
+reset: clean sync
 
 update:
 	pipenv update --dev
 	pipenv clean
 
 clean:
-	-rm -rf build dist
-	-find src -type d -name __pycache__ -delete
+	rm -rf build dist
+	find src -type d -name __pycache__ | xargs rm -rf
 
 sync:
 	pipenv sync --dev
