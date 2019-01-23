@@ -61,13 +61,13 @@ class TestURL:
         ("file:///path/to",
             "file", None, None, None,
             None, "/path/to", None),
-        ("postgres://login:pass@localhost?key=value",
-            "postgres", "login", "pass", "localhost", None, "", {'key': 'value'}),
-        ("postgres://:@localhost:5432/database",
-            "postgres", "", "", "localhost", 5432, "database", {}),
-        ("postgres://log%3Ain:pass%2Fword@localhost/path/to?spaced+key=odd%2Fva%3B%3Alue",
-            "postgres", "log:in", "pass/word", "localhost",
-            None, "path/to", {'spaced key': 'odd/va;:lue'}),
+        ("postgresql://login:pass@localhost?key=value",
+            "postgresql", "login", "pass", "localhost", None, "", {'key': 'value'}),
+        ("postgresql://:@localhost:5432/database",
+            "postgresql", "", "", "localhost", 5432, "/database", {}),
+        ("postgresql://log%3Ain:pass%2Fword@localhost/path/to?spaced+key=odd%2Fva%3B%3Alue",
+            "postgresql", "log:in", "pass/word", "localhost",
+            None, "/path/to", {'spaced key': 'odd/va;:lue'}),
     ])
     def test_url_from_parts(self, url, scheme, username, password, hostname, port, path, query):
         parsed_url = base_client.URL.from_parts(
