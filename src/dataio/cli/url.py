@@ -24,8 +24,7 @@ def _compose_url(scheme, username, password, hostname, port, path, query):
 @click.option('--port', default=None, type=int)
 @click.option('--path', default=None)
 @click.option('--key', default=None, nargs=2, multiple=True,
-    help='Provide key-value pairs using [--key KEY VALUE]'
-)
+              help='Provide key-value pairs using [--key KEY VALUE]')
 def command_compose_url(scheme, username, password, hostname, port, path, key):
     if not hostname and not path:
         raise click.ClickException('Provide at least one of `hostname`, `path`.')
@@ -42,5 +41,5 @@ def command_compose_url(scheme, username, password, hostname, port, path, key):
         port=port,
         path=path,
         query=query
-    )    
+    )
     click.echo(url, nl=False)

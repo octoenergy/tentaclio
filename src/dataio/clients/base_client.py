@@ -1,5 +1,5 @@
 import abc
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Union, Dict
 from urllib import parse
 
 from dataio import protocols
@@ -35,11 +35,12 @@ class URL:
     """
 
     scheme: str
-    path: str
-    hostname: Optional[str]
-    port: Optional[int]
     username: Optional[str] = None
     password: Optional[str] = None
+    hostname: Optional[str] = None
+    port: Optional[int] = None
+    path: str
+    query: Optional[Dict[str, str]] = None
 
     def __init__(self, url: Union[str, None]) -> None:
         if url is None:
@@ -61,18 +62,19 @@ class URL:
         self.hostname = parsed_url.hostname
         self.port = parsed_url.port
         self.path = parsed_url.path
-        self.query = parsed_url.query
 
         # Replace %xx escapes - ONLY for username & password
-        if parsed_url.username is not None:
+        if parsed_url.username:
             self.username = parse.unquote(self.username)
-        if parsed_url.password is not None:
+        if parsed_url.password:
             self.password = parse.unquote(self.password)
 
-        if self.query:
+        if parsed_url.query:
             # Assuming string values
-            self.query = parse.parse_qsl(parsed_url.query, strict_parsing=True)
-            self.query = {key: value for key, value in self.query}
+            self.query = {
+                key: value
+                for key, value in parse.parse_qsl(parsed_url.query, strict_parsing=True)
+            }
         else:
             self.query = None
 
@@ -101,7 +103,7 @@ class URL:
 
     def __str__(self):
         return self.url
-    
+
     def __repr__(self):
         return f'URL({self.url})'
 
