@@ -22,7 +22,7 @@ sync:
 
 # Testing
 
-circleci: lint test
+circleci: lint unit integration
 
 # check-untyped-defs is not a valid config item for setup.cfg
 lint:
@@ -31,8 +31,11 @@ lint:
 	pipenv run flake8 tests
 	pipenv run mypy tests --check-untyped-defs
 
-test:
-	pipenv run pytest tests
+unit:
+	pipenv run pytest tests/unit
+
+integration:
+	pipenv run pytest tests/integration
 
 # Deployment
 
