@@ -14,6 +14,9 @@ from dataio import clients
 POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
 
 
+assert POSTGRES_TEST_URL is not None, "Missing test config in environment variables"
+
+
 @pytest.fixture(scope="session")
 def db_client():
     """
