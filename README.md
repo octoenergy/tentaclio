@@ -1,14 +1,71 @@
 [![CircleCI status](https://circleci.com/gh/octoenergy/data-io/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/data-io/tree/master)
 
-# data-io
-Single repository regrouping all IO connectors used in the data world.
+# DataIO
+
+Python package regrouping a collection of I/O connectors, used in the data world with the aim of providing:
+
+- a boilerplate for developers to expose new connectors (`dataio.clients`).
+- an interface to acess file resources,
+    - thanks to a unified syntax (`dataio.buffers`),
+    - and a simplified interface (`dataio.protocols`).
+
+## Quickstart
+
+Make sure [Homebrew](https://brew.sh/) is installed and ensure it's up to date.
+
+    $ git clone git@github.com:octoenergy/data-io.git
 
 
-## How to use protocols.
+### Local installation
+
+Similarly to the [consumer-site](https://github.com/octoenergy/consumer-site/blob/master/README.md), the library must be deployed onto a machine running:
+
+    - Python3
+    - a C compiler (either `gcc` via Homebrew, or `xcode` via the App store)
+
+Install [Pyenv](https://github.com/pyenv/pyenv) and [Pipenv](https://docs.pipenv.org/),
+
+    $ brew install pyenv
+    $ brew install pipenv
+
+Lock the Python dependencies and build a virtualenv,
+
+    $ make update
+
+To refresh Python dependencies,
+
+    $ make sync
+
+## Development
+
+### Testing
+
+Tests run via `py.test`:
+
+    $ make unit
+    $ make integration
+
+:warning: Unit and integration tests will require a `.env` in this directory with the following contents: :warning:
+
+```dotenv
+POSTGRES_TEST_URL=scheme://username:password@hostname:port/database
+```
+
+And linting taking care by `flake8` and `mypy`:
+
+    $ make lint
+
+### CircleCI
+
+Continuous integration is run on [CircleCI](https://circleci.com/gh/octoenergy/workflows/data-io), with the following steps:
+
+    $ make circleci
+
+## Quick note on protocols
     
 In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we recommend to use [Protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo).
 
-### Simple protocol example.
+### Simple protocol example
 
 Let's suppose that we are going to write a function that loads a csv file, does some operation, and saves the result.
 
@@ -90,7 +147,7 @@ Why is this cool?
 Caveats:
 * the typing of the `pickle.dump` function is not consistent with its documentation and actual implementation, so you'll have to comment `# type: ignore` in order to use a `Writer` when calling `dump`.
 
-## Pandas functions compatible with our Reader and Writer protocols. 
+## Pandas functions compatible with our Reader and Writer protocols 
 
 Anything that expects a _filepath_or_buffer_. The full list of io functions for pandas is [here](https://pandas.pydata.org/pandas-docs/stable/io.html#io-sql), although they are not fully documented, i.e. parquet works even though it's not documented.
 
