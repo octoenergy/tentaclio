@@ -65,3 +65,14 @@ class TestComposeURL:
 
         assert result.exit_code != 0
         assert b'Provide at least one of' in result.stdout_bytes
+
+    def test_command(self):
+        result = CliRunner().invoke(
+            command_compose_url, [
+                '--scheme', 'file', '--hostname', 'host', '--port', '1234', '--path', '/path/to',
+                '--username', 'user', '--password', 'pw',
+            ]
+        )
+
+        assert result.exit_code == 0
+        assert result.stdout_bytes == b'file://user:pw@host:1234/path/to'
