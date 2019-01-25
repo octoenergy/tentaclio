@@ -2,7 +2,15 @@ from typing import Any, Union
 
 from typing_extensions import Protocol
 
-__all__ = ["Closable", "Reader", "Writer", "ReaderWriter", "AnyReaderWriter"]
+__all__ = [
+    "Closable",
+    "Reader",
+    "Writer",
+    "ReaderWriter",
+    "ReaderClosable",
+    "WriterClosable",
+    "AnyReaderWriter",
+]
 
 
 class Closable(Protocol):
@@ -20,8 +28,29 @@ class Writer(Protocol):
         ...
 
 
-class ReaderWriter(Reader, Writer):
-    ...
+class ReaderClosable(Protocol):
+    def read(self, size: int = -1) -> Any:
+        ...
+
+    def close(self) -> None:
+        ...
+
+
+# Mypy is flaky without this protocol sometimes won't work
+class WriterClosable(Protocol):
+    def write(self, contents: Any) -> int:
+        ...
+
+    def close(self) -> None:
+        ...
+
+
+class ReaderWriter(Protocol):
+    def read(self, size: int = -1) -> Any:
+        ...
+
+    def write(self, contents: Any) -> int:
+        ...
 
 
 AnyReaderWriter = Union[Reader, Writer, ReaderWriter]
