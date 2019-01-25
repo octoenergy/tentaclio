@@ -7,7 +7,7 @@ def _compose_url(scheme, username, password, hostname, port, path, query):
     url = base_client.URL.from_components(
         scheme=scheme,
         username=username,
-        password=username,
+        password=password,
         hostname=hostname,
         port=port,
         path=path,
