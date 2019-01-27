@@ -23,6 +23,7 @@ class PostgresClient(base_client.QueryClient):
     """
 
     conn: Optional[Connection]
+    engine = None
     execution_options: dict
     connect_args: dict
 
@@ -51,10 +52,13 @@ class PostgresClient(base_client.QueryClient):
             port=self.url.port,
             database=self.url.path,
         )
-        engine = create_engine(
-            parsed_url, execution_options=self.execution_options, connect_args=self.connect_args
-        )
-        return engine.connect()
+        if self.engine is None:
+            self.engine = create_engine(
+                parsed_url,
+                execution_options=self.execution_options,
+                connect_args=self.connect_args,
+            )
+        return self.engine.connect()
 
     # Schema methods:
 
