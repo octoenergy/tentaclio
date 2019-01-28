@@ -31,6 +31,7 @@ def fixture_df():
 
 
 class TestPostgresClient:
+    @pytest.mark.skip("waiting for handlers")
     def test_executing_and_querying_sql(self, fixture_client):
         sql_insert = f"""INSERT INTO {TEST_TABLE_NAME} VALUES
                          ({TEST_VALUES[0]}, '{TEST_VALUES[1]}', {TEST_VALUES[2]});"""
@@ -41,6 +42,7 @@ class TestPostgresClient:
 
         assert list(result.fetchone()) == TEST_VALUES
 
+    @pytest.mark.skip("waiting for handlers")
     def test_dumping_and_getting_df(self, fixture_client, fixture_df):
         fixture_client.dump_df(fixture_df, TEST_TABLE_NAME)
         retrieved_df = fixture_client.get_df(f"SELECT * FROM {TEST_TABLE_NAME};")

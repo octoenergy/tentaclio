@@ -14,6 +14,8 @@ def fixture_conn():
 
 
 class TestS3Buffer:
+
+    @pytest.mark.skip("waiting for handlers")
     @pytest.mark.parametrize(
         "url,bucket,key",
         [(f"s3://{AWS_PUBLIC_KEY}:{AWS_PRIVATE_KEY}@s3", "test-bucket", "test.key")],
@@ -29,6 +31,7 @@ class TestS3Buffer:
         with s3_buffer.open_s3_reader(url, bucket_name=bucket, key_name=key) as reader:
             assert reader.read().decode() == stream
 
+    @pytest.mark.skip("waiting for handlers")
     @pytest.mark.parametrize(
         "url,bucket,key",
         [(f"s3://{AWS_PUBLIC_KEY}:{AWS_PRIVATE_KEY}@s3", "test-bucket", "test.key")],
