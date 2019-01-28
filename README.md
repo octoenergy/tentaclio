@@ -150,5 +150,3 @@ Caveats:
 ## Pandas functions compatible with our Reader and Writer protocols 
 
 Anything that expects a _filepath_or_buffer_. The full list of io functions for pandas is [here](https://pandas.pydata.org/pandas-docs/stable/io.html#io-sql), although they are not fully documented, i.e. parquet works even though it's not documented.
-
-
