@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from typing import List
+from typing import Sequence
 
 from typing_extensions import Protocol
 
@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 __all__ = ["DatabaseCsvWriter"]
 
 
-def _get_field_names(reader: io.StringIO):
+def _get_field_names(reader: io.StringIO) -> Sequence[str]:
     """Get the field names from the contents."""
+
     csv_reader = csv.DictReader(reader)
     next(csv_reader)
     reader.seek(0)
@@ -26,7 +27,7 @@ def _get_field_names(reader: io.StringIO):
 class CsvDumper(Protocol):
     """Csv into db dumping contract."""
 
-    def dump_csv(self, csv_reader: Reader, columns: List[str], dest_table: str) -> None:
+    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
         pass
 
 
@@ -34,6 +35,8 @@ class DatabaseCsvWriter(BaseBuffer):
     """Writer that dumps the csv formated data into the specified table.
 
     The connection is done through the relevant client.
+    The csv data is expected to be native's python dialect. namely first row defines the header and
+    the data is delimited by `,`.
     """
 
     def __init__(self, csv_dumper: CsvDumper, table: str) -> None:

@@ -1,6 +1,6 @@
 import contextlib
 import io
-from typing import Generator, List, Optional
+from typing import Generator, Optional, Sequence
 
 import pandas as pd
 from sqlalchemy.engine import Connection, create_engine, result
@@ -118,11 +118,13 @@ class PostgresClient(base_client.QueryClient):
         self._copy_expert_csv(buff, df.columns, dest_table)
 
     @decorators.check_conn()
-    def dump_csv(self, csv_reader: Reader, columns: List[str], dest_table: str) -> None:
+    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
         """Dump a csv reader into the database."""
         self._copy_expert_csv(csv_reader, columns, dest_table)
 
-    def _copy_expert_csv(self, csv_reader: Reader, columns: List[str], dest_table: str) -> None:
+    def _copy_expert_csv(
+        self, csv_reader: Reader, columns: Sequence[str], dest_table: str
+    ) -> None:
         """Dump a csv reader into the given table. """
         sql_columns = ",".join(columns)
         sql_query = f"""COPY {dest_table} ({sql_columns}) FROM STDIN
