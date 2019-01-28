@@ -22,6 +22,8 @@ REQUIREMENTS = [
     "pysftp>=0.2.9,<0.3",
     # protocols typing
     "typing-extensions",
+    # CLI
+    "click"
 ]
 
 
@@ -39,6 +41,11 @@ setup_args = dict(
     # Package data
     package_dir={"": "src"},
     packages=find_packages("src", exclude=["*tests*"]),
+    entry_points={
+        'console_scripts': [
+            'data-url = dataio.cli.url:command_compose_url'
+        ]
+    },
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
