@@ -1,32 +1,49 @@
 import pytest
 
 from dataio.clients import base_client
+from dataio.url import URL
+
+
+class FakeClient(base_client.BaseClient):
+    connetion = None
+
+    def connect(self):
+        return self.connection
 
 
 class TestBaseClient:
-    @pytest.mark.skip("")
-    def test_client_url_scheme(self):
-        url = "file:///path"
+    # TODO remove register_handler once file:/// is registered and use parametrize
+    # @pytest.mark.parametrize(
+    # ["url,scheme"],
+    # [
+    # ("registered:///path", "registered"),  # from string
+    # (URL("registered:///path"), "registered"),  # from url
+    # ],
+    # )
+    # def test_creation_with_url(self, url, scheme):
+    # fake_client = FakeClient(url)
+    # assert fake_client.url.scheme == scheme
 
-        class TestClient(base_client.BaseClient):
-            def connect(self):
-                return None
+    def test_create_with_string(self, register_handler):
+        url = "registered:///path"
+        fake_client = FakeClient(url)
 
-        test_client = TestClient(url)
+        assert fake_client.url.scheme == "registered"
 
-        assert test_client.url.scheme == "file"
+    def test_creation_with_url(self):
+        url = URL("registered:///path")
+        fake_client = FakeClient(url)
+        assert fake_client.url.scheme == "registered"
 
     @pytest.mark.skip("")
     def test_closed_client_connection(self, mocker):
         url = "file:///path"
         mocked_conn = mocker.Mock()
+        fake_client = FakeClient(url)
+        fake_client.connection = mocked_conn
 
-        class TestClient(base_client.BaseClient):
-            def connect(self):
-                return mocked_conn
-
-        with TestClient(url) as test_client:
+        with FakeClient(url) as fake_client:
             pass
 
         mocked_conn.close.assert_called()
-        assert test_client.conn is None
+        assert fake_client.conn is None
