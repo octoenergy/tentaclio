@@ -117,9 +117,6 @@ class URL:
     query: Optional[Dict[str, str]] = None
 
     def __init__(self, url: str) -> None:
-        if url is None:
-            raise URLError("URL is none")
-
         self.url = url
         self._parse_url(url)
 
