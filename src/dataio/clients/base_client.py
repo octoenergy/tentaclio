@@ -21,7 +21,9 @@ class BaseClient(metaclass=abc.ABCMeta):
             url = URL(url)
         self.url = url
 
-    # no return type so child classes can define i
+    # Context manager
+    # no return type so child classes can define it
+
     @abc.abstractmethod
     def __enter__(self):
         pass
@@ -98,15 +100,15 @@ class StreamClientWriter(object):
 
 
 class StreamClientReader(object):
-    def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
+    buff: protocols.ReaderClosable
+
+    def __init__(self, client: StreamClient):
         self.client = client
-        self.buffer = buffer_factory()
         self._load()
 
     def _load(self):
         with self.client:
-            self.buffer.write(self.client.get().read())
-        self.buffer.seek(0)
+            self.buffer = self.client.get()
 
     def read(self, size: int = -1) -> Any:
         """Read the contents of the buffer"""

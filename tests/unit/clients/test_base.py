@@ -58,19 +58,17 @@ class TestStreamClientWriter:
 class TestStreamClientReader:
     def test_read(self, mocker):
         client = mocker.MagicMock()
-        client.get.return_value = io.StringIO("hello world")
+        expected = bytes("hello world", "utf-8")
+        client.get.return_value = io.BytesIO(expected)
 
-        reader = StreamClientReader(client, buffer_factory=io.StringIO)
+        reader = StreamClientReader(client)
         contents = reader.read()
-        assert "hello world" == contents
+        assert expected == contents
 
     def test_close(self, mocker):
         client = mocker.MagicMock()
-        client.get.return_value = io.StringIO("")
-        buff = io.StringIO()
 
-        reader = StreamClientReader(client, buffer_factory=lambda: buff)
+        reader = StreamClientReader(client)
         reader.close()
 
-        assert buff.closed
-
+        assert reader.buffer.closed
