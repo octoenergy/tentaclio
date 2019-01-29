@@ -2,7 +2,6 @@ import abc
 from typing import Iterable, Optional
 
 from dataio import protocols
-
 from dataio.urls import URL
 
 
@@ -26,16 +25,16 @@ class BaseClient(metaclass=abc.ABCMeta):
     def __exit__(self, *args) -> None:
         self.close()
 
-    def close(self):
-        if self.conn is not None:
-            self.conn.close()
-            self.conn = None
-
     # Connection methods:
 
     @abc.abstractmethod
     def connect(self) -> protocols.Closable:
         ...
+
+    def close(self):
+        if self.conn is not None:
+            self.conn.close()
+            self.conn = None
 
 
 class QueryClient(BaseClient):
