@@ -2,7 +2,7 @@ import moto
 import pytest
 
 from dataio.clients import exceptions, s3_client
-from dataio.url import URL
+from dataio.urls import URL
 
 
 @pytest.fixture()

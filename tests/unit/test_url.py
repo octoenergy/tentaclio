@@ -1,7 +1,7 @@
 import pytest
 
 from dataio import Reader, Writer
-from dataio.url import URL, URLError, URLHandlerRegistry
+from dataio.urls import URL, URLError, URLHandlerRegistry
 
 
 class FakeHandler(object):
