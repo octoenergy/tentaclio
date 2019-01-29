@@ -70,9 +70,7 @@ class StreamClient(BaseClient):
     """
 
     def __enter__(self) -> "StreamClient":
-        print("CONNECTING !!!")
         self.conn = self.connect()
-        print("My connection", self.conn)
         return self
 
     @abc.abstractmethod

@@ -1,6 +1,6 @@
 from dataio.clients import StreamClientReader, StreamClientWriter, s3_client
 from dataio.protocols import ReaderClosable, WriterClosable
-from dataio.url import URL
+from dataio.urls import URL
 
 
 class S3URLHandler:

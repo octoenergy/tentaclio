@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union, cast
 import boto3
 from botocore import client as boto_client
 
-from dataio import protocols, url
+from dataio import protocols, urls
 
 from . import base_client, decorators, exceptions
 
@@ -24,7 +24,7 @@ class S3Client(base_client.StreamClient):
     conn_encrypt: bool
 
     def __init__(
-        self, url: Union[url.URL, str], aws_profile: str = None, conn_encrypt: bool = False
+        self, url: Union[urls.URL, str], aws_profile: str = None, conn_encrypt: bool = False
     ) -> None:
         self.aws_profile = aws_profile
         self.conn_encrypt = conn_encrypt

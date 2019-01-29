@@ -1,7 +1,7 @@
 import io
 
 from dataio.clients import StreamClientReader, StreamClientWriter, base_client
-from dataio.url import URL
+from dataio.urls import URL
 
 
 class FakeClient(base_client.BaseClient):
