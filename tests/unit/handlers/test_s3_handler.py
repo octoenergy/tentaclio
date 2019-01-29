@@ -3,7 +3,7 @@ import boto3
 import moto
 import pytest
 
-from dataio.url import URL, open_reader, open_writer
+from dataio.urls import URL, open_reader, open_writer
 
 
 AWS_PUBLIC_KEY = "public_key"
@@ -29,10 +29,10 @@ def test_open_s3_url_writing(fixture_conn):
     conn.create_bucket(Bucket="my_bucket")
 
     expected = bytes("hello from url", "utf-8")
-    with open_writer("s3://my_bucket/my_file") as writer:
+    with open_writer("s3://public_key:private_key@my_bucket/my_file") as writer:
         writer.write(expected)
 
-    with open_reader("s3://my_bucket/my_file") as reader:
+    with open_reader("s3://public_key:private_key@my_bucket/my_file") as reader:
         contents = reader.read()
 
     assert contents == expected
