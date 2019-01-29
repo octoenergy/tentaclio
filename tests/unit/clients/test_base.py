@@ -1,6 +1,6 @@
-import pytest
+import io
 
-from dataio.clients import base_client
+from dataio.clients import StreamClientReader, StreamClientWriter, base_client
 from dataio.url import URL
 
 
@@ -10,20 +10,11 @@ class FakeClient(base_client.BaseClient):
     def connect(self):
         return self.connection
 
+    def __enter__(self) -> "FakeClient":
+        return self
+
 
 class TestBaseClient:
-    # TODO remove register_handler once file:/// is registered and use parametrize
-    # @pytest.mark.parametrize(
-    # ["url,scheme"],
-    # [
-    # ("registered:///path", "registered"),  # from string
-    # (URL("registered:///path"), "registered"),  # from url
-    # ],
-    # )
-    # def test_creation_with_url(self, url, scheme):
-    # fake_client = FakeClient(url)
-    # assert fake_client.url.scheme == scheme
-
     def test_create_with_string(self, register_handler):
         url = "registered:///path"
         fake_client = FakeClient(url)
@@ -35,15 +26,50 @@ class TestBaseClient:
         fake_client = FakeClient(url)
         assert fake_client.url.scheme == "registered"
 
-    @pytest.mark.skip("")
-    def test_closed_client_connection(self, mocker):
-        url = "file:///path"
+    def test_closed_client_connection(self, mocker, register_handler):
+        url = "registered:///path"
         mocked_conn = mocker.Mock()
-        fake_client = FakeClient(url)
-        fake_client.connection = mocked_conn
-
         with FakeClient(url) as fake_client:
-            pass
-
+            fake_client.conn = mocked_conn
         mocked_conn.close.assert_called()
         assert fake_client.conn is None
+
+
+class TestStreamClientWriter:
+    def test_write(self, mocker):
+        client = mocker.MagicMock()
+        buff = io.StringIO()
+
+        writer = StreamClientWriter(client, lambda: buff)
+        writer.write("hello")
+        assert "hello" == buff.getvalue()
+
+    def test_flush_and_close(self, mocker):
+        client = mocker.MagicMock()
+        buff = io.StringIO()
+
+        writer = StreamClientWriter(client, lambda: buff)
+        writer.close()
+
+        assert buff.closed
+        client.put.assert_called()
+
+
+class TestStreamClientReader:
+    def test_read(self, mocker):
+        client = mocker.MagicMock()
+        client.get.return_value = io.StringIO("hello world")
+
+        reader = StreamClientReader(client, buffer_factory=io.StringIO)
+        contents = reader.read()
+        assert "hello world" == contents
+
+    def test_close(self, mocker):
+        client = mocker.MagicMock()
+        client.get.return_value = io.StringIO("")
+        buff = io.StringIO()
+
+        reader = StreamClientReader(client, buffer_factory=lambda: buff)
+        reader.close()
+
+        assert buff.closed

@@ -6,7 +6,7 @@ from dataio import protocols
 from dataio.urls import URL
 
 
-__all__ = ["StreamClient", "StreamClientWriter"]
+__all__ = ["StreamClient", "StreamClientReader", "StreamClientWriter"]
 
 
 class BaseClient(metaclass=abc.ABCMeta):
@@ -21,6 +21,11 @@ class BaseClient(metaclass=abc.ABCMeta):
         if isinstance(url, str):
             url = URL(url)
         self.url = url
+
+    # no return type so child classes can define i
+    @abc.abstractmethod
+    def __enter__(self):
+        pass
 
     def __exit__(self, *args) -> None:
         self.close()
@@ -63,7 +68,9 @@ class StreamClient(BaseClient):
     """
 
     def __enter__(self) -> "StreamClient":
+        print("CONNECTING !!!")
         self.conn = self.connect()
+        print("My connection", self.conn)
         return self
 
     @abc.abstractmethod
@@ -76,8 +83,8 @@ class StreamClient(BaseClient):
 
 
 class StreamClientWriter(object):
-    def __init__(self, client: StreamClient):
-        self.buffer = io.BytesIO()
+    def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
+        self.buffer = buffer_factory()
         self.client = client
 
     def write(self, contents: Any) -> int:
@@ -86,5 +93,26 @@ class StreamClientWriter(object):
     def close(self) -> None:
         """Flush and close the writer"""
         self.buffer.seek(0)
-        self.client.put(self.buffer)
+        with self.client:
+            self.client.put(self.buffer)
+        self.buffer.close()
+
+
+class StreamClientReader(object):
+    def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
+        self.client = client
+        self.buffer = buffer_factory()
+        self._load()
+
+    def _load(self):
+        with self.client:
+            self.buffer.write(self.client.get().read())
+        self.buffer.seek(0)
+
+    def read(self, size: int = -1) -> Any:
+        """Read the contents of the buffer"""
+        return self.buffer.read(size)
+
+    def close(self) -> None:
+        """Flush and close the writer"""
         self.buffer.close()
