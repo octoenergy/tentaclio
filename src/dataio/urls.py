@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def open_reader(url: str, **kwargs) -> ContextManager[protocols.Reader]:
-    """ Opens the url and returns a reader """
+    """Opens the url and returns a reader """
     return URL(url).open_reader(extras=kwargs)
 
 
 def open_writer(url: str, **kwargs) -> ContextManager[protocols.Writer]:
-    """ Opens the url and returns a writer"""
+    """Opens the url and returns a writer"""
     return URL(url).open_writer(extras=kwargs)
 
 
@@ -181,12 +181,14 @@ class URL:
         """Open a reader for the stream located at this url"""
 
         extras = extras or {}
-        return self._handler_registry.get_handler(self.scheme).open_reader_for(self, extras)
+        reader = self._handler_registry.get_handler(self.scheme).open_reader_for(self, extras)
+        return _ReaderContextManager(reader)
 
     def open_writer(self, extras: Optional[dict] = None) -> ContextManager[protocols.Writer]:
         """Open a writer for the stream located at this url"""
         extras = extras or {}
-        return self._handler_registry.get_handler(self.scheme).open_writer_for(self, extras)
+        writer = self._handler_registry.get_handler(self.scheme).open_writer_for(self, extras)
+        return _WriterContextManager(writer)
 
     @classmethod
     def register_handler(cls, scheme: str, handler: URLHandler) -> None:
