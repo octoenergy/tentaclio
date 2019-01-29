@@ -1,5 +1,5 @@
 import logging
-from typing import ContextManager, Dict, Optional
+from typing import ContextManager, Dict, Optional, ClassVar
 from urllib import parse
 
 from dataio import protocols
@@ -35,9 +35,7 @@ class URLHandler(Protocol):
 
 
 class URLHandlerRegistry(object):
-    def __init__(self):
-        super().__init__()
-        self.registry: Dict[str, URLHandler] = {}
+    registry: Dict[str, URLHandler] = {}
 
     def register(self, scheme: str, url_handler: URLHandler):
         if scheme not in self.registry:
@@ -103,7 +101,7 @@ class URL:
     Placeholder to process and store information for a given URL
     """
 
-    _handler_registry: URLHandlerRegistry = URLHandlerRegistry()
+    _handler_registry: ClassVar[URLHandlerRegistry] = URLHandlerRegistry()
 
     scheme: str
     username: Optional[str] = None
