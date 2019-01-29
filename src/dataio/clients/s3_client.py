@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Union, cast
 
 import boto3
 from botocore import client as boto_client
-from dataio import protocols, url
+from dataio import protocols, urls
 
 from . import base_client, decorators, exceptions
 
@@ -23,7 +23,7 @@ class S3Client(base_client.StreamClient):
 
     def __init__(
         self,
-        url: Union[url.URL, str],
+        url: Union[urls.URL, str],
         aws_profile: str = None,
         conn_encrypt: bool = False,
     ) -> None:
@@ -58,7 +58,7 @@ class S3Client(base_client.StreamClient):
         )
         return session.client("s3")
 
-    def close(self)->None:
+    def close(self) -> None:
         # s3 doesn't have close method
         pass
 
