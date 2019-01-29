@@ -5,7 +5,7 @@ from urllib import parse
 from dataio import protocols
 from typing_extensions import Protocol
 
-__all__ = ["URLError", "URLHandlerRegistry", "URL"]
+__all__ = ["URLError", "URLHandlerRegistry", "URL", "open_reader", "open_writer"]
 
 logger = logging.getLogger(__name__)
 
