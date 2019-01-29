@@ -4,19 +4,20 @@ from dataio.clients import base_client, decorators, exceptions
 
 
 class TestCheckConn:
-    @pytest.mark.skip("")
     def test_missing_connection_attribute(self):
         class TestClient:
             @decorators.check_conn()
             def func(self):
                 return True
 
+            def __enter__(self):
+                pass
+
         test_client = TestClient()
 
         with pytest.raises(AttributeError):
             test_client.func()
 
-    @pytest.mark.skip("")
     def test_inactive_client_connection(self):
         url = "file:///path"
 
@@ -27,6 +28,9 @@ class TestCheckConn:
             @decorators.check_conn()
             def func(self):
                 return True
+
+            def __enter__(self):
+                pass
 
         test_client = TestClient(url)
 
