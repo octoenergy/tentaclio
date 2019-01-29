@@ -13,6 +13,7 @@ def fixture_conn():
 
 
 class TestS3Client:
+    @pytest.mark.skip("waiting for handlers")
     @pytest.mark.parametrize(
         "url,bucket,key",
         [
@@ -20,6 +21,7 @@ class TestS3Client:
             ("s3://public_key:private_key@test-bucket/test.key", None, None),
         ],
     )
+    @pytest.mark.skip("waiting for handlers")
     def test_get_missing_file(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             client.conn.create_bucket(Bucket=bucket or client.url.hostname)
@@ -27,6 +29,7 @@ class TestS3Client:
             with pytest.raises(exceptions.S3Error):
                 client.get(bucket_name=bucket, key_name=key)
 
+    @pytest.mark.skip("waiting for handlers")
     @pytest.mark.parametrize(
         "url,bucket,key",
         [
@@ -46,6 +49,7 @@ class TestS3Client:
 
             assert buffer.getvalue().decode() == stream
 
+    @pytest.mark.skip("waiting for handlers")
     @pytest.mark.parametrize(
         "url,bucket,key",
         [
