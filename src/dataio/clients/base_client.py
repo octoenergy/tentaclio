@@ -3,7 +3,7 @@ from typing import Iterable, Optional
 
 from dataio import protocols
 
-from dataio.url import URL
+from dataio.urls import URL
 
 
 class BaseClient(metaclass=abc.ABCMeta):

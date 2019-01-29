@@ -1,5 +1,5 @@
 import pytest
-from dataio.url import URL
+from dataio.urls import URL
 from dataio.clients import exceptions, s3_client
 
 import moto
