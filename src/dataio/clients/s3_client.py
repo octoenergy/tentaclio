@@ -59,7 +59,7 @@ class S3Client(base_client.StreamClient):
 
     def close(self) -> None:
         # s3 doesn't have close method
-        pass
+        ...
 
     # Stream methods:
 

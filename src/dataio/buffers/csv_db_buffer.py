@@ -28,7 +28,7 @@ class CsvDumper(Protocol):
     """Csv into db dumping contract."""
 
     def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
-        pass
+        ...
 
 
 class DatabaseCsvWriter(BaseBuffer):

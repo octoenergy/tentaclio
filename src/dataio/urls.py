@@ -30,10 +30,10 @@ class URLError(Exception):
 
 class URLHandler(Protocol):
     def open_reader_for(self, url: "URL", extras: dict) -> protocols.ReaderClosable:
-        pass
+        ...
 
     def open_writer_for(self, url: "URL", extras: dict) -> protocols.WriterClosable:
-        pass
+        ...
 
 
 class URLHandlerRegistry(object):
