@@ -26,12 +26,12 @@ class StreamClient(base_client.BaseClient):
         ...
 
     @abc.abstractmethod
-    def put(self, file_obj: protocols.Writer, **params) -> None:
+    def put(self, file_obj: protocols.Reader, **params) -> None:
         ...
 
 
 class StreamClientWriter(object):
-    buffer: protocols.BufferWriter
+    buffer: io.BytesIO
 
     def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
         self.buffer = buffer_factory()
