@@ -1,8 +1,9 @@
 import io
 
-from dataio import URL, Writer
-from dataio.clients.base_client import StreamClient
+from dataio import URL, Reader
 from dataio.handlers.stream_handler import StreamURLHandler
+
+from dataio.clients.base_client import StreamClient
 
 
 class FakeClient(StreamClient):
@@ -18,9 +19,8 @@ class FakeClient(StreamClient):
     def get(self) -> io.StringIO:
         return io.StringIO("hello")
 
-    def put(self, writer: Writer):
-        print("writer", writer)
-        self._writer.write(writer.read())
+    def put(self, reader: Reader, **params) -> None:
+        self._writer.write(reader.read())
         self._writer.seek(0)
 
 
