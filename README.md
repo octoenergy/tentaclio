@@ -6,7 +6,7 @@ Python package regrouping a collection of I/O connectors, used in the data world
 
 - a boilerplate for developers to expose new connectors (`dataio.clients`).
 - an interface to acess file resources,
-    - thanks to a unified syntax (`dataio.buffers`),
+    - thanks to a unified syntax (`dataio.open_reader`, `data.open_writer`),
     - and a simplified interface (`dataio.protocols`).
 
 ## Quickstart
@@ -35,6 +35,69 @@ Lock the Python dependencies and build a virtualenv,
 To refresh Python dependencies,
 
     $ make sync
+
+## How to use
+This is how to use `data-io` for your daily data ingestion and storing needs.
+
+### URL streams
+In order to open streams to load or store data the universal functions are:
+
+```python
+from dataio import open_reader, open_writer
+
+with open_reader("/path/to/my/file") as reader:
+    contents = reader.read()
+    [...]
+
+with open_writer("s3://bucket/file") as writer:
+    writer.write(contents)
+    [...]
+```
+The supported protocols are:
+
+* `/local/file`
+* `file:///local/file`
+* `s3://bucket/file`
+* `ftp://path/to/file`
+* `sftp://path/to/file`
+* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names.
+
+You can add the credentials for any of the urls in order to access protected resources.
+
+
+You can use these readers and writers with pandas functions like:
+
+```python
+import pandas as pd
+from dataio import open_reader, open_writer
+
+with open_reader("/path/to/my/file") as reader:
+    df = pd.read_csv(reader) 
+
+[...]
+
+with open_writer("s3::/path/to/my/file") as writer:
+    df.to_parquet(writer) 
+```
+`Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
+
+
+
+### StreamClients and QueryClients
+
+The module `dataio.client` gives more control over the resources, and allows to run queries against a database.  
+
+```python
+from dataio import clients 
+
+[...] 
+
+query = "select 1";
+with clients.PostgresClient(POSTGRES_TEST_URL) as client:
+    result =client.query(query)
+[...]
+```
+     
 
 ## Development
 
