@@ -1,25 +1,9 @@
 import csv
 import io
-from typing import Sequence
 
 import pytest
 
-from dataio import Reader
 from dataio.buffers import DatabaseCsvWriter
-
-
-class CsvDumperRecorder:
-    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
-        self.buff = io.StringIO()
-        self.buff.write(csv_reader.read())
-        self.buff.seek(0)
-        self.columns = columns
-        self.dest_table = dest_table
-
-
-@pytest.fixture
-def csv_dumper():
-    return CsvDumperRecorder()
 
 
 @pytest.fixture
