@@ -75,7 +75,7 @@ class S3Client(stream_client.StreamClient):
 
     @decorators.check_conn()
     def put(
-        self, file_obj: protocols.Writer, bucket_name: str = None, key_name: str = None
+        self, file_obj: protocols.Reader, bucket_name: str = None, key_name: str = None
     ) -> None:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
