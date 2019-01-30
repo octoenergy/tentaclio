@@ -27,10 +27,10 @@ def db_client():
 
 class FakeHandler(object):
     def open_reader_for(self, url: "URL", extras: dict) -> Reader:
-        pass
+        ...
 
     def open_writer_for(self, url: "URL", extras: dict) -> Writer:
-        pass
+        ...
 
 
 @pytest.fixture

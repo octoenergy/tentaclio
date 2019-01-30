@@ -26,7 +26,7 @@ class BaseClient(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __enter__(self):
-        pass
+        ...
 
     def __exit__(self, *args) -> None:
         self.close()

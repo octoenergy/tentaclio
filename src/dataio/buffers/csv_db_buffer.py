@@ -28,7 +28,7 @@ class CsvDumper(Protocol):
     def dump_csv(
         self, csv_reader: Reader, columns: Sequence[str], dest_table: str
     ) -> None:
-        pass
+        ...
 
 
 class DatabaseCsvWriter(BaseBuffer):
