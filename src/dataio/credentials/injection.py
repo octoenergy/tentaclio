@@ -1,9 +1,13 @@
 import collections
 import itertools
+import logging
 import re
 from typing import Dict, List
 
 from dataio import urls
+
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["CredentialsInjector"]
 
@@ -30,6 +34,11 @@ class CredentialsInjector(object):
         if len(candidates) == 0:
             return url
         else:
+            if len(candidates) > 1:
+                logger.warn("The crendentials for %s returned more than one candidate" % str(url))
+
+            # return the best candidate, i.e the one with the highest similarty to
+            # the passed url
             creds = candidates[0]
             with_creds = urls.URL.from_components(
                 scheme=url.scheme,
@@ -97,8 +106,6 @@ def _similarity(path_1: str, path_2: str) -> float:
     # split path elements
     path_1_elements = re.split(PATH_DELIMITERS, path_1.lstrip("/"))
     path_2_elements = re.split(PATH_DELIMITERS, path_2.lstrip("/"))
-    print("path_1_elements", path_1_elements)
-    print("path_2_elements", path_2_elements)
 
     return _compute_parts_similarity(path_1_elements, path_2_elements)
 
@@ -113,5 +120,4 @@ def _compute_parts_similarity(elements_1: List[str], elements_2: List[str]) -> f
             print("similarity inside", similarity)
         else:
             break
-    print("similarity", similarity)
     return similarity
