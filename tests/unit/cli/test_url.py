@@ -82,7 +82,6 @@ class TestComposeURL:
         assert result.exit_code != 0
         assert b"Provide at least one of" in result.stdout_bytes
 
-    @pytest.mark.skip("Fix with url")
     def test_command(self):
         result = CliRunner().invoke(
             command_compose_url,

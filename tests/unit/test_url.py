@@ -53,10 +53,6 @@ class TestURL:
         assert parsed_url.username == username
         assert parsed_url.password == password
 
-    # File URL:
-    # TODO move to base clients
-
-    @pytest.mark.skip()
     @pytest.mark.parametrize(
         "url,path",
         [("file:///test.file", "/test.file"), ("file:///dir/test.file", "/dir/test.file")],
