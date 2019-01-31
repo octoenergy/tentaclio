@@ -1,26 +1,6 @@
 import pytest
 
-from dataio import Reader, Writer
-from dataio.urls import URL, URLError, URLHandlerRegistry
-
-
-class FakeHandler(object):
-    def open_reader_for(self, url: "URL", extras: dict) -> Reader:
-        pass
-
-    def open_writer_for(self, url: "URL", extras: dict) -> Writer:
-        pass
-
-
-@pytest.fixture
-def register_handler(fake_handler):
-    URL.register_handler("registered", fake_handler)
-    return fake_handler
-
-
-@pytest.fixture
-def fake_handler():
-    return FakeHandler()
+from dataio import URL, URLError, URLHandlerRegistry
 
 
 class TestRegistry(object):

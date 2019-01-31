@@ -11,25 +11,25 @@ from dataio import protocols
 def fixture_conn():
     class TestConn:
         def close(self):
-            pass
+            ...
 
     return TestConn()
 
 
 class MyReader(object):
     def read(self, i=-1):
-        pass
+        ...
 
 
 class MyWriter(object):
     def write(self, contents):
-        pass
+        ...
 
 
 @pytest.mark.skip("Checked by mypy")
 def test_closable(fixture_conn):
     def func(conn: protocols.Closable):
-        pass
+        ...
 
     func(fixture_conn)
 
@@ -37,7 +37,7 @@ def test_closable(fixture_conn):
 @pytest.mark.skip("Checked by mypy")
 def test_reader():
     def func(reader: protocols.Reader):
-        pass
+        ...
 
     func(MyReader())
 
@@ -45,6 +45,6 @@ def test_reader():
 @pytest.mark.skip("Checked by mypy")
 def test_writer():
     def func(writer: protocols.Writer):
-        pass
+        ...
 
     func(MyWriter())

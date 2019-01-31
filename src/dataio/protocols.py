@@ -10,12 +10,19 @@ __all__ = [
     "ReaderWriter",
     "ReaderClosable",
     "WriterClosable",
+    "BufferReader",
+    "BufferWriter",
     "AnyReaderWriter",
 ]
 
 
 class Closable(Protocol):
     def close(self) -> None:
+        ...
+
+
+class Seeker(Protocol):
+    def seek(self, pos: int = 0, whence: int = 0) -> None:
         ...
 
 
@@ -29,29 +36,26 @@ class Writer(Protocol):
         ...
 
 
-class ReaderClosable(Protocol):
-    def read(self, size: int = -1) -> Any:
-        ...
-
-    def close(self) -> None:
-        ...
+# Attention! Protocol needs to be the last superclass!
+# otherwise returning these composed protocols won't work
+class ReaderClosable(Reader, Closable, Protocol):
+    ...
 
 
-# Mypy is flaky without this protocol sometimes won't work
-class WriterClosable(Protocol):
-    def write(self, contents: Any) -> int:
-        ...
-
-    def close(self) -> None:
-        ...
+class WriterClosable(Writer, Closable, Protocol):
+    ...
 
 
-class ReaderWriter(Protocol):
-    def read(self, size: int = -1) -> Any:
-        ...
+class BufferWriter(Writer, Closable, Seeker, Protocol):
+    ...
 
-    def write(self, contents: Any) -> int:
-        ...
+
+class BufferReader(Reader, Closable, Seeker, Protocol):
+    ...
+
+
+class ReaderWriter(Reader, Writer, Protocol):
+    ...
 
 
 AnyReaderWriter = Union[Reader, Writer, ReaderWriter]

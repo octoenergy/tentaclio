@@ -1,8 +1,7 @@
 import abc
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
-from dataio import protocols
-from dataio.urls import URL
+from dataio import protocols, urls
 
 
 class BaseClient(metaclass=abc.ABCMeta):
@@ -10,17 +9,20 @@ class BaseClient(metaclass=abc.ABCMeta):
     Abstract base class for clients, wrapping a connection
     """
 
-    url: URL
+    url: urls.URL
     conn: Optional[protocols.Closable] = None
 
-    def __init__(self, url: str) -> None:
-        self.url = URL(url)
+    def __init__(self, url: Union[urls.URL, str]) -> None:
+        if isinstance(url, str):
+            url = urls.URL(url)
+        self.url = url
 
-    # Context manager:
+    # Context manager
+    # no return type so child classes can define it
 
-    def __enter__(self) -> "BaseClient":
-        self.conn = self.connect()
-        return self
+    @abc.abstractmethod
+    def __enter__(self):
+        ...
 
     def __exit__(self, *args) -> None:
         self.close()
@@ -42,6 +44,10 @@ class QueryClient(BaseClient):
     Interface for query-based connections
     """
 
+    def __enter__(self) -> "QueryClient":
+        self.conn = self.connect()
+        return self
+
     # Query methods:
 
     @abc.abstractmethod
@@ -58,10 +64,12 @@ class StreamClient(BaseClient):
     Interface for stream-based connections
     """
 
-    # Stream methods:
+    def __enter__(self) -> "StreamClient":
+        self.conn = self.connect()
+        return self
 
     @abc.abstractmethod
-    def get(self, **params) -> protocols.Reader:
+    def get(self, **params) -> protocols.ReaderClosable:
         ...
 
     @abc.abstractmethod
