@@ -1,12 +1,7 @@
 import abc
-import io
-from typing import Any, Iterable, Optional, Union
+from typing import Iterable, Optional, Union
 
-from dataio import protocols
-from dataio.urls import URL
-
-
-__all__ = ["StreamClient", "StreamClientReader", "StreamClientWriter"]
+from dataio import protocols, urls
 
 
 class BaseClient(metaclass=abc.ABCMeta):
@@ -14,12 +9,12 @@ class BaseClient(metaclass=abc.ABCMeta):
     Abstract base class for clients, wrapping a connection
     """
 
-    url: URL
+    url: urls.URL
     conn: Optional[protocols.Closable] = None
 
-    def __init__(self, url: Union[URL, str]) -> None:
+    def __init__(self, url: Union[urls.URL, str]) -> None:
         if isinstance(url, str):
-            url = URL(url)
+            url = urls.URL(url)
         self.url = url
 
     # Context manager
@@ -80,39 +75,3 @@ class StreamClient(BaseClient):
     @abc.abstractmethod
     def put(self, file_obj: protocols.Writer, **params) -> None:
         ...
-
-
-class StreamClientWriter(object):
-    def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
-        self.buffer = buffer_factory()
-        self.client = client
-
-    def write(self, contents: Any) -> int:
-        return self.buffer.write(contents)
-
-    def close(self) -> None:
-        """Flush and close the writer"""
-        self.buffer.seek(0)
-        with self.client:
-            self.client.put(self.buffer)
-        self.buffer.close()
-
-
-class StreamClientReader(object):
-    buff: protocols.ReaderClosable
-
-    def __init__(self, client: StreamClient):
-        self.client = client
-        self._load()
-
-    def _load(self):
-        with self.client:
-            self.buffer = self.client.get()
-
-    def read(self, size: int = -1) -> Any:
-        """Read the contents of the buffer"""
-        return self.buffer.read(size)
-
-    def close(self) -> None:
-        """Flush and close the writer"""
-        self.buffer.close()

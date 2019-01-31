@@ -1,10 +1,10 @@
 import click
 
-from ..clients import base_client
+from dataio import urls
 
 
 def _compose_url(scheme, username, password, hostname, port, path, query):
-    url = base_client.URL.from_components(
+    url = urls.URL.from_components(
         scheme=scheme,
         username=username,
         password=password,

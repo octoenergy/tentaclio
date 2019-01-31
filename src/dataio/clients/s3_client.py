@@ -6,13 +6,13 @@ from botocore import client as boto_client
 
 from dataio import protocols, urls
 
-from . import base_client, decorators, exceptions
+from . import decorators, exceptions, stream_client
 
 
 __all__ = ["S3Client"]
 
 
-class S3Client(base_client.StreamClient):
+class S3Client(stream_client.StreamClient):
     """
     Generic S3 hook, backed by boto3
 
