@@ -18,6 +18,8 @@ class StreamClient(base_client.BaseClient):
         self.conn = self.connect()
         return self
 
+    # Stream methods
+
     @abc.abstractmethod
     def get(self, **params) -> protocols.ReaderClosable:
         ...
@@ -28,6 +30,8 @@ class StreamClient(base_client.BaseClient):
 
 
 class StreamClientWriter(object):
+    buffer: protocols.BufferWriter
+
     def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
         self.buffer = buffer_factory()
         self.client = client
@@ -36,7 +40,7 @@ class StreamClientWriter(object):
         return self.buffer.write(contents)
 
     def close(self) -> None:
-        """Flush and close the writer"""
+        """Flush and close the writer."""
         self.buffer.seek(0)
         with self.client:
             self.client.put(self.buffer)
@@ -44,7 +48,7 @@ class StreamClientWriter(object):
 
 
 class StreamClientReader(object):
-    buff: protocols.ReaderClosable
+    buffer: protocols.ReaderClosable
 
     def __init__(self, client: StreamClient):
         self.client = client
@@ -55,7 +59,7 @@ class StreamClientReader(object):
             self.buffer = self.client.get()
 
     def read(self, size: int = -1) -> Any:
-        """Read the contents of the buffer"""
+        """Read the contents of the buffer."""
         return self.buffer.read(size)
 
     def close(self) -> None:

@@ -3,6 +3,8 @@ from dataio.clients.stream_client import StreamClientReader, StreamClientWriter
 from dataio.protocols import ReaderClosable, WriterClosable
 from dataio.urls import URL
 
+__all__ = ["S3URLHandler"]
+
 
 class S3URLHandler:
     """Handler for opening writers and readers for S3 buckets."""
