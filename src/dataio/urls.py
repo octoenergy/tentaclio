@@ -1,5 +1,5 @@
 import logging
-from typing import ContextManager, Dict, Optional
+from typing import ClassVar, ContextManager, Dict, Optional
 from urllib import parse
 
 from typing_extensions import Protocol
@@ -106,7 +106,7 @@ class URL:
     Placeholder to process and store information for a given URL
     """
 
-    _handler_registry: URLHandlerRegistry = URLHandlerRegistry()
+    _handler_registry: ClassVar[URLHandlerRegistry] = URLHandlerRegistry()
 
     scheme: str
     username: Optional[str] = None
