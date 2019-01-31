@@ -1,32 +1,33 @@
 from dataio.clients import base_client
+from dataio.urls import URL
 
-import pytest
+
+class FakeClient(base_client.BaseClient):
+    connetion = None
+
+    def connect(self):
+        return self.connection
+
+    def __enter__(self) -> "FakeClient":
+        return self
 
 
 class TestBaseClient:
-    @pytest.mark.skip("")
-    def test_client_url_scheme(self):
-        url = "file:///path"
+    def test_create_with_string(self, register_handler):
+        url = "registered:///path"
+        fake_client = FakeClient(url)
 
-        class TestClient(base_client.BaseClient):
-            def connect(self):
-                return None
+        assert fake_client.url.scheme == "registered"
 
-        test_client = TestClient(url)
+    def test_creation_with_url(self):
+        url = URL("registered:///path")
+        fake_client = FakeClient(url)
+        assert fake_client.url.scheme == "registered"
 
-        assert test_client.url.scheme == "file"
-
-    @pytest.mark.skip("")
-    def test_closed_client_connection(self, mocker):
-        url = "file:///path"
+    def test_closed_client_connection(self, mocker, register_handler):
+        url = "registered:///path"
         mocked_conn = mocker.Mock()
-
-        class TestClient(base_client.BaseClient):
-            def connect(self):
-                return mocked_conn
-
-        with TestClient(url) as test_client:
-            pass
-
+        with FakeClient(url) as fake_client:
+            fake_client.conn = mocked_conn
         mocked_conn.close.assert_called()
-        assert test_client.conn is None
+        assert fake_client.conn is None

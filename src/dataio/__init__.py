@@ -1,2 +1,3 @@
+from .handlers import s3_handler  # noqa
 from .protocols import *  # noqa
-from .buffers.s3_buffer import *  # noqa
+from .urls import *  # noqa
