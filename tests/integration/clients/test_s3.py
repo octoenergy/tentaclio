@@ -37,9 +37,9 @@ class TestS3Client:
     def test_get_file_in_bucket(self, url, bucket, key, fixture_conn):
         with s3_client.S3Client(url) as client:
             stream = "tested stream"
-            client.conn.create_bucket(Bucket=bucket or client.url.hostname)
+            client.conn.create_bucket(Bucket=bucket or client.bucket)
             client.conn.put_object(
-                Bucket=bucket or client.url.hostname, Key=key or client.url.path, Body=stream
+                Bucket=bucket or client.bucket, Key=key or client.key_name, Body=stream
             )
 
             buffer = client.get(bucket_name=bucket, key_name=key)
@@ -57,11 +57,11 @@ class TestS3Client:
         with s3_client.S3Client(url) as client:
             stream = "tested stream"
             buffer = io.BytesIO(stream.encode())
-            client.conn.create_bucket(Bucket=bucket or client.url.hostname)
+            client.conn.create_bucket(Bucket=bucket or client.bucket)
 
-            client.put(buffer, bucket_name=bucket, key_name=key)
+            client.put(buffer, bucket_name=bucket, key_name=key or client.key_name)
 
             s3_obj = client.conn.get_object(
-                Bucket=bucket or client.url.hostname, Key=key or client.url.path
+                Bucket=bucket or client.bucket, Key=key or client.key_name
             )["Body"]
             assert s3_obj.read().decode() == stream

@@ -22,6 +22,10 @@ class S3Client(stream_client.StreamClient):
     conn: Optional[boto_client.BaseClient]
     aws_profile: Optional[str]
     conn_encrypt: bool
+    aws_access_key_id: Optional[str]
+    aws_secret_access_key: Optional[str]
+    bucket: Optional[str]
+    key_name: Optional[str]
 
     def __init__(
         self, url: Union[urls.URL, str], aws_profile: str = None, conn_encrypt: bool = False
@@ -33,26 +37,24 @@ class S3Client(stream_client.StreamClient):
         if self.url.scheme != "s3":
             raise exceptions.S3Error(f"Incorrect scheme {self.url.scheme}")
 
-        # Revert to Boto default credentials
-        if self.url.username == "":
-            self.url.username = None
-        if self.url.password == "":
-            self.url.password = None
+        self.aws_access_key_id = self.url.username or None
+        self.aws_secret_access_key = self.url.password or None
+        self.bucket = self.url.hostname or None
+        self.key_name = self.url.path[1:] if self.url.path != "" else ""
 
-        # Exception: 's3' hostname not a valid bucket
-        if self.url.hostname == "s3":
-            self.url.hostname = None
-
-        # Exception: key not a path
-        if self.url.path != "":
-            self.url.path = self.url.path[1:]
+        if self.bucket == "s3":
+            self.bucket = None
 
     # Connection methods:
 
     def connect(self) -> boto_client.BaseClient:
+        # Revert to Boto default credentials
+
+        # Exception: 's3' hostname not a valid bucket
+
         session = boto3.session.Session(
-            aws_access_key_id=self.url.username,
-            aws_secret_access_key=self.url.password,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
             profile_name=self.aws_profile,
         )
         return session.client("s3")
@@ -93,15 +95,15 @@ class S3Client(stream_client.StreamClient):
     # Helpers:
 
     def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
-        bucket_name = bucket or self.url.hostname
+        bucket_name = bucket or self.bucket
         if bucket_name is None:
             raise exceptions.S3Error("Missing remote bucket")
 
-        key_name = key or self.url.path
+        key_name = key or self.key_name
         if key_name == "":
             raise exceptions.S3Error("Missing remote key")
 
-        return bucket_name, key_name
+        return bucket_name, cast(str, key_name)
 
     def _isfile(self, bucket: str, key: str) -> bool:
         """
