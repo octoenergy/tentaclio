@@ -1,4 +1,5 @@
-from dataio.clients import StreamClientReader, StreamClientWriter, s3_client
+from dataio.clients import s3_client
+from dataio.clients.stream_client import StreamClientReader, StreamClientWriter
 from dataio.protocols import ReaderClosable, WriterClosable
 from dataio.urls import URL
 
