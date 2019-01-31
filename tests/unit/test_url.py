@@ -44,11 +44,7 @@ class TestURL:
         [
             ("registered://:@localhost", "", ""),
             ("registered://abc_def%40123.com:@localhost", "abc_def@123.com", ""),
-            (
-                "registered://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost",
-                "",
-                "@``Z_$-$@5%Ky/",
-            ),
+            ("registered://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost", "", "@``Z_$-$@5%Ky/"),
         ],
     )
     def test_url_escaped_fields(self, url, username, password, register_handler):
@@ -59,10 +55,7 @@ class TestURL:
 
     @pytest.mark.parametrize(
         "url,path",
-        [
-            ("file:///test.file", "/test.file"),
-            ("file:///dir/test.file", "/dir/test.file"),
-        ],
+        [("file:///test.file", "/test.file"), ("file:///dir/test.file", "/dir/test.file")],
     )
     def test_parsing_file_url(self, url, path):
         parsed_url = URL(url)
@@ -110,16 +103,7 @@ class TestURL:
         ],
     )
     def test_url_from_components(
-        self,
-        url,
-        scheme,
-        username,
-        password,
-        hostname,
-        port,
-        path,
-        query,
-        register_handler,
+        self, url, scheme, username, password, hostname, port, path, query, register_handler
     ):
         parsed_url = URL.from_components(
             scheme=scheme,
@@ -138,3 +122,17 @@ class TestURL:
         assert parsed_url.port == port
         assert parsed_url.path == path
         assert (parsed_url.query == query) or (not query and parsed_url.query is None)
+
+    @pytest.mark.parametrize(
+        ["url_1", "url_2", "should_be_equal"],
+        [
+            ["registered://user:pass@host/path", "registered://user:pass@host/path", True],
+            ["registered://host/path", "registered://host/path", True],
+            ["registered://host/path?key=value", "registered://host/path?key=value", True],
+            ["registered://host/path", "registered://host/path?key=value", False],
+            ["registered://host/path", "registered://user:pass@host/path", False],
+            ["registered://host/path1", "registered://host/path2", False],
+        ],
+    )
+    def test_url_equality(self, url_1, url_2, should_be_equal, register_handler):
+        assert (URL(url_1) == URL(url_2)) == should_be_equal

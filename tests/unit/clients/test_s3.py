@@ -31,22 +31,16 @@ class TestS3Client:
         ],
     )
     def test_parsing_s3_url(self, url, username, password, hostname, path):
-        parsed_url = s3_client.S3Client(url).url
+        client = s3_client.S3Client(url)
 
-        assert parsed_url.scheme == "s3"
-        assert parsed_url.hostname == hostname
-        assert parsed_url.username == username
-        assert parsed_url.password == password
-        assert parsed_url.port is None
-        assert parsed_url.path == path
+        assert client.aws_access_key_id == username
+        assert client.aws_secret_access_key == password
+        assert client.key_name == path
+        assert client.bucket == hostname
 
     @pytest.mark.parametrize(
         "url,bucket,key",
-        [
-            ("s3://:@s3", None, None),
-            ("s3://:@s3", "bucket", None),
-            ("s3://:@bucket", None, None),
-        ],
+        [("s3://:@s3", None, None), ("s3://:@s3", "bucket", None), ("s3://:@bucket", None, None)],
     )
     def test_get_invalid_path(self, url, bucket, key, mocked_conn):
         with s3_client.S3Client(url) as client:
