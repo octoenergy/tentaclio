@@ -13,6 +13,8 @@ with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
 REQUIREMENTS = [
     # AWS
     "boto3>=1.9.0,<1.10",
+    # Http
+    "requests",
     # Postgres
     "psycopg2-binary",
     "sqlalchemy>=1.2.0,<1.3",
