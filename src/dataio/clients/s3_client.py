@@ -22,10 +22,7 @@ class S3Client(stream_client.StreamClient):
     conn_encrypt: bool
 
     def __init__(
-        self,
-        url: Union[urls.URL, str],
-        aws_profile: str = None,
-        conn_encrypt: bool = False,
+        self, url: Union[urls.URL, str], aws_profile: str = None, conn_encrypt: bool = False
     ) -> None:
         self.aws_profile = aws_profile
         self.conn_encrypt = conn_encrypt
@@ -65,9 +62,7 @@ class S3Client(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(
-        self, bucket_name: str = None, key_name: str = None
-    ) -> protocols.ReaderClosable:
+    def get(self, bucket_name: str = None, key_name: str = None) -> protocols.ReaderClosable:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
         if not self._isfile(s3_bucket, s3_key):
@@ -94,9 +89,7 @@ class S3Client(stream_client.StreamClient):
 
     # Helpers:
 
-    def _fetch_bucket_and_key(
-        self, bucket: Optional[str], key: Optional[str]
-    ) -> Tuple[str, str]:
+    def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
         bucket_name = bucket or self.url.hostname
         if bucket_name is None:
             raise exceptions.S3Error("Missing remote bucket")
