@@ -26,3 +26,9 @@ class S3Error(Exception):
     """
     Exception encountered over a S3 client connection
     """
+
+
+class HTTPError(Exception):
+    """
+    Exception encountered over a HTTP client connection
+    """

@@ -17,8 +17,7 @@ class BaseClient(metaclass=abc.ABCMeta):
             url = urls.URL(url)
         self.url = url
 
-    # Context manager
-    # no return type so child classes can define it
+    # Context manager:
 
     @abc.abstractmethod
     def __enter__(self):
@@ -57,4 +56,3 @@ class QueryClient(BaseClient):
     @abc.abstractmethod
     def query(self, sql_query: str, **params) -> Iterable:
         ...
-
