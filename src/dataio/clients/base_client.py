@@ -73,5 +73,5 @@ class StreamClient(BaseClient):
         ...
 
     @abc.abstractmethod
-    def put(self, file_obj: protocols.Writer, **params) -> None:
+    def put(self, file_obj: protocols.Reader, **params) -> None:
         ...
