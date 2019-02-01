@@ -1,4 +1,6 @@
-from dataio.handlers import S3URLHandler, LocalFileHandler # noqa <- automatic registration of default handlers
+from dataio.handlers import (FTPHandler, LocalFileHandler,
+                             S3URLHandler, SFTPHandler)
+
 from .protocols import *  # noqa
 from .urls import *  # noqa
 
@@ -8,3 +10,9 @@ URL.register_handler("file", LocalFileHandler())
 
 # s3 buckets
 URL.register_handler("s3", S3URLHandler())
+
+# ftp buckets
+URL.register_handler("ftp", FTPHandler())
+
+# ftp buckets
+URL.register_handler("sftp", SFTPHandler())
