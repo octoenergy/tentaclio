@@ -1,9 +1,9 @@
 import ftplib
 import io
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 import pysftp
-from dataio.protocols import Reader
+from dataio import protocols
 from dataio.urls import URL
 
 from . import decorators, exceptions, stream_client
@@ -16,7 +16,7 @@ class FTPClient(stream_client.StreamClient):
     Generic FTP hook
     """
 
-    conn: Optional[ftplib.FTP]
+    conn: ftplib.FTP
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
@@ -43,12 +43,18 @@ class FTPClient(stream_client.StreamClient):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         f = io.BytesIO()
-        self.conn.retrbinary("RETR %s" % remote_path, f.write)  # type: ignore
+        self.conn.retrbinary(f"RETR {remote_path}", f.write)  # type: ignore
         f.seek(0)
         return f
 
-    def put(self, file_obj: Reader, **params) -> None:
-        raise NotImplementedError
+    @decorators.check_conn()
+    def put(self, file_obj: protocols.Reader, file_path: Optional[str] = None) -> None:
+
+        remote_path = file_path or self.url.path
+        buff = io.BytesIO()
+        buff.write(file_obj.read())
+        buff.seek(0)
+        cast(ftplib.FTP, self.conn).storbinary(f"STOR {remote_path}", buff)
 
     # Helpers:
 
@@ -60,7 +66,7 @@ class FTPClient(stream_client.StreamClient):
             # Query info
             # https://tools.ietf.org/html/rfc3659#section-7
             cmd = "MLST " + file_path
-            self.conn.sendcmd(cmd)  # type: ignore
+            self.conn.sendcmd(cmd)
             return True
         except ftplib.error_perm:
             return False
@@ -71,7 +77,7 @@ class SFTPClient(stream_client.StreamClient):
     Generic SFTP hook
     """
 
-    conn: Optional[pysftp.Connection]
+    conn: pysftp.Connection
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
@@ -100,13 +106,18 @@ class SFTPClient(stream_client.StreamClient):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self.conn.isfile(remote_path):  # type: ignore
+        if not self.conn.isfile(cast(str, remote_path)):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         f = io.BytesIO()
-        self.conn.getfo(remote_path, f, callback=None)  # type: ignore
+        self.conn.getfo(remote_path, f)
         f.seek(0)
         return f
 
-    def put(self, file_obj: Reader, **params) -> None:
-        raise NotImplementedError
+    @decorators.check_conn()
+    def put(self, file_obj: protocols.Reader, file_path: str = None) -> None:
+        remote_path = file_path or self.url.path
+        if remote_path == "":
+            raise exceptions.FTPError("Missing remote file path")
+
+        self.conn.putfo(remote_path, file_obj, callback=None)

@@ -67,3 +67,7 @@ class TestSFTPClient:
 
             with pytest.raises(exceptions.FTPError):
                 client.get(file_path=path)
+
+    def test_get(self,mocked_sftp_conn):
+        pass
+
