@@ -38,5 +38,4 @@ class TestStreamClientReader:
 
         reader = clients.StreamClientReader(client)
         reader.close()
-
         assert reader.buffer.closed

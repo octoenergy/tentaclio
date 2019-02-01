@@ -49,12 +49,8 @@ class FTPClient(stream_client.StreamClient):
 
     @decorators.check_conn()
     def put(self, file_obj: protocols.Reader, file_path: Optional[str] = None) -> None:
-
         remote_path = file_path or self.url.path
-        buff = io.BytesIO()
-        buff.write(file_obj.read())
-        buff.seek(0)
-        cast(ftplib.FTP, self.conn).storbinary(f"STOR {remote_path}", buff)
+        cast(ftplib.FTP, self.conn).storbinary(f"STOR {remote_path}", file_obj)  # type: ignore
 
     # Helpers:
 
@@ -120,4 +116,4 @@ class SFTPClient(stream_client.StreamClient):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        self.conn.putfo(remote_path, file_obj, callback=None)
+        self.conn.putfo(remote_path, file_obj)
