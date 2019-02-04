@@ -7,19 +7,9 @@ from typing_extensions import Protocol
 from dataio import protocols
 
 
-__all__ = ["URLError", "URLHandlerRegistry", "URL", "open_reader", "open_writer"]
+__all__ = ["URLError", "URLHandlerRegistry", "URL"]
 
 logger = logging.getLogger(__name__)
-
-
-def open_reader(url: str, **kwargs) -> ContextManager[protocols.Reader]:
-    """Opens the url and returns a reader """
-    return URL(url).open_reader(extras=kwargs)
-
-
-def open_writer(url: str, **kwargs) -> ContextManager[protocols.Writer]:
-    """Opens the url and returns a writer"""
-    return URL(url).open_writer(extras=kwargs)
 
 
 class URLError(Exception):

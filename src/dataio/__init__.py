@@ -8,6 +8,7 @@ from dataio.handlers import (
 
 from .protocols import *  # noqa
 from .urls import *  # noqa
+from .api import *  # noqa
 
 # Local files
 URL.register_handler("", LocalFileHandler())

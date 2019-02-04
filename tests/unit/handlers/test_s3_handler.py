@@ -3,7 +3,8 @@ import boto3
 import moto
 import pytest
 
-from dataio.urls import URL, open_reader, open_writer
+from dataio.api import open_reader, open_writer
+from dataio.urls import URL
 
 
 AWS_PUBLIC_KEY = "public_key"
