@@ -1,23 +1,13 @@
 import logging
-from typing import ContextManager, Dict, Optional, ClassVar
+from typing import ClassVar, ContextManager, Dict, Optional
 from urllib import parse
 
 from dataio import protocols
 from typing_extensions import Protocol
 
-__all__ = ["URLError", "URLHandlerRegistry", "URL", "open_reader", "open_writer"]
+__all__ = ["URLError", "URLHandlerRegistry", "URL"]
 
 logger = logging.getLogger(__name__)
-
-
-def open_reader(url: str, **kwargs) -> ContextManager[protocols.Reader]:
-    """Opens the url and returns a reader """
-    return URL(url).open_reader(extras=kwargs)
-
-
-def open_writer(url: str, **kwargs) -> ContextManager[protocols.Writer]:
-    """Opens the url and returns a writer"""
-    return URL(url).open_writer(extras=kwargs)
 
 
 class URLError(Exception):
@@ -141,8 +131,7 @@ class URL:
         if parsed_url.query:
             # Assuming string values
             self.query = {
-                key: value
-                for key, value in parse.parse_qsl(parsed_url.query, strict_parsing=True)
+                key: value for key, value in parse.parse_qsl(parsed_url.query, strict_parsing=True)
             }
         else:
             self.query = None
@@ -176,25 +165,17 @@ class URL:
     def __repr__(self):
         return f"URL({self.url})"
 
-    def open_reader(
-        self, extras: Optional[dict] = None
-    ) -> ContextManager[protocols.Reader]:
+    def open_reader(self, extras: Optional[dict] = None) -> ContextManager[protocols.Reader]:
         """Open a reader for the stream located at this url"""
 
         extras = extras or {}
-        reader = self._handler_registry.get_handler(self.scheme).open_reader_for(
-            self, extras
-        )
+        reader = self._handler_registry.get_handler(self.scheme).open_reader_for(self, extras)
         return _ReaderContextManager(reader)
 
-    def open_writer(
-        self, extras: Optional[dict] = None
-    ) -> ContextManager[protocols.Writer]:
+    def open_writer(self, extras: Optional[dict] = None) -> ContextManager[protocols.Writer]:
         """Open a writer for the stream located at this url"""
         extras = extras or {}
-        writer = self._handler_registry.get_handler(self.scheme).open_writer_for(
-            self, extras
-        )
+        writer = self._handler_registry.get_handler(self.scheme).open_writer_for(self, extras)
         return _WriterContextManager(writer)
 
     @classmethod

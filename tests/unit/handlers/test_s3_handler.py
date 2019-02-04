@@ -1,6 +1,7 @@
 # from dataio.handlers import s3_handler
 import boto3
-from dataio.urls import URL, open_reader, open_writer
+from dataio.api import open_reader, open_writer
+from dataio.urls import URL
 
 import moto
 import pytest

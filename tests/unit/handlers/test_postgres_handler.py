@@ -40,4 +40,3 @@ def test_dump_csv_no_table(csv_data, csv_dumper, mocker):
     with pytest.raises(ValueError):
         with open_writer("postgresql://localhost/database") as writer:
             writer.write(csv_data.read())
-

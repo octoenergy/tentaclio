@@ -3,6 +3,7 @@ from dataio.handlers import (FTPHandler, LocalFileHandler, PostgresURLHandler,
 
 from .protocols import *  # noqa
 from .urls import *  # noqa
+from .api import *  # noqa
 
 # Local files
 URL.register_handler("", LocalFileHandler())
