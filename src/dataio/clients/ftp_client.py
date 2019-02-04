@@ -47,7 +47,7 @@ class FTPClient(stream_client.StreamClient):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         f = io.BytesIO()
-        self.conn.retrbinary(f"RETR {remote_path}", f.write)  # type: ignore
+        self.conn.retrbinary(f"RETR {remote_path}", f.write)
         f.seek(0)
         return f
 
@@ -107,10 +107,11 @@ class SFTPClient(stream_client.StreamClient):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self.conn.isfile(cast(str, remote_path)):
+        if not self.conn.isfile(str, remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         f = io.BytesIO()
+        logger.info(f"sftp reading from {remote_path}")
         self.conn.getfo(remote_path, f)
         f.seek(0)
         return f
@@ -121,4 +122,8 @@ class SFTPClient(stream_client.StreamClient):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        self.conn.putfo(remote_path, file_obj)
+        logger.info(f"sftp writing to {remote_path}")
+        # this gives permission error but open works
+        # self.conn.putfo(remote_path, file_obj.read())
+        with self.conn.open(remote_path, mode="wb") as f:
+            f.write(file_obj.read())
