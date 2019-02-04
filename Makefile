@@ -22,7 +22,7 @@ sync:
 
 # Testing
 
-circleci: lint unit integration
+circleci: lint unit
 
 # check-untyped-defs is not a valid config item for setup.cfg
 lint:
@@ -34,8 +34,14 @@ lint:
 unit:
 	pipenv run pytest tests/unit
 
-integration:
-	pipenv run pytest tests/integration
+functional-postgres:
+	pipenv run pytest tests/functional/postgres
+
+functional-ftp:
+	pipenv run pytest tests/functional/ftp
+
+functional-sftp:
+	pipenv run pytest tests/functional/ftp
 
 # Deployment
 

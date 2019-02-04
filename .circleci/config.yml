@@ -12,13 +12,6 @@ jobs:
 
     docker:
       - image: circleci/python:3.6.6
-        environment:
-          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
-      - image: circleci/postgres:9.5.10
-        environment:
-          # CircleCI img run under `circleci` user
-          POSTGRES_USER: circleci
-          POSTGRES_DB: dataio-test
 
     steps:
       - checkout
@@ -42,6 +35,45 @@ jobs:
           name: Run linters and tests
           command: make circleci
 
+  integration-postgres:
+
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
+      - image: circleci/postgres:9.5.10
+        environment:
+          # CircleCI img run under `circleci` user
+          POSTGRES_USER: circleci
+          POSTGRES_DB: dataio-test
+
+    steps:
+      - run:
+          name: Run postgres integration tests 
+          command: make integration-postgres 
+
+  integration-ftp:
+
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+            OCTOIO_CONN_FTP_TEST: ftp://octopus:tentacle@localhost/
+
+      - image: stilliard/pure-ftpd 
+        environment:
+          # CircleCI img run under `circleci` user
+          FTP_USER_NAME: octopus
+          FTP_USER_PASS: tentacle 
+
+    steps:
+      - run:
+          name: Run postgres integration tests 
+          command: make integration-ftp
+
 workflows:
 
   version: 2
@@ -49,3 +81,6 @@ workflows:
   test-build:
     jobs:
       - build
+      - integration-ftp:
+            -requires:
+                -build

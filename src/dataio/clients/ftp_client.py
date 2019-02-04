@@ -1,5 +1,6 @@
 import ftplib
 import io
+import logging
 from typing import Optional, Union, cast
 
 import pysftp
@@ -7,6 +8,8 @@ from dataio import protocols
 from dataio.urls import URL
 
 from . import decorators, exceptions, stream_client
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["FTPClient", "SFTPClient"]
 
@@ -27,6 +30,7 @@ class FTPClient(stream_client.StreamClient):
     # Connection methods:
 
     def connect(self) -> ftplib.FTP:
+        logging.info("starting ftp connetion to {self.url}")
         return ftplib.FTP(
             self.url.hostname or "", self.url.username or "", self.url.password or ""
         )
@@ -64,7 +68,8 @@ class FTPClient(stream_client.StreamClient):
             cmd = "MLST " + file_path
             self.conn.sendcmd(cmd)
             return True
-        except ftplib.error_perm:
+        except ftplib.error_perm as e:
+            logger.error("ftplib error: " + str(e))
             return False
 
 
