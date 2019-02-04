@@ -98,7 +98,9 @@ class TestSFTPClient:
         # the object from the fixture makes the mocking really ugly
         sftp_mock = mocker.patch("pysftp.Connection")
         result = io.BytesIO()
-        sftp_mock.return_value.putfo = lambda _, f: result.write(f.read())
+        sftp_mock.return_value.open.return_value.__enter__.return_value.write = lambda data: result.write(
+            data
+        )
         with ftp_client.SFTPClient("sftp://user:pass@localhost/myfile.txt") as client:
             reader = io.BytesIO(expected)
             client.put(reader)
