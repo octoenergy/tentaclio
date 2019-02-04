@@ -86,8 +86,6 @@ jobs:
 
     docker:
       - image: circleci/python:3.6.6
-        environment:
-            OCTOIO_CONN_SFTP_TEST: ftp://octopus:tentacle@localhost:2222/
 
       - image: atmoz/sftp
         command: octopus:tentacle:::upload
