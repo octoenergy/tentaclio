@@ -35,7 +35,7 @@ jobs:
           name: Run linters and tests
           command: make circleci
 
-  integration-postgres:
+  functional-postgres:
 
     working_directory: ~/lib
 
@@ -51,10 +51,10 @@ jobs:
 
     steps:
       - run:
-          name: Run postgres integration tests 
-          command: make integration-postgres 
+          name: Run postgres functional tests 
+          command: make functional-postgres 
 
-  integration-ftp:
+  functional-ftp:
 
     working_directory: ~/lib
 
@@ -63,16 +63,15 @@ jobs:
         environment:
             OCTOIO_CONN_FTP_TEST: ftp://octopus:tentacle@localhost/
 
-      - image: stilliard/pure-ftpd 
+      - image: mauler/simple-ftp-server
         environment:
-          # CircleCI img run under `circleci` user
-          FTP_USER_NAME: octopus
-          FTP_USER_PASS: tentacle 
+          FTP_USER: octopus
+          FTP_PASS: tentacle 
 
     steps:
       - run:
-          name: Run postgres integration tests 
-          command: make integration-ftp
+          name: Run postgres functional tests 
+          command: make functional-ftp
 
 workflows:
 
@@ -81,6 +80,6 @@ workflows:
   test-build:
     jobs:
       - build
-      - integration-ftp:
-            -requires:
-                -build
+      - functional-ftp:
+            - requires:
+                - build
