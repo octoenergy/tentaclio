@@ -47,3 +47,32 @@ def test_simple_authenticate(with_creds, raw, expected, register_handler):
     injector.register_credentials(with_creds_url)
     result = injector.inject(raw_url)
     assert expected_url == result
+
+
+@pytest.mark.parametrize(
+    "path_1, path_2, expected",
+    [
+        ("", "", 0.5),
+        ("path", None, 0.5),
+        ("path_elem_1", "path_elem_1/path_elem_2", 1),
+        ("path_elem_1/path_elem_2", "path_elem_1/path_elem_2", 2),
+    ],
+)
+def test_similarites(path_1, path_2, expected):
+    result = injection._similarity(path_1, path_2)
+    assert result == expected
+
+
+def test_hostname_is_wildcard(register_handler):
+    matches = injection._filter_by_hostname(
+        URL("registered://hostname/"), [URL("registered://google.com/path")]
+    )
+    assert matches == [URL("registered://google.com/path")]
+
+
+def test_filter_by_hostname(register_handler):
+    matches = injection._filter_by_hostname(
+        URL("registered://google.com/"),
+        [URL("registered://google.com/path"), URL("registered://yahoo.com/path")],
+    )
+    assert matches == [URL("registered://google.com/path")]

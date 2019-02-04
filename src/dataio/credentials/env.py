@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 Env = Dict[str, str]
 
-OCTOIO_CONN_PREFIX = "OCTOIO_CONN"
+OCTOIO_CONN_PREFIX = "OCTOIO__CONN__"
 
 
 def _get_connection_urls(env: Env) -> List[urls.URL]:
@@ -21,8 +21,8 @@ def _get_connection_urls(env: Env) -> List[urls.URL]:
             try:
                 connections.append(urls.URL(val))
             except Exception as e:
-                logger.error("Error parsing connection url {key}")
-                logger.exception(e)
+                logger.error("Error parsing credentials from the environment variable {key}")
+                raise e
     return connections
 
 
