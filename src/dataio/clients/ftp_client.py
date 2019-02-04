@@ -107,7 +107,7 @@ class SFTPClient(stream_client.StreamClient):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self.conn.isfile(str, remote_path):
+        if not self.conn.isfile(remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         f = io.BytesIO()
