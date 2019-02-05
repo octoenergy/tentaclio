@@ -1,10 +1,8 @@
 import io
-from typing import Optional
+from typing import Optional, TypeVar
 from urllib import parse
 
 import requests
-
-from dataio import protocols
 
 from . import decorators, exceptions, stream_client
 
@@ -12,9 +10,12 @@ from . import decorators, exceptions, stream_client
 __all__ = ["HTTPClient"]
 
 
+AnyPayload = TypeVar("AnyPayload", io.StringIO, str, dict)
+
+
 DEFAULT_TIMEOUT = 10.0
 
-DEFAULT_HEADERS = {"Content-type": "application/json", "Accept": "application/json"}
+DEFAULT_HEADERS = {"Accept": "application/json"}
 
 
 class HTTPClient(stream_client.StreamClient):
@@ -25,6 +26,12 @@ class HTTPClient(stream_client.StreamClient):
     conn: Optional[requests.Session]
     timeout: float
     headers: dict
+    protocol: str
+    username: Optional[str]
+    password: Optional[str]
+    hostname: str
+    port: Optional[int]
+    endpoint: str
 
     def __init__(
         self, url: str, default_timeout: float = None, default_headers: dict = None
@@ -37,12 +44,18 @@ class HTTPClient(stream_client.StreamClient):
 
         if self.url.scheme not in ("http", "https"):
             raise exceptions.HTTPError(f"Incorrect scheme {self.url.scheme}")
+        self.protocol = self.url.scheme
+
+        if self.url.hostname is None:
+            raise exceptions.HTTPError(f"Missing URL hostname")
+        self.hostname = self.url.hostname
+
+        self.port = self.url.port
+        self.endpoint = self.url.path
 
         # Enforce no empty credentials
-        if self.url.username == "":
-            self.url.username = None
-        if self.url.password == "":
-            self.url.password = None
+        self.username = None if self.url.username == "" else self.url.username
+        self.password = None if self.url.password == "" else self.url.password
 
     # Connection methods:
 
@@ -50,8 +63,8 @@ class HTTPClient(stream_client.StreamClient):
         session = requests.Session()
 
         # credentials provided
-        if self.url.username and self.url.password:
-            session.auth = (self.url.username, self.url.password)
+        if self.username and self.password:
+            session.auth = (self.username, self.password)
 
         # Non-empty header
         if self.headers:
@@ -68,19 +81,15 @@ class HTTPClient(stream_client.StreamClient):
         request = self._build_request("GET", url, default_params=params)
         response = self._send_request(request, default_options=options)
 
-        f = io.BytesIO()
         # Content released in bytes
+        f = io.BytesIO()
         f.write(response.content)
         f.seek(0)
         return f
 
     @decorators.check_conn()
     def put(
-        self,
-        data: protocols.Reader,
-        endpoint: str = None,
-        params: dict = None,
-        options: dict = None,
+        self, data: AnyPayload, endpoint: str = None, params: dict = None, options: dict = None
     ) -> None:
         url = self._fetch_url(endpoint or "")
 
@@ -90,23 +99,14 @@ class HTTPClient(stream_client.StreamClient):
     # Helpers:
 
     def _fetch_url(self, endpoint: str) -> str:
-        if endpoint == "" and self.url.path == "":
+        if endpoint == "" and self.endpoint == "":
             raise exceptions.HTTPError("Missing URL end point")
-        # Enforce no empty hostname
-        if self.url.hostname is None:
-            raise exceptions.HTTPError(f"Missing URL hostname")
         # Fetch full base URL
-        base_url = parse.urlunparse(
-            (self.url.scheme, self.url.hostname, self.url.path, "", "", "")
-        )
+        base_url = parse.urlunparse((self.protocol, self.hostname, self.endpoint, "", "", ""))
         return parse.urljoin(base_url, endpoint)
 
     def _build_request(
-        self,
-        method: str,
-        url: str,
-        default_data: protocols.Reader = None,
-        default_params: dict = None,
+        self, method: str, url: str, default_data: AnyPayload = None, default_params: dict = None
     ):
         data = default_data or []
         params = default_params or {}

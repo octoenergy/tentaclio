@@ -28,14 +28,14 @@ class TestHTTPClient:
         ],
     )
     def test_parsing_http_url(self, url, username, password, hostname, port, path):
-        parsed_url = http_client.HTTPClient(url).url
+        client = http_client.HTTPClient(url)
 
-        assert parsed_url.scheme == "http"
-        assert parsed_url.hostname == hostname
-        assert parsed_url.username == username
-        assert parsed_url.password == password
-        assert parsed_url.port == port
-        assert parsed_url.path == path
+        assert client.protocol == "http"
+        assert client.hostname == hostname
+        assert client.username == username
+        assert client.password == password
+        assert client.port == port
+        assert client.endpoint == path
 
     @pytest.mark.parametrize(
         "url,path",
@@ -48,9 +48,9 @@ class TestHTTPClient:
         ],
     )
     def test_get_invalid_endpoint(self, url, path, mocked_http_conn):
-        with http_client.HTTPClient(url) as client:
+        with pytest.raises(exceptions.HTTPError):
 
-            with pytest.raises(exceptions.HTTPError):
+            with http_client.HTTPClient(url) as client:
                 client.get(endpoint=path)
 
     @pytest.mark.parametrize(
