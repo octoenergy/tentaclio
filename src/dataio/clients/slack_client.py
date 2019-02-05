@@ -1,7 +1,7 @@
 import io
 import json
 
-from . import decorators, http_client
+from . import http_client
 
 __all__ = ["SlackClient"]
 
@@ -14,7 +14,6 @@ class SlackClient(http_client.HTTPClient):
     def __init__(self, url: str) -> None:
         super().__init__(url)
 
-    @decorators.check_conn()
     def notify(
         self, message: str, channel: str = None, username: str = None, icon_emoji: str = None
     ) -> None:
