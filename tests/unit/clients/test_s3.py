@@ -17,12 +17,9 @@ def fixture_conn():
 
 
 class TestS3Client:
-    @pytest.mark.parametrize(
-        "url", ["file:///test.file", "ftp://:@localhost", "postgresql://:@localhost"]
-    )
-    def test_invalid_scheme(self, url):
+    def test_invalid_scheme(self, register_handler):
         with pytest.raises(exceptions.S3Error):
-            s3_client.S3Client(url)
+            s3_client.S3Client("registered://file")
 
     @pytest.mark.parametrize(
         "url,username,password,hostname,path",

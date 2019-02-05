@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from typing import Sequence
+from typing import Any, Sequence
 
 from typing_extensions import Protocol
 
@@ -27,8 +27,14 @@ def _get_field_names(reader: io.StringIO) -> Sequence[str]:
 class CsvDumper(Protocol):
     """Csv into db dumping contract."""
 
+    def __enter__(self) -> Any:
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        ...
+
     def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
-        pass
+        ...
 
 
 class DatabaseCsvWriter(BaseBuffer):
@@ -57,7 +63,8 @@ class DatabaseCsvWriter(BaseBuffer):
         """Use the client to dump the data into the configured table."""
         self.buff.seek(0)
         field_names = _get_field_names(self.buff)
-        self.csv_dumper.dump_csv(self.buff, field_names, self.table)
+        with self.csv_dumper:
+            self.csv_dumper.dump_csv(self.buff, field_names, self.table)
 
     def close(self) -> None:
         """Close the internal buffer and flush the contents to db."""
