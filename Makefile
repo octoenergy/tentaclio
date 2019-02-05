@@ -37,6 +37,13 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
+
+functional-ftp:
+	pipenv run pytest tests/functional/ftp
+
+functional-sftp:
+	pipenv run pytest tests/functional/sftp
+
 # Deployment
 
 package:
