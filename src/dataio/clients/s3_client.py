@@ -55,9 +55,10 @@ class S3Client(stream_client.StreamClient):
         )
         return session.client("s3")
 
-    def close(self)->None:
+    def close(self) -> None:
         # s3 doesn't have close method
-        ...
+        if self.conn is not None:
+            self.conn = None
 
     # Stream methods:
 
