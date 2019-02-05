@@ -1,10 +1,4 @@
-from dataio.handlers import (
-    FTPHandler,
-    LocalFileHandler,
-    PostgresURLHandler,
-    S3URLHandler,
-    SFTPHandler,
-)
+from dataio.handlers import *  # noqa
 
 from .protocols import *  # noqa
 from .urls import *  # noqa
