@@ -42,10 +42,62 @@ jobs:
           name: Run linters and tests
           command: make test
 
+
+  functional-ftp:
+
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+            OCTOIO_CONN_FTP_TEST: ftp://octopus:tentacle@localhost/
+
+      - image: mauler/simple-ftp-server
+        environment:
+          FTP_USER: octopus
+          FTP_PASS: tentacle 
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run postgres functional tests 
+          command: make functional-ftp
+
+  functional-sftp:
+
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+            OCTOIO_CONN_SFTP_TEST: ftp://octopus:tentacle@localhost:2222/
+
+      - image: atmoz/sftp
+        command: octopus:tentacle:::upload
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run sftp functional tests 
+          command: make functional-sftp
 workflows:
 
   version: 2
 
   test-build:
     jobs:
-      - build
+        - build
+        - functional-sftp:
+            requires:
+                - build
+        - functional-ftp:
+            requires:
+                - build

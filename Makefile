@@ -45,6 +45,12 @@ integration:
 coverage:
 	pipenv run pytest --cov=src --cov-report html --cov-report term tests
 
+functional-ftp:
+	pipenv run pytest tests/functional/ftp
+
+functional-sftp:
+	pipenv run pytest tests/functional/sftp
+
 # Deployment
 
 package:
