@@ -1,6 +1,6 @@
 import contextlib
 import io
-from typing import Union, Generator, Optional, Sequence
+from typing import Generator, Optional, Sequence, Union
 
 import pandas as pd
 from dataio.protocols import Reader
@@ -27,12 +27,15 @@ class PostgresClient(base_client.QueryClient):
     engine = None
     execution_options: dict
     connect_args: dict
+    database: str
+    drivername: str
+    username: Optional[str]
+    password: Optional[str]
+    host: Optional[str]
+    port: Optional[int]
 
     def __init__(
-        self,
-        url: Union[str, URL],
-        execution_options: dict = None,
-        connect_args: dict = None,
+        self, url: Union[str, URL], execution_options: dict = None, connect_args: dict = None
     ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
@@ -41,20 +44,27 @@ class PostgresClient(base_client.QueryClient):
         if self.url.scheme != "postgresql":
             raise exceptions.PostgresError(f"Incorrect scheme {self.url.scheme}")
 
-        # Exception: database not a path
-        if self.url.path != "":
-            self.url.path = self.url.path[1:]
+        # the database doesn't start with /
+        database = self.url.path[1:]
+
+        self.database = database
+        self.drivername = self.url.scheme
+        self.username = self.url.username
+        self.password = self.url.password
+        self.host = self.url.hostname
+        self.port = self.url.port
 
     # Connection methods:
 
     def connect(self) -> Connection:
+
         parsed_url = sqla_url.URL(
-            drivername=self.url.scheme,
-            username=self.url.username,
-            password=self.url.password,
-            host=self.url.hostname,
-            port=self.url.port,
-            database=self.url.path,
+            drivername=self.drivername,
+            username=self.username,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.database,
         )
         if self.engine is None:
             self.engine = create_engine(
@@ -120,9 +130,7 @@ class PostgresClient(base_client.QueryClient):
         self._copy_expert_csv(buff, df.columns, dest_table)
 
     @decorators.check_conn()
-    def dump_csv(
-        self, csv_reader: Reader, columns: Sequence[str], dest_table: str
-    ) -> None:
+    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
         """Dump a csv reader into the database."""
         self._copy_expert_csv(csv_reader, columns, dest_table)
 

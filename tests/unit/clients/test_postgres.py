@@ -9,7 +9,7 @@ class TestPostgresClient:
             postgres_client.PostgresClient(url)
 
     @pytest.mark.parametrize(
-        "url,username,password,hostname,port,path",
+        "url, username, password, hostname, port, database",
         [
             ("postgresql://:@localhost", "", "", "localhost", None, ""),
             ("postgresql://login:pass@localhost", "login", "pass", "localhost", None, ""),
@@ -17,12 +17,12 @@ class TestPostgresClient:
             ("postgresql://:@localhost:5432/database", "", "", "localhost", 5432, "database"),
         ],
     )
-    def test_parsing_postgres_url(self, url, username, password, hostname, port, path):
-        parsed_url = postgres_client.PostgresClient(url).url
+    def test_parsing_postgres_url(self, url, username, password, hostname, port, database):
+        client = postgres_client.PostgresClient(url)
 
-        assert parsed_url.scheme == "postgresql"
-        assert parsed_url.hostname == hostname
-        assert parsed_url.username == username
-        assert parsed_url.password == password
-        assert parsed_url.port == port
-        assert parsed_url.path == path
+        assert client.drivername == "postgresql"
+        assert client.host == hostname
+        assert client.username == username
+        assert client.password == password
+        assert client.port == port
+        assert client.database == database
