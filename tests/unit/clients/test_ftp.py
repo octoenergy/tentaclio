@@ -1,28 +1,24 @@
-import pytest
 import io
+
 from dataio.clients import exceptions, ftp_client
+
+import pytest
 
 
 @pytest.fixture()
 def mocked_ftp_conn(mocker):
-    with mocker.patch.object(
-        ftp_client.FTPClient, "connect", return_value=mocker.Mock()
-    ):
+    with mocker.patch.object(ftp_client.FTPClient, "connect", return_value=mocker.MagicMock()):
         yield
 
 
 @pytest.fixture()
 def mocked_sftp_conn(mocker):
-    with mocker.patch.object(
-        ftp_client.SFTPClient, "connect", return_value=mocker.Mock()
-    ):
+    with mocker.patch.object(ftp_client.SFTPClient, "connect", return_value=mocker.MagicMock()):
         yield
 
 
 class TestFTPClient:
-    @pytest.mark.parametrize(
-        "url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"]
-    )
+    @pytest.mark.parametrize("url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
         with pytest.raises(exceptions.FTPError):
             ftp_client.FTPClient(url)
@@ -53,11 +49,34 @@ class TestFTPClient:
             with pytest.raises(exceptions.FTPError):
                 client.get(io.StringIO(), file_path=path)
 
+    def test_get(self, mocked_ftp_conn):
+        expected = bytes("hello", "utf-8")
+
+        client = ftp_client.FTPClient("ftp://user:pass@localhost/myfile.txt")
+        client.connect().retrbinary = lambda _, f: f(expected)
+        buff = io.BytesIO()
+        with client:
+            client.get(buff)
+
+        assert buff.getvalue() == expected
+
+    def test_put(self, mocked_ftp_conn):
+        expected = bytes("hello", "utf-8")
+        result = io.BytesIO()
+
+        client = ftp_client.FTPClient("ftp://user:pass@localhost/myfile.txt")
+        client.connect().storbinary = lambda _, f: result.write(f.read())
+
+        with client:
+            reader = io.BytesIO(expected)
+            client.put(reader)
+        result.seek(0)
+
+        assert result.getvalue() == expected
+
 
 class TestSFTPClient:
-    @pytest.mark.parametrize(
-        "url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"]
-    )
+    @pytest.mark.parametrize("url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
         with pytest.raises(exceptions.FTPError):
             ftp_client.SFTPClient(url)
@@ -68,3 +87,31 @@ class TestSFTPClient:
 
             with pytest.raises(exceptions.FTPError):
                 client.get(io.StringIO(), file_path=path)
+
+    def test_get(self, mocked_sftp_conn):
+        expected = bytes("hello", "utf-8")
+
+        client = ftp_client.SFTPClient("sftp://user:pass@localhost/myfile.txt")
+        client.connect().getfo = lambda _, f: f.write(expected)
+        buff = io.BytesIO()
+        with client:
+            client.get(buff)
+
+        assert buff.getvalue() == expected
+
+    def test_put(self, mocked_sftp_conn):
+        expected = bytes("hello", "utf-8")
+        result = io.BytesIO()
+
+        client = ftp_client.SFTPClient("sftp://user:pass@localhost/myfile.txt")
+        # forgive me father for I have sinned.
+        # mocking the context manager of the connection, a bit coupled with the
+        # actual implementation and long.
+        client.connect().open().__enter__().write = lambda data: result.write(data)
+
+        with client:
+            reader = io.BytesIO(expected)
+            client.put(reader)
+        result.seek(0)
+
+        assert result.getvalue() == expected
