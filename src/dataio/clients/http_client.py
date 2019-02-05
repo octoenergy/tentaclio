@@ -1,5 +1,5 @@
 import io
-from typing import Optional, TypeVar
+from typing import Optional
 from urllib import parse
 
 import requests
@@ -8,9 +8,6 @@ from . import decorators, exceptions, stream_client
 
 
 __all__ = ["HTTPClient"]
-
-
-AnyPayload = TypeVar("AnyPayload", io.StringIO, str, dict)
 
 
 DEFAULT_TIMEOUT = 10.0
@@ -89,7 +86,7 @@ class HTTPClient(stream_client.StreamClient):
 
     @decorators.check_conn()
     def put(
-        self, data: AnyPayload, endpoint: str = None, params: dict = None, options: dict = None
+        self, data: io.StringIO, endpoint: str = None, params: dict = None, options: dict = None
     ) -> None:
         url = self._fetch_url(endpoint or "")
 
@@ -106,7 +103,7 @@ class HTTPClient(stream_client.StreamClient):
         return parse.urljoin(base_url, endpoint)
 
     def _build_request(
-        self, method: str, url: str, default_data: AnyPayload = None, default_params: dict = None
+        self, method: str, url: str, default_data: io.StringIO = None, default_params: dict = None
     ):
         data = default_data or []
         params = default_params or {}
