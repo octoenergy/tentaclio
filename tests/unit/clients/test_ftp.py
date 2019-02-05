@@ -1,3 +1,5 @@
+import io
+
 import pytest
 
 from dataio.clients import exceptions, ftp_client
@@ -45,7 +47,7 @@ class TestFTPClient:
         with ftp_client.FTPClient(url) as client:
 
             with pytest.raises(exceptions.FTPError):
-                client.get(file_path=path)
+                client.get(io.StringIO(), file_path=path)
 
 
 class TestSFTPClient:
@@ -59,4 +61,4 @@ class TestSFTPClient:
         with ftp_client.SFTPClient(url) as client:
 
             with pytest.raises(exceptions.FTPError):
-                client.get(file_path=path)
+                client.get(io.StringIO(), file_path=path)

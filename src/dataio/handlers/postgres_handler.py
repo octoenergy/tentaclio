@@ -18,11 +18,11 @@ def _get_table(url: URL) -> str:
 class PostgresURLHandler:
     """Handler for opening writers and readers ."""
 
-    def open_reader_for(self, url: URL, extras: dict) -> ReaderClosable:
+    def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
         """Not implemented."""
         raise NotImplementedError("Reading csv from postgres not implemented")
 
-    def open_writer_for(self, url: URL, extras: dict) -> WriterClosable:
+    def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open writer to dump the csv into a table in database.
 
            This stream writer only works for csv data at the moment. The url must contain

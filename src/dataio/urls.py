@@ -19,10 +19,10 @@ class URLError(Exception):
 
 
 class URLHandler(Protocol):
-    def open_reader_for(self, url: "URL", extras: dict) -> protocols.ReaderClosable:
+    def open_reader_for(self, url: "URL", mode: str, extras: dict) -> protocols.ReaderClosable:
         ...
 
-    def open_writer_for(self, url: "URL", extras: dict) -> protocols.WriterClosable:
+    def open_writer_for(self, url: "URL", mode: str, extras: dict) -> protocols.WriterClosable:
         ...
 
 
@@ -204,18 +204,26 @@ class URL:
     def url(self) -> str:
         return self._url
 
-    def open_reader(self, extras: Optional[dict] = None) -> ContextManager[protocols.Reader]:
+    def open_reader(
+        self, mode: str, extras: Optional[dict] = None
+    ) -> ContextManager[protocols.Reader]:
 
         """Open a reader for the stream located at this url"""
 
         extras = extras or {}
-        reader = self._handler_registry.get_handler(self._scheme).open_reader_for(self, extras)
+        reader = self._handler_registry.get_handler(self._scheme).open_reader_for(
+            self, mode, extras
+        )
         return _ReaderContextManager(reader)
 
-    def open_writer(self, extras: Optional[dict] = None) -> ContextManager[protocols.Writer]:
+    def open_writer(
+        self, mode: str, extras: Optional[dict] = None
+    ) -> ContextManager[protocols.Writer]:
         """Open a writer for the stream located at this url"""
         extras = extras or {}
-        writer = self._handler_registry.get_handler(self._scheme).open_writer_for(self, extras)
+        writer = self._handler_registry.get_handler(self._scheme).open_writer_for(
+            self, mode, extras
+        )
         return _WriterContextManager(writer)
 
     @classmethod
