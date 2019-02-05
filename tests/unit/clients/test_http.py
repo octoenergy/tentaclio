@@ -17,8 +17,10 @@ class TestHTTPClient:
     @pytest.mark.parametrize(
         "url,username,password,hostname,port,path",
         [
+            # Parse credentials
             ("http://:@host.com", None, None, "host.com", None, ""),
             ("http://login:pass@host.com", "login", "pass", "host.com", None, ""),
+            # Parse web components
             ("http://host.com", None, None, "host.com", None, ""),
             ("http://host.com:8080", None, None, "host.com", 8080, ""),
             ("http://host.com:8080/endpoint", None, None, "host.com", 8080, "/endpoint"),
@@ -35,50 +37,12 @@ class TestHTTPClient:
         assert parsed_url.path == path
 
     @pytest.mark.parametrize(
-        "base_url,username,password,endpoint,full_url",
-        [
-            # Test auth
-            (
-                "http://public_key:private_key@host.com/v1/api",
-                "public_key",
-                "private_key",
-                "",
-                "http://host.com/v1/api",
-            ),
-            # # Test url format
-            ("http://host.com", None, None, "/v1/api/request", "http://host.com/v1/api/request"),
-            ("http://host.com", None, None, "v1/api/request", "http://host.com/v1/api/request"),
-            (
-                "http://host.com/v1/api",
-                None,
-                None,
-                "/v1/api/request",
-                "http://host.com/v1/api/request",
-            ),
-            (
-                "http://host.com/v1/api/",
-                None,
-                None,
-                "v1/api/request",
-                "http://host.com/v1/api/request",
-            ),
-            ("http://host.com/v1/api", None, None, "request", "http://host.com/v1/api/request"),
-            ("http://host.com/v1/api/", None, None, "/request", "http://host.com/v1/api/request"),
-        ],
-    )
-    def test_fetching_url_endpoint(self, base_url, username, password, endpoint, full_url):
-        with http_client.HTTPClient(base_url) as client:
-            url = client._fetch_url(endpoint)
-
-            assert client.conn.auth == (username, password)
-            assert url == full_url
-
-    @pytest.mark.parametrize(
         "url,path",
         [
             # Missing endpoint
             ("https://host.com", None),
             # Missing hostname
+            ("https://:8080", "/endpoint"),
             ("https://:@:8080", "/endpoint"),
         ],
     )
@@ -87,3 +51,23 @@ class TestHTTPClient:
 
             with pytest.raises(exceptions.HTTPError):
                 client.get(endpoint=path)
+
+    @pytest.mark.parametrize(
+        "base_url,endpoint,auth,full_url",
+        [
+            # Test auth
+            ("http://user:key@host.com/request", "", ("user", "key"), "http://host.com/request"),
+            ("http://:@host.com/request", "", None, "http://host.com/request"),
+            ("http://host.com/request", "", None, "http://host.com/request"),
+            # Test escaped endpoint
+            ("http://host.com", "/request", None, "http://host.com/request"),
+            ("http://host.com", "request", None, "http://host.com/request"),
+            # test overlapped endpoint
+            ("http://host.com/v1/api", "/v1/api/request", None, "http://host.com/v1/api/request"),
+        ],
+    )
+    def test_fetching_url_endpoint(self, base_url, endpoint, auth, full_url):
+        with http_client.HTTPClient(base_url) as client:
+
+            assert client.conn.auth == auth
+            assert client._fetch_url(endpoint) == full_url
