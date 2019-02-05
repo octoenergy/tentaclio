@@ -82,7 +82,7 @@ class TestHTTPClient:
             ("https://:@:8080", "/endpoint"),
         ],
     )
-    def test_got_invalid_endpoint(self, url, path, mocked_http_conn):
+    def test_get_invalid_endpoint(self, url, path, mocked_http_conn):
         with http_client.HTTPClient(url) as client:
 
             with pytest.raises(exceptions.HTTPError):
