@@ -3,8 +3,9 @@ from typing import Optional
 from urllib import parse
 
 import requests
+from dataio import protocols
 
-from . import stream_client, decorators, exceptions
+from . import decorators, exceptions, stream_client
 
 __all__ = ["HTTPClient"]
 
@@ -59,17 +60,25 @@ class HTTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, endpoint: str = None, params: dict = None, options: dict = None) -> io.StringIO:
+    def get(self, endpoint: str = None, params: dict = None, options: dict = None) -> io.BytesIO:
         url = self._fetch_url(endpoint or "")
 
         request = self._build_request("GET", url, default_params=params)
         response = self._send_request(request, default_options=options)
 
-        return response.content
+        f = io.BytesIO()
+        # Content released in bytes
+        f.write(response.content)
+        f.seek(0)
+        return f
 
     @decorators.check_conn()
     def put(
-        self, data: io.StringIO, endpoint: str = None, params: dict = None, options: dict = None
+        self,
+        data: protocols.Reader,
+        endpoint: str = None,
+        params: dict = None,
+        options: dict = None,
     ) -> None:
         url = self._fetch_url(endpoint or "")
 
@@ -91,9 +100,13 @@ class HTTPClient(stream_client.StreamClient):
         return parse.urljoin(base_url, endpoint)
 
     def _build_request(
-        self, method: str, url: str, default_data: io.StringIO = None, default_params: dict = None
+        self,
+        method: str,
+        url: str,
+        default_data: protocols.Reader = None,
+        default_params: dict = None,
     ):
-        data = default_data or {}
+        data = default_data or []
         params = default_params or {}
 
         if method == "GET":
