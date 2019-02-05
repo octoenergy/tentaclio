@@ -37,6 +37,8 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
+functional-postgres:
+	pipenv run pytest tests/functional/postgres
 
 functional-ftp:
 	pipenv run pytest tests/functional/ftp
