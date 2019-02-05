@@ -6,7 +6,7 @@ Python package regrouping a collection of I/O connectors, used in the data world
 
 - a boilerplate for developers to expose new connectors (`dataio.clients`).
 - an interface to acess file resources,
-    - thanks to a unified syntax (`dataio.open_reader`, `data.open_writer`),
+    - thanks to a unified syntax (`dataio.open_reader`, `dataio.open_writer`),
     - and a simplified interface (`dataio.protocols`).
 
 ## Quickstart
@@ -60,7 +60,7 @@ The supported protocols are:
 * `s3://bucket/file`
 * `ftp://path/to/file`
 * `sftp://path/to/file`
-* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names.
+* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names (:warning: note that the table goes after `::` :warning:).
 
 You can add the credentials for any of the urls in order to access protected resources.
 
