@@ -1,4 +1,3 @@
-import io
 from typing import Optional, Tuple, Union, cast
 
 import boto3
@@ -65,16 +64,13 @@ class S3Client(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, bucket_name: str = None, key_name: str = None) -> protocols.ReaderClosable:
+    def get(self, writer: protocols.Writer, bucket_name: str = None, key_name: str = None) -> None:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
         if not self._isfile(s3_bucket, s3_key):
             raise exceptions.S3Error("Unable to fetch the remote file")
 
-        f = io.BytesIO()
-        self.conn.download_fileobj(s3_bucket, s3_key, f)  # type: ignore
-        f.seek(0)
-        return f
+        self.conn.download_fileobj(s3_bucket, s3_key, writer)  # type: ignore
 
     @decorators.check_conn()
     def put(

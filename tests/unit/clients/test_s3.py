@@ -2,6 +2,7 @@ from dataio.clients import exceptions, s3_client
 
 import moto
 import pytest
+import io
 
 
 @pytest.fixture()
@@ -44,6 +45,5 @@ class TestS3Client:
     )
     def test_get_invalid_path(self, url, bucket, key, mocked_conn):
         with s3_client.S3Client(url) as client:
-
             with pytest.raises(exceptions.S3Error):
-                client.get(bucket_name=bucket, key_name=key)
+                client.get(io.StringIO(), bucket_name=bucket, key_name=key)
