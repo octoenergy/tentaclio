@@ -35,24 +35,24 @@ jobs:
           name: Run linters and tests
           command: make circleci
 
-  #functional-postgres:
+  functional-postgres:
 
-    #working_directory: ~/lib
+    working_directory: ~/lib
 
-    #docker:
-      #- image: circleci/python:3.6.6
-        #environment:
-          #POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
-      #- image: circleci/postgres:9.5.10
-        #environment:
-          ## CircleCI img run under `circleci` user
-          #POSTGRES_USER: circleci
-          #POSTGRES_DB: dataio-test
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
+      - image: circleci/postgres:9.5.10
+        environment:
+          # CircleCI img run under `circleci` user
+          POSTGRES_USER: circleci
+          POSTGRES_DB: dataio-test
 
-    #steps:
-      #- run:
-          #name: Run postgres functional tests 
-          #command: make functional-postgres 
+    steps:
+      - run:
+          name: Run postgres functional tests 
+          command: make functional-postgres 
 
   functional-ftp:
 
@@ -107,5 +107,11 @@ workflows:
     jobs:
         - build
         - functional-sftp:
+            requires:
+                - build
+        - functional-ftp:
+            requires:
+                - build
+        - functional-postgres:
             requires:
                 - build
