@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar, ContextManager, Dict, Optional
+from typing import Any, ClassVar, ContextManager, Dict, Optional
 from urllib import parse
 
 from typing_extensions import Protocol
@@ -98,45 +98,45 @@ class URL:
 
     _handler_registry: ClassVar[URLHandlerRegistry] = URLHandlerRegistry()
 
-    scheme: str
-    username: Optional[str] = None
-    password: Optional[str] = None
-    hostname: Optional[str] = None
-    port: Optional[int] = None
-    path: str
-    query: Optional[Dict[str, str]] = None
+    _scheme: str
+    _username: Optional[str] = None
+    _password: Optional[str] = None
+    _hostname: Optional[str] = None
+    _port: Optional[int] = None
+    _path: str
+    _query: Optional[Dict[str, str]] = None
 
     def __init__(self, url: str) -> None:
-        self.url = url
-        self._parse_url(url)
+        self._url = url
+        self._parse_url()
 
     # Helpers:
 
-    def _parse_url(self, url: str) -> None:
-        parsed_url = parse.urlparse(url)
+    def _parse_url(self) -> None:
+        parsed_url = parse.urlparse(self._url)
         if parsed_url.scheme not in self._handler_registry:
             raise URLError(f"URL: scheme {parsed_url.scheme} not supported")
 
-        self.scheme = parsed_url.scheme
-        self.username = parsed_url.username
-        self.password = parsed_url.password
-        self.hostname = parsed_url.hostname
-        self.port = parsed_url.port
-        self.path = parsed_url.path
+        self._scheme = parsed_url.scheme
+        self._username = parsed_url.username
+        self._password = parsed_url.password
+        self._hostname = parsed_url.hostname
+        self._port = parsed_url.port
+        self._path = parsed_url.path
 
         # Replace %xx escapes - ONLY for username & password
         if parsed_url.username:
-            self.username = parse.unquote(self.username)
+            self._username = parse.unquote(self._username)
         if parsed_url.password:
-            self.password = parse.unquote(self.password)
+            self._password = parse.unquote(self._password)
 
         if parsed_url.query:
             # Assuming string values
-            self.query = {
+            self._query = {
                 key: value for key, value in parse.parse_qsl(parsed_url.query, strict_parsing=True)
             }
         else:
-            self.query = None
+            self._query = None
 
     @classmethod
     def from_components(
@@ -162,22 +162,60 @@ class URL:
         return URL(url)
 
     def __str__(self):
-        return self.url
+        return self._url
+
+    def __eq__(self, other: Any):
+        if not isinstance(other, URL):
+            return False
+        return self._url == other._url
 
     def __repr__(self):
-        return f"URL({self.url})"
+        return f"URL({self._url})"
+
+    @property
+    def scheme(self) -> str:
+        return self._scheme
+
+    @property
+    def username(self) -> Optional[str]:
+        return self._username
+
+    @property
+    def password(self) -> Optional[str]:
+        return self._password
+
+    @property
+    def hostname(self) -> Optional[str]:
+        return self._hostname
+
+    @property
+    def port(self) -> Optional[int]:
+        return self._port
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def query(self) -> Optional[Dict[str, str]]:
+        return self._query
+
+    @property
+    def url(self) -> str:
+        return self._url
 
     def open_reader(self, extras: Optional[dict] = None) -> ContextManager[protocols.Reader]:
+
         """Open a reader for the stream located at this url"""
 
         extras = extras or {}
-        reader = self._handler_registry.get_handler(self.scheme).open_reader_for(self, extras)
+        reader = self._handler_registry.get_handler(self._scheme).open_reader_for(self, extras)
         return _ReaderContextManager(reader)
 
     def open_writer(self, extras: Optional[dict] = None) -> ContextManager[protocols.Writer]:
         """Open a writer for the stream located at this url"""
         extras = extras or {}
-        writer = self._handler_registry.get_handler(self.scheme).open_writer_for(self, extras)
+        writer = self._handler_registry.get_handler(self._scheme).open_writer_for(self, extras)
         return _WriterContextManager(writer)
 
     @classmethod
