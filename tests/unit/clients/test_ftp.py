@@ -4,18 +4,24 @@ from dataio.clients import exceptions, ftp_client
 
 @pytest.fixture()
 def mocked_ftp_conn(mocker):
-    with mocker.patch.object(ftp_client.FTPClient, "connect", return_value=mocker.Mock()):
+    with mocker.patch.object(
+        ftp_client.FTPClient, "connect", return_value=mocker.Mock()
+    ):
         yield
 
 
 @pytest.fixture()
 def mocked_sftp_conn(mocker):
-    with mocker.patch.object(ftp_client.SFTPClient, "connect", return_value=mocker.Mock()):
+    with mocker.patch.object(
+        ftp_client.SFTPClient, "connect", return_value=mocker.Mock()
+    ):
         yield
 
 
 class TestFTPClient:
-    @pytest.mark.parametrize("url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"])
+    @pytest.mark.parametrize(
+        "url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"]
+    )
     def test_invalid_scheme(self, url):
         with pytest.raises(exceptions.FTPError):
             ftp_client.FTPClient(url)
@@ -48,7 +54,9 @@ class TestFTPClient:
 
 
 class TestSFTPClient:
-    @pytest.mark.parametrize("url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"])
+    @pytest.mark.parametrize(
+        "url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"]
+    )
     def test_invalid_scheme(self, url):
         with pytest.raises(exceptions.FTPError):
             ftp_client.SFTPClient(url)

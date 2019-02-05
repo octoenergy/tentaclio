@@ -9,6 +9,9 @@ class TestCheckConn:
             def func(self):
                 return True
 
+            def __enter__(self):
+                pass
+
         test_client = TestClient()
 
         with pytest.raises(AttributeError):
@@ -24,6 +27,9 @@ class TestCheckConn:
             @decorators.check_conn()
             def func(self):
                 return True
+
+            def __enter__(self):
+                pass
 
         test_client = TestClient(url)
 

@@ -12,6 +12,7 @@ def fixture_conn():
 
 
 class TestS3Client:
+
     @pytest.mark.parametrize(
         "url,bucket,key",
         [

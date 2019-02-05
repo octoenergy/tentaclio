@@ -9,7 +9,7 @@ class check_conn:
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        pass
+        ...
 
     def __call__(self, func: Callable) -> Callable:
         def _wrapper(*args, **kwargs) -> Any:

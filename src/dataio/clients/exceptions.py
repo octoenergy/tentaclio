@@ -4,12 +4,6 @@ class ClientError(Exception):
     """
 
 
-class URIError(ClientError):
-    """
-    Exception encountered while processing a URI
-    """
-
-
 class ConnectionError(ClientError):
     """
     Exception encountered while calling a client connection

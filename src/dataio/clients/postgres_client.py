@@ -1,9 +1,10 @@
 import contextlib
 import io
-from typing import Generator, Optional, Sequence
+from typing import Union, Generator, Optional, Sequence
 
 import pandas as pd
 from dataio.protocols import Reader
+from dataio.urls import URL
 from sqlalchemy.engine import Connection, create_engine, result
 from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
@@ -28,7 +29,10 @@ class PostgresClient(base_client.QueryClient):
     connect_args: dict
 
     def __init__(
-        self, url: str, execution_options: dict = None, connect_args: dict = None
+        self,
+        url: Union[str, URL],
+        execution_options: dict = None,
+        connect_args: dict = None,
     ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
@@ -56,7 +60,7 @@ class PostgresClient(base_client.QueryClient):
             self.engine = create_engine(
                 parsed_url,
                 execution_options=self.execution_options,
-                connect_args=self.connect_args
+                connect_args=self.connect_args,
             )
         return self.engine.connect()
 

@@ -1,6 +1,7 @@
+from dataio.clients import exceptions, s3_client
+
 import moto
 import pytest
-from dataio.clients import exceptions, s3_client
 
 
 @pytest.fixture()
@@ -16,12 +17,9 @@ def fixture_conn():
 
 
 class TestS3Client:
-    @pytest.mark.parametrize(
-        "url", ["file:///test.file", "ftp://:@localhost", "postgresql://:@localhost"]
-    )
-    def test_invalid_scheme(self, url):
+    def test_invalid_scheme(self, register_handler):
         with pytest.raises(exceptions.S3Error):
-            s3_client.S3Client(url)
+            s3_client.S3Client("registered://file")
 
     @pytest.mark.parametrize(
         "url,username,password,hostname,path",
@@ -44,7 +42,11 @@ class TestS3Client:
 
     @pytest.mark.parametrize(
         "url,bucket,key",
-        [("s3://:@s3", None, None), ("s3://:@s3", "bucket", None), ("s3://:@bucket", None, None)],
+        [
+            ("s3://:@s3", None, None),
+            ("s3://:@s3", "bucket", None),
+            ("s3://:@bucket", None, None),
+        ],
     )
     def test_get_invalid_path(self, url, bucket, key, mocked_conn):
         with s3_client.S3Client(url) as client:
