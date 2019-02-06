@@ -25,7 +25,7 @@ class TestS3Client:
             client.conn.create_bucket(Bucket=bucket or client.url.hostname)
 
             with pytest.raises(exceptions.S3Error):
-                client.get(bucket_name=bucket, key_name=key)
+                client.get(io.StringIO(), bucket_name=bucket, key_name=key)
 
     @pytest.mark.parametrize(
         "url,bucket,key",
@@ -41,8 +41,9 @@ class TestS3Client:
             client.conn.put_object(
                 Bucket=bucket or client.bucket, Key=key or client.key_name, Body=stream
             )
-
-            buffer = client.get(bucket_name=bucket, key_name=key)
+            buffer = io.BytesIO()
+            client.get(buffer, bucket_name=bucket, key_name=key)
+            buffer.seek(0)
 
             assert buffer.getvalue().decode() == stream
 

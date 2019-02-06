@@ -30,10 +30,10 @@ def test_open_s3_url_writing(fixture_conn):
     conn.create_bucket(Bucket="my_bucket")
 
     expected = bytes("hello from url", "utf-8")
-    with open_writer("s3://public_key:private_key@my_bucket/my_file") as writer:
+    with open_writer("s3://public_key:private_key@my_bucket/my_file", mode="b") as writer:
         writer.write(expected)
 
-    with open_reader("s3://public_key:private_key@my_bucket/my_file") as reader:
+    with open_reader("s3://public_key:private_key@my_bucket/my_file", mode="b") as reader:
         contents = reader.read()
 
     assert contents == expected
