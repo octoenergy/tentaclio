@@ -8,19 +8,18 @@ from dataio.urls import URL
 StreamClientFactory = Callable[..., StreamClient]
 
 
-def _is_bytes_mode(mode: str) -> bool:
+def is_bytes_mode(mode: str) -> bool:
     if "b" in str(mode):
         return True
     return False
 
 
-def _get_buff_factory(mode: str):
+def _get_buff(mode: str):
     buffer_factory: Any
-    if _is_bytes_mode(mode):
-        buffer_factory = io.BytesIO
+    if is_bytes_mode(mode):
+        return io.BytesIO()
     else:
-        buffer_factory = io.StringIO
-    return buffer_factory
+        return io.StringIO()
 
 
 class StreamURLHandler:
@@ -33,15 +32,14 @@ class StreamURLHandler:
 
     def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
         """Open an stream client for reading."""
-        buffer_factory = _get_buff_factory(mode)
-        print("reader buffer_factory", buffer_factory)
+        buffer = _get_buff(mode)
         return StreamClientReader(
-            self.client_factory(url, **extras), buffer_factory=buffer_factory
+            self.client_factory(url, **extras), buffer
         )
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open an stream client writing."""
-        buffer_factory = _get_buff_factory(mode)
+        buffer = _get_buff(mode)
         return StreamClientWriter(
-            self.client_factory(url, **extras), buffer_factory=buffer_factory
+            self.client_factory(url, **extras), buffer
         )
