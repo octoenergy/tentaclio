@@ -1,6 +1,6 @@
 import abc
 import io
-from typing import Any
+from typing import Any, cast
 
 from dataio import protocols
 
@@ -21,23 +21,23 @@ class StreamClient(base_client.BaseClient):
     # Stream methods
 
     @abc.abstractmethod
-    def get(self, **params) -> protocols.ReaderClosable:
+    def get(self, writer: protocols.Writer, **params) -> None:
         ...
 
     @abc.abstractmethod
-    def put(self, file_obj: protocols.Reader, **params) -> None:
+    def put(self, reader: protocols.Reader, **params) -> None:
         ...
 
 
 class StreamClientWriter(object):
-    buffer: io.BytesIO
+    buffer: io.RawIOBase
 
-    def __init__(self, client: StreamClient, buffer_factory=io.BytesIO):
+    def __init__(self, client: StreamClient, buffer_factory):
         self.buffer = buffer_factory()
         self.client = client
 
     def write(self, contents: Any) -> int:
-        return self.buffer.write(contents)
+        return cast(int, self.buffer.write(contents))
 
     def close(self) -> None:
         """Flush and close the writer."""
@@ -48,15 +48,17 @@ class StreamClientWriter(object):
 
 
 class StreamClientReader(object):
-    buffer: protocols.ReaderClosable
+    buffer: io.RawIOBase
 
-    def __init__(self, client: StreamClient):
+    def __init__(self, client: StreamClient, buffer_factory):
         self.client = client
+        self.buffer = buffer_factory()
         self._load()
 
     def _load(self):
         with self.client:
-            self.buffer = self.client.get()
+            self.client.get(self.buffer)
+        self.buffer.seek(0)
 
     def read(self, size: int = -1) -> Any:
         """Read the contents of the buffer."""

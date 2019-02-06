@@ -58,20 +58,3 @@ class QueryClient(BaseClient):
     def query(self, sql_query: str, **params) -> Iterable:
         ...
 
-
-class StreamClient(BaseClient):
-    """
-    Interface for stream-based connections
-    """
-
-    def __enter__(self) -> "StreamClient":
-        self.conn = self.connect()
-        return self
-
-    @abc.abstractmethod
-    def get(self, **params) -> protocols.ReaderClosable:
-        ...
-
-    @abc.abstractmethod
-    def put(self, file_obj: protocols.Reader, **params) -> None:
-        ...

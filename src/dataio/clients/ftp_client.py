@@ -1,9 +1,8 @@
 import ftplib
-import io
 from typing import Optional, Union
 
 import pysftp
-from dataio.protocols import Reader
+from dataio.protocols import Reader, Writer
 from dataio.urls import URL
 
 from . import decorators, exceptions, stream_client
@@ -34,7 +33,7 @@ class FTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, file_path: str = None) -> io.BytesIO:
+    def get(self, writer: Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
@@ -42,12 +41,10 @@ class FTPClient(stream_client.StreamClient):
         if not self._isfile(remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
-        f = io.BytesIO()
-        self.conn.retrbinary("RETR %s" % remote_path, f.write)  # type: ignore
-        f.seek(0)
-        return f
+        self.conn.retrbinary("RETR %s" % remote_path, writer.write)  # type: ignore
 
-    def put(self, file_obj: Reader, **params) -> None:
+    @decorators.check_conn()
+    def put(self, reader: Reader, **params) -> None:
         raise NotImplementedError
 
     # Helpers:
@@ -95,7 +92,7 @@ class SFTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, file_path: str = None) -> io.BytesIO:
+    def get(self, writer: Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
@@ -103,10 +100,8 @@ class SFTPClient(stream_client.StreamClient):
         if not self.conn.isfile(remote_path):  # type: ignore
             raise exceptions.FTPError("Unable to fetch the remote file")
 
-        f = io.BytesIO()
-        self.conn.getfo(remote_path, f, callback=None)  # type: ignore
-        f.seek(0)
-        return f
+        self.conn.getfo(remote_path, writer)  # type: ignore
 
-    def put(self, file_obj: Reader, **params) -> None:
+    @decorators.check_conn()
+    def put(self, reader: Reader, **params) -> None:
         raise NotImplementedError
