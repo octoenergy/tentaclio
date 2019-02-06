@@ -1,6 +1,5 @@
 import abc
-import io
-from typing import Any, cast
+from typing import IO, Any
 
 from dataio import protocols
 
@@ -30,41 +29,83 @@ class StreamClient(base_client.BaseClient):
         ...
 
 
-class StreamClientWriter(object):
-    buffer: io.RawIOBase
+class StreamBaseIO(object):
+    """ Base clase for stream classes that interact with StreamClients.
 
-    def __init__(self, client: StreamClient, buffer_factory):
-        self.buffer = buffer_factory()
+    The extra methods inlcuded are to ensure interoperability with loosely defined,
+    thrid party libraries such as pyarrow.
+    """
+
+    buffer: IO
+
+    def __init__(self, buffer: IO):
+        self.buffer = buffer
+
+    @property
+    def closed(self):
+        self.buffer.closed
+
+    def __iter__(self):
+        # for pandas compatibility
+        return self.buffer.__iter__()
+
+    def seek(self, *args, **kargs):
+        return self.buffer.seek(*args, **kargs)
+
+    def tell(self, *args, **kargs):
+        return self.buffer.tell(*args, **kargs)
+
+
+class StreamClientWriter(StreamBaseIO):
+    """Offer stream like access to underlying client.
+
+    Offer a IO stream interface to clients while maintaining the
+    connection atomic.
+    """
+
+    def __init__(self, client: StreamClient, buffer: IO):
+        super().__init__(buffer)
         self.client = client
 
     def write(self, contents: Any) -> int:
-        return cast(int, self.buffer.write(contents))
+        return self.buffer.write(contents)
 
     def close(self) -> None:
         """Flush and close the writer."""
-        self.buffer.seek(0)
-        with self.client:
-            self.client.put(self.buffer)
+        self._flush()
         self.buffer.close()
 
+    def _flush(self):
+        self.buffer.seek(0)
+        # atomic put so we open/close connections swiftly
+        with self.client:
+            self.client.put(self.buffer)
 
-class StreamClientReader(object):
-    buffer: io.RawIOBase
 
-    def __init__(self, client: StreamClient, buffer_factory):
+class StreamClientReader(StreamBaseIO):
+    """Offer stream like access to underlying client.
+
+    Offer a IO stream interface to clients while maintaining the
+    connection atomic.
+    """
+
+    buffer: IO
+
+    def __init__(self, client: StreamClient, buffer: IO):
+        super().__init__(buffer)
         self.client = client
-        self.buffer = buffer_factory()
         self._load()
 
     def _load(self):
+        # atomic get so we open/close connections swiftly
         with self.client:
             self.client.get(self.buffer)
         self.buffer.seek(0)
 
-    def read(self, size: int = -1) -> Any:
+    def read(self, size: int = -1):
         """Read the contents of the buffer."""
         return self.buffer.read(size)
 
     def close(self) -> None:
-        """Flush and close the writer"""
+        """Close the writer."""
         self.buffer.close()
