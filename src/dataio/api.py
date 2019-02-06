@@ -27,11 +27,12 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager:
         >>> open(path, 'rw')  # ! raises ValueError due to ambiguity
     """
     mode = mode or ""
-    is_read_mode = ('r' in mode)
-    is_write_mode = ('w' in mode)
+    is_read_mode = ('r' in mode or 'R' in mode)
+    is_write_mode = ('w' in mode or 'W' in mode)
     if is_read_mode and is_write_mode:
         raise ValueError(f'Mode must not contain both "r" and "w", found {mode}')
-    mode = mode.replace('r', '').replace('w', '')
+    for flag_letter in 'rRwW':
+        mode = mode.replace(flag_letter, '')
     if is_write_mode:
         return open_writer(url=url, mode=mode, **kwargs)
     else:
