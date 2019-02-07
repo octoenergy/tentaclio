@@ -42,6 +42,9 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
+coverage:
+	pipenv run pytest --cov=src --cov-report html --cov-report term tests
+
 # Deployment
 
 package:
