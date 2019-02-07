@@ -1,13 +1,13 @@
 import io
 import json
 
-from . import http_client
+from dataio.clients import http_client
 
 
-__all__ = ["SlackClient"]
+__all__ = ["SlackHook"]
 
 
-class SlackClient(http_client.HTTPClient):
+class SlackHook(http_client.HTTPClient):
     """
     Slack incoming web hook (POST messages)
     """
@@ -21,7 +21,7 @@ class SlackClient(http_client.HTTPClient):
         body = self._build_request_body(
             message, channel=channel, username=username, icon_emoji=icon_emoji
         )
-        # Body streamed as string
+        # Body streamed as StringIO reader
         f = io.StringIO()
         f.write(body)
         f.seek(0)
