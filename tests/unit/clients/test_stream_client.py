@@ -8,7 +8,7 @@ class TestStreamClientWriter:
         client = mocker.MagicMock()
         buff = io.StringIO()
 
-        writer = clients.StreamClientWriter(client, lambda: buff)
+        writer = clients.StreamClientWriter(client, buff)
         writer.write("hello")
         assert "hello" == buff.getvalue()
 
@@ -16,7 +16,7 @@ class TestStreamClientWriter:
         client = mocker.MagicMock()
         buff = io.StringIO()
 
-        writer = clients.StreamClientWriter(client, lambda: buff)
+        writer = clients.StreamClientWriter(client, buff)
         writer.close()
 
         assert buff.closed
@@ -29,14 +29,14 @@ class TestStreamClientReader:
         expected = bytes("hello world", "utf-8")
         client.get = lambda f: f.write(expected)
 
-        reader = clients.StreamClientReader(client, io.BytesIO)
+        reader = clients.StreamClientReader(client, io.BytesIO())
         contents = reader.read()
         assert expected == contents
 
     def test_close(self, mocker):
         client = mocker.MagicMock()
 
-        reader = clients.StreamClientReader(client, io.BytesIO)
+        reader = clients.StreamClientReader(client, io.BytesIO())
         reader.close()
 
         assert reader.buffer.closed

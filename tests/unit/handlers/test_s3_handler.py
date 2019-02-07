@@ -36,3 +36,19 @@ def test_open_s3_url_writing(fixture_conn):
         contents = reader.read()
 
     assert contents == expected
+
+
+def test_open_s3_url_writing_string(fixture_conn):
+    conn = boto3.session.Session(
+        aws_access_key_id=AWS_PUBLIC_KEY, aws_secret_access_key=AWS_PRIVATE_KEY
+    ).client("s3")
+    conn.create_bucket(Bucket="my_bucket")
+
+    expected = "hello from url"
+    with open_writer("s3://public_key:private_key@my_bucket/my_file") as writer:
+        writer.write(expected)
+
+    with open_reader("s3://public_key:private_key@my_bucket/my_file") as reader:
+        contents = reader.read()
+
+    assert contents == expected
