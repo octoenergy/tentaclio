@@ -18,4 +18,5 @@ mypy = "*"
 # Testing
 moto = "*"
 pytest = "*"
+pytest-cov = "*"
 pytest-mock = "*"
