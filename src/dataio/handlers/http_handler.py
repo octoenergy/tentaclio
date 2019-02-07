@@ -14,5 +14,5 @@ class HTTPHandler(StreamURLHandler):
     def __init__(self):
         super().__init__(http_client.HTTPClient)
 
-    def open_writer_for(self, url: URL, extras: dict) -> WriterClosable:
+    def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         raise NotImplementedError("Posting readable via HTTP/HTTPS not implemented")
