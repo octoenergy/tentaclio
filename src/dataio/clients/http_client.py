@@ -1,10 +1,10 @@
-import io
 from typing import Optional
 from urllib import parse
 
 import requests
 
 from . import decorators, exceptions, stream_client
+from .. import protocols
 
 __all__ = ["HTTPClient"]
 
@@ -71,25 +71,31 @@ class HTTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, endpoint: str = None, params: dict = None, options: dict = None) -> io.BytesIO:
+    def get(
+        self,
+        writer: protocols.Writer,
+        endpoint: str = None,
+        params: dict = None,
+        options: dict = None,
+    ) -> None:
         url = self._fetch_url(endpoint or "")
 
         request = self._build_request("GET", url, default_params=params)
         response = self._send_request(request, default_options=options)
 
-        # Content released in bytes
-        f = io.BytesIO()
-        f.write(response.content)
-        f.seek(0)
-        return f
+        writer.write(response.content)
 
     @decorators.check_conn()
     def put(
-        self, data: io.StringIO, endpoint: str = None, params: dict = None, options: dict = None
+        self,
+        reader: protocols.Reader,
+        endpoint: str = None,
+        params: dict = None,
+        options: dict = None,
     ) -> None:
         url = self._fetch_url(endpoint or "")
 
-        request = self._build_request("POST", url, default_data=data, default_params=params)
+        request = self._build_request("POST", url, default_data=reader, default_params=params)
         self._send_request(request, default_options=options)
 
     # Helpers:
@@ -102,7 +108,11 @@ class HTTPClient(stream_client.StreamClient):
         return parse.urljoin(base_url, endpoint)
 
     def _build_request(
-        self, method: str, url: str, default_data: io.StringIO = None, default_params: dict = None
+        self,
+        method: str,
+        url: str,
+        default_data: protocols.Reader = None,
+        default_params: dict = None,
     ):
         data = default_data or []
         params = default_params or {}
