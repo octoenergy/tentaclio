@@ -46,11 +46,13 @@ class TestHTTPClient:
             ("https://:@:8080", "/endpoint"),
         ],
     )
-    def test_get_invalid_endpoint(self, url, path, mocked_http_conn):
+    def test_get_invalid_endpoint(self, url, path, mocker, mocked_http_conn):
+        mocked_writer = mocker.Mock()
+
         with pytest.raises(exceptions.HTTPError):
 
             with http_client.HTTPClient(url) as client:
-                client.get(endpoint=path)
+                client.get(mocked_writer, endpoint=path)
 
     @pytest.mark.parametrize(
         "base_url,endpoint,auth,full_url",
