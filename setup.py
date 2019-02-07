@@ -11,18 +11,16 @@ with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
     README = f.read()
 
 REQUIREMENTS = [
-    # Domain
-    "pandas>=0.23.4,<0.24",
-    # AWS S3
-    "boto3>=1.9.81,<1.10",
+    # AWS
+    "boto3>=1.9.0,<1.10",
     # Postgres
     "psycopg2-binary",
-    "sqlalchemy>=1.1,<1.3",
+    "sqlalchemy>=1.2.0,<1.3",
     # SFTP
-    "pysftp>=0.2.9,<0.3",
-    # protocols typing
+    "pysftp>=0.2.0,<0.3",
+    # Utils
     "typing-extensions",
-    # CLI
+    "pandas",
     "click"
 ]
 
