@@ -14,6 +14,11 @@ from dataio import URL, Reader, Writer, clients
 
 
 # Database fixtures:
+@pytest.fixture
+def sqlite_url():
+    db_file = ":memory:"
+    url = "sqlite:///" + db_file
+    return url
 
 
 POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
