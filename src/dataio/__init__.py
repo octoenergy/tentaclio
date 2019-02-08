@@ -18,6 +18,9 @@ URL.register_handler("sftp", SFTPHandler())
 # postgres handler
 URL.register_handler("postgresql", PostgresURLHandler())
 
+# AWS Athena handler
+URL.register_handler("awsathena+rest", NullHandler())
+
 # http / https handlers
 URL.register_handler("http", HTTPHandler())
 URL.register_handler("https", HTTPHandler())
