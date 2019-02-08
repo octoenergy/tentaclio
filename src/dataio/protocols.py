@@ -1,27 +1,12 @@
-from typing import Any, Union
+from typing import Any
 
 from typing_extensions import Protocol
 
-__all__ = [
-    "Closable",
-    "Reader",
-    "Writer",
-    "ReaderWriter",
-    "ReaderClosable",
-    "WriterClosable",
-    "BufferReader",
-    "BufferWriter",
-    "AnyReaderWriter",
-]
+__all__ = ["Closable", "Reader", "Writer", "ReaderClosable", "WriterClosable"]
 
 
 class Closable(Protocol):
     def close(self) -> None:
-        ...
-
-
-class Seeker(Protocol):
-    def seek(self, pos: int = 0, whence: int = 0) -> None:
         ...
 
 
@@ -43,18 +28,3 @@ class ReaderClosable(Reader, Closable, Protocol):
 
 class WriterClosable(Writer, Closable, Protocol):
     ...
-
-
-class BufferWriter(Writer, Closable, Seeker, Protocol):
-    ...
-
-
-class BufferReader(Reader, Closable, Seeker, Protocol):
-    ...
-
-
-class ReaderWriter(Reader, Writer, Protocol):
-    ...
-
-
-AnyReaderWriter = Union[Reader, Writer, ReaderWriter]
