@@ -1,11 +1,11 @@
-from dataio import open_reader, open_writer
+import dataio
 
 
 def test_with_creds():
     data = bytes("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn", "utf-8")
-    with open_writer("ftp://octopus:tentacle@localhost/data.txt", mode="b") as f:
+    with dataio.open("ftp://octopus:tentacle@localhost/data.txt", mode="wb") as f:
         f.write(data)
 
-    with open_reader("ftp://octopus:tentacle@localhost/data.txt", mode="b") as f:
+    with dataio.open("ftp://octopus:tentacle@localhost/data.txt", mode="rb") as f:
         result = f.read()
     assert result == data

@@ -3,22 +3,22 @@ from typing import ContextManager
 from dataio import protocols, urls
 
 
-__all__ = ["open", "open_reader", "open_writer"]
+__all__ = ["open"]
 
 
-def open_reader(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Reader]:
+def _open_reader(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Reader]:
     """Opens the url and returns a reader """
     mode = mode or ""
     return urls.URL(url).open_reader(mode, extras=kwargs)
 
 
-def open_writer(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Writer]:
+def _open_writer(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Writer]:
     """Opens the url and returns a writer"""
     mode = mode or ""
     return urls.URL(url).open_writer(mode, extras=kwargs)
 
 
-def open(url: str, mode: str = None, **kwargs) -> ContextManager:
+def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyReaderWriter]:
     """Opens the url and returns a reader or writer depending on mode
 
     Examples:
@@ -35,6 +35,6 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager:
     for flag_letter in "rRwW":
         mode = mode.replace(flag_letter, "")
     if is_write_mode:
-        return open_writer(url=url, mode=mode, **kwargs)
+        return _open_writer(url=url, mode=mode, **kwargs)
     else:
-        return open_reader(url=url, mode=mode, **kwargs)
+        return _open_reader(url=url, mode=mode, **kwargs)
