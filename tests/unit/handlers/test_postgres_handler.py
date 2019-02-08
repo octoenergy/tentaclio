@@ -1,8 +1,10 @@
 import csv
 import io
 
+
 import pytest
-from dataio import open_writer, URL
+from dataio import URL
+from dataio.api import _open_writer
 
 
 @pytest.fixture
@@ -23,7 +25,7 @@ def test_dump_csv(csv_data, csv_dumper, mocker):
     recorder = csv_dumper
     mock.return_value = recorder
 
-    with open_writer("postgresql://localhost/database::my_table") as writer:
+    with _open_writer("postgresql://localhost/database::my_table") as writer:
         writer.write(csv_data.read())
 
     csv_data.seek(0)
@@ -37,7 +39,7 @@ def test_create_client_correct_url(csv_data, csv_dumper, mocker):
     recorder = csv_dumper
     mock.return_value = recorder
 
-    with open_writer("postgresql://localhost/database::my_table") as writer:
+    with _open_writer("postgresql://localhost/database::my_table") as writer:
         writer.write(csv_data.read())
 
     mock.assert_called_with(URL("postgresql://localhost/database"))
@@ -48,5 +50,5 @@ def test_dump_csv_no_table(csv_data, csv_dumper, mocker):
     recorder = csv_dumper
     mock.return_value = recorder
     with pytest.raises(ValueError):
-        with open_writer("postgresql://localhost/database") as writer:
+        with _open_writer("postgresql://localhost/database") as writer:
             writer.write(csv_data.read())

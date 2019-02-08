@@ -1,7 +1,8 @@
 import os
 import tempfile
 
-from dataio import URL, open_reader, open_writer
+from dataio import URL
+from dataio.api import _open_reader, _open_writer
 
 import pytest
 
@@ -40,10 +41,10 @@ def test_file_scheme():
     ],
 )
 def test_file_read_write(extras, expected, temp_filename):
-    with open_writer(temp_filename, **extras) as writer:
+    with _open_writer(temp_filename, **extras) as writer:
         contents = writer.write(expected)
 
-    with open_reader(temp_filename, **extras) as reader:
+    with _open_reader(temp_filename, **extras) as reader:
         contents = reader.read()
 
     assert contents == expected
