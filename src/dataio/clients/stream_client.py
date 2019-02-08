@@ -1,11 +1,38 @@
+"""
+General note on streams and writers/resaders.
+We are using byte streams (writers and readers that only operate with byte arrays)
+as cannonical format to avoid a huge mess in string vs bytes duality.
+
+We still allow client code open/write string data if they want to.
+But that the actual data is always send to the under lying client (ftp, s3...)
+as bytes.
+
+One of the reasons is that S3 only supports streams as binary data, which is not fully pythonic
+(albeit problably more sane).
+
+In order to offer client code the possibility to write csv/parquet files into s3
+buckets without having to worry about the underlying implementations,
+We hide which stream flavour (string, bytes) is
+used and only exposes the bytes versions to the S3Client.
+
+This is down by using TextIOWrapper when text is needed by the client code and exposes
+the inner buffer to the underlying client.
+"""
 import abc
+import io
 from typing import IO, Any
 
 from dataio import protocols
 
 from . import base_client
 
-__all__ = ["StreamClient", "StreamClientReader", "StreamClientWriter"]
+__all__ = [
+    "StreamClient",
+    "StreamClientReader",
+    "StreamClientWriter",
+    "StringToBytesClientWriter",
+    "StringToBytesClientReader",
+]
 
 
 class StreamClient(base_client.BaseClient):
@@ -108,3 +135,46 @@ class StreamClientReader(StreamBaseIO):
     def close(self) -> None:
         """Close the writer."""
         self.buffer.close()
+
+
+class StringToBytesClientReader(StreamClientReader):
+    """String based stream reader that uses a byte buffer under the hood.
+
+    This is used to allow clients (s3,ftp...) just use bytes while the code
+    using this reader read data as strings.
+    This is similar to how python itself treats text/binary files.
+    """
+
+    inner_buffer: io.BytesIO
+
+    def __init__(self, client: StreamClient):
+        self.inner_buffer = io.BytesIO()
+        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
+
+    def _load(self):
+        # interacts with the client in terms of bytes
+        with self.client:
+            self.client.get(self.inner_buffer)
+        self.buffer.seek(0)
+
+
+class StringToBytesClientWriter(StreamClientWriter):
+    """String based stream reader that uses a byte buffer under the hood.
+
+    This is used to allow clients (s3,ftp...) just use bytes while the code
+    using this writer can write data as strings.
+    This is similar to how python itself treats text/binary files.
+    """
+
+    inner_buffer: io.BytesIO
+
+    def __init__(self, client: StreamClient):
+        self.inner_buffer = io.BytesIO()
+        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
+
+    def _flush(self) -> None:
+        """Flush and close the writer."""
+        self.buffer.seek(0)
+        # interacts with the client in terms of bytes
+        with self.client:
+            self.client.put(self.inner_buffer)
