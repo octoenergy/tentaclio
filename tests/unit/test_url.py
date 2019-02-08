@@ -71,6 +71,16 @@ class TestURL:
         "url,scheme,username,password,hostname,port,path,query",
         [
             (
+                "registered:///path/to/file.ext",
+                "registered",
+                None,
+                None,
+                None,
+                None,
+                "/path/to/file.ext",
+                None,
+            ),
+            (
                 "registered://login:pass@localhost?key=value",
                 "registered",
                 "login",
