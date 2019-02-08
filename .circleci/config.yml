@@ -40,7 +40,7 @@ jobs:
           key: pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: Run linters and tests
-          command: make circleci
+          command: make test
 
 workflows:
 
