@@ -41,7 +41,7 @@ def test_execute_query(sqlite_url):
     client = SQLAlchemyClient(sqlite_url)
     with client:
         client.execute(
-            """	
+            """
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
