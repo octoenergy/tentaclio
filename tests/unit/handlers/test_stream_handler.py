@@ -6,10 +6,10 @@ from dataio.handlers.stream_handler import StreamURLHandler
 
 
 class FakeClient(StreamClient):
-    def __init__(self, url: URL, message=None, buffer_factory=None):
-        factory = buffer_factory or io.StringIO
-        self._writer = factory()
-        self._message = message or "hello"
+    # clients only understand bytes
+    def __init__(self, url: URL, message: bytearray = None):
+        self._writer = io.BytesIO()
+        self._message = message or bytes("hello", encoding="utf-8")
 
     def connect(self):
         pass
@@ -34,12 +34,8 @@ def test_open_reader_for_string(register_handler):
 def test_open_reader_for_bytes(register_handler):
     message = bytes("hello", "utf-8")
     handler = StreamURLHandler(FakeClient)
-    reader = handler.open_reader_for(
-        URL("registered://my/path"),
-        mode="b",
-        extras=dict(message=message, buffer_factory=io.BytesIO),
-    )
-    assert "hello" == reader.read().decode("utf-8")
+    reader = handler.open_reader_for(URL("registered://my/path"), mode="b", extras={})
+    assert message == reader.read()
 
 
 def test_open_writer_for_string(register_handler):
@@ -51,12 +47,12 @@ def test_open_writer_for_string(register_handler):
     writer.write("test")
     writer.close()
 
-    assert client._writer.getvalue() == "test"
+    assert client._writer.getvalue().decode("utf-8") == "test"
 
 
 def test_open_writer_for_bytes(register_handler):
     url = URL("registered://my/path")
-    client = FakeClient(url, buffer_factory=io.BytesIO)
+    client = FakeClient(url)
     handler = StreamURLHandler(lambda url, **kwargs: client)
     writer = handler.open_writer_for(url, mode="b", extras=dict())
 
