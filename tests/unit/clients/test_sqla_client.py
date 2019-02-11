@@ -47,10 +47,9 @@ def test_execute_query(sqlite_url):
             );
             """
         )
-        client.execute("""INSERT INTO test_table VALUES (0, 'Eric'), (1, 'Igor')""")
+        client.execute("""INSERT INTO test_table VALUES (0, 'Javi'), (1, 'Eric'), (2, 'Igor')""")
 
     with client:
         df = client.get_df("test_table")
-
-    assert df['id'].values.tolist() == [0, 1]
-    assert df['name'].values.tolist() == ['Eric', 'Igor']
+    assert df['id'].values.tolist() == [0, 1, 2]
+    assert df['name'].values.tolist() == ['Javi', 'Eric', 'Igor']
