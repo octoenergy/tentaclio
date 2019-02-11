@@ -15,6 +15,7 @@ class S3Client(stream_client.StreamClient):
 
     Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html
     """
+    allowed_schemes = ["s3"]
 
     conn: Optional[boto_client.BaseClient]
     aws_profile: Optional[str]
@@ -30,9 +31,6 @@ class S3Client(stream_client.StreamClient):
         self.aws_profile = aws_profile
         self.conn_encrypt = conn_encrypt
         super().__init__(url)
-
-        if self.url.scheme != "s3":
-            raise exceptions.S3Error(f"Incorrect scheme {self.url.scheme}")
 
         self.aws_access_key_id = self.url.username or None
         self.aws_secret_access_key = self.url.password or None

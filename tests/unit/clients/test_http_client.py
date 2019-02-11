@@ -11,7 +11,7 @@ def mocked_http_conn(mocker):
 class TestHTTPClient:
     @pytest.mark.parametrize("url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
-        with pytest.raises(exceptions.HTTPError):
+        with pytest.raises(ValueError):
             http_client.HTTPClient(url)
 
     @pytest.mark.parametrize(
