@@ -1,12 +1,12 @@
 import pytest
 
-from dataio.clients import exceptions, postgres_client
+from dataio.clients import postgres_client
 
 
 class TestPostgresClient:
     @pytest.mark.parametrize("url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
-        with pytest.raises(exceptions.PostgresError):
+        with pytest.raises(ValueError):
             postgres_client.PostgresClient(url)
 
     @pytest.mark.parametrize(

@@ -20,7 +20,7 @@ def mocked_sftp_conn(mocker):
 class TestFTPClient:
     @pytest.mark.parametrize("url", ["file:///test.file", "sftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
-        with pytest.raises(exceptions.FTPError):
+        with pytest.raises(ValueError):
             ftp_client.FTPClient(url)
 
     @pytest.mark.parametrize(
@@ -78,7 +78,7 @@ class TestFTPClient:
 class TestSFTPClient:
     @pytest.mark.parametrize("url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"])
     def test_invalid_scheme(self, url):
-        with pytest.raises(exceptions.FTPError):
+        with pytest.raises(ValueError):
             ftp_client.SFTPClient(url)
 
     @pytest.mark.parametrize("url,path", [("sftp://:@localhost", None)])

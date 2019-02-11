@@ -1,7 +1,7 @@
 import abc
 from typing import Iterable, Optional, Union
 
-from dataio import protocols, urls
+from .. import protocols, urls
 
 
 class BaseClient(metaclass=abc.ABCMeta):
@@ -11,11 +11,14 @@ class BaseClient(metaclass=abc.ABCMeta):
 
     url: urls.URL
     conn: Optional[protocols.Closable] = None
+    allowed_schemes: Optional[Iterable[str]] = None
 
     def __init__(self, url: Union[urls.URL, str]) -> None:
         if isinstance(url, str):
             url = urls.URL(url)
         self.url = url
+        if self.allowed_schemes is not None and self.url.scheme not in self.allowed_schemes:
+            raise ValueError(f"Incorrect scheme {self.url.scheme}")
 
     # Context manager:
 
