@@ -1,6 +1,7 @@
 import ftplib
+import io
 import logging
-from typing import Optional, Union, cast
+from typing import Optional, Union
 
 import pysftp
 
@@ -50,9 +51,11 @@ class FTPClient(stream_client.StreamClient):
         self.conn.retrbinary(f"RETR {remote_path}", writer.write)
 
     @decorators.check_conn()
-    def put(self, file_obj: protocols.Reader, file_path: Optional[str] = None) -> None:
+    def put(self, reader: protocols.Reader, file_path: Optional[str] = None) -> None:
         remote_path = file_path or self.url.path
-        cast(ftplib.FTP, self.conn).storbinary(f"STOR {remote_path}", file_obj)  # type: ignore
+        # storebinary only works with io.BytesIO
+        buff = io.BytesIO(reader.read())
+        self.conn.storbinary(f"STOR {remote_path}", buff)
 
     # Helpers:
 
@@ -112,15 +115,15 @@ class SFTPClient(stream_client.StreamClient):
         self.conn.getfo(remote_path, writer)
 
     @decorators.check_conn()
-    def put(self, file_obj: protocols.Reader, file_path: str = None) -> None:
+    def put(self, reader: protocols.Reader, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
         logger.info(f"sftp writing to {remote_path}")
-        # this gives permission
+        # this gives permission error
         # self.conn.putfo(remote_path, file_obj.read())
         # but open works
         with self.conn.open(remote_path, mode="wb") as f:
             print("f", f)
-            f.write(file_obj.read())
+            f.write(reader.read())
