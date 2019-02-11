@@ -15,18 +15,21 @@ def test_handler_is_registered(url, scheme):
 
 
 @pytest.mark.parametrize(
-    "mode,content", [("b", bytes(TEST_PAYLOAD, "utf-8")), ("s", TEST_PAYLOAD)]
+    "mode,content, expected_content", [
+        ("b", bytes(TEST_PAYLOAD, "utf-8"), bytes(TEST_PAYLOAD, "utf-8")),
+        ("s", bytes(TEST_PAYLOAD, "utf-8"), TEST_PAYLOAD)
+    ]
 )
-def test_open_http_url_reading(mode, content, mocker):
+def test_open_http_url_reading(mode, content, expected_content, mocker):
     mocked_response = mocker.Mock(content=content)
     mocked_session_call = mocker.patch.object(
         requests.Session, "send", return_value=mocked_response
     )
 
     with api.open_reader("http://host.com/request", mode) as reader:
-        content = reader.read()
+        read_content = reader.read()
 
-    assert content == content
+    assert read_content == expected_content
     mocked_session_call.assert_called_once()
 
 
