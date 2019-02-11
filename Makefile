@@ -1,12 +1,12 @@
 SHELL := /bin/bash
 
-.PHONY: all reset update clean sync circleci lint test package
+.PHONY: all reset update clean sync test lint unit integration
 
-all: install server
+all: reset test
 
 # Local installation
 
-reset: clean sync
+reset: clean update
 
 update:
 	pipenv update --dev
@@ -22,14 +22,19 @@ sync:
 
 # Testing
 
-circleci: lint unit integration
+test: lint unit integration
 
-# check-untyped-defs is not a valid config item for setup.cfg
 lint:
 	pipenv run flake8 src
-	pipenv run mypy src --check-untyped-defs
+	pipenv run mypy src
 	pipenv run flake8 tests
-	pipenv run mypy tests --check-untyped-defs
+	pipenv run mypy tests
+
+format:
+	black -l 99 --py36 src
+	black -l 99 --py36 tests
+	isort -l 99 -m 3 -lai 2 -rc src
+	isort -l 99 -m 3 -lai 2 -rc tests
 
 unit:
 	pipenv run pytest tests/unit
@@ -37,16 +42,22 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
-functional-postgres:
-	pipenv run pytest tests/functional/postgres
-
 functional-ftp:
 	pipenv run pytest tests/functional/ftp
 
 functional-sftp:
 	pipenv run pytest tests/functional/sftp
 
+functional-postgres:
+	pipenv run pytest tests/functional/postgres
+
+coverage:
+	pipenv run pytest --cov=src --cov-report html --cov-report term tests
+
 # Deployment
 
 package:
 	pipenv run python setup.py bdist_wheel
+
+circleci:
+	circleci config validate
