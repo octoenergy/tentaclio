@@ -1,7 +1,13 @@
 import io
-from typing import Any, Callable
+from typing import Callable
 
-from dataio.clients import StreamClient, StreamClientReader, StreamClientWriter
+from dataio.clients import (
+    StreamClient,
+    StreamClientReader,
+    StreamClientWriter,
+    StringToBytesClientReader,
+    StringToBytesClientWriter
+)
 from dataio.protocols import ReaderClosable, WriterClosable
 from dataio.urls import URL
 
@@ -9,18 +15,10 @@ from dataio.urls import URL
 StreamClientFactory = Callable[..., StreamClient]
 
 
-def is_bytes_mode(mode: str) -> bool:
+def _is_bytes_mode(mode: str) -> bool:
     if "b" in str(mode):
         return True
     return False
-
-
-def _get_buff(mode: str):
-    buffer_factory: Any
-    if is_bytes_mode(mode):
-        return io.BytesIO()
-    else:
-        return io.StringIO()
 
 
 class StreamURLHandler:
@@ -33,10 +31,16 @@ class StreamURLHandler:
 
     def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
         """Open an stream client for reading."""
-        buffer = _get_buff(mode)
-        return StreamClientReader(self.client_factory(url, **extras), buffer)
+        client = self.client_factory(url, **extras)
+
+        if _is_bytes_mode(mode):
+            return StreamClientReader(client, io.BytesIO())
+        return StringToBytesClientReader(client)
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open an stream client writing."""
-        buffer = _get_buff(mode)
-        return StreamClientWriter(self.client_factory(url, **extras), buffer)
+        client = self.client_factory(url, **extras)
+
+        if _is_bytes_mode(mode):
+            return StreamClientWriter(client, io.BytesIO())
+        return StringToBytesClientWriter(client)
