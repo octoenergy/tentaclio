@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from dataio.buffers import DatabaseCsvWriter
 from dataio.clients import postgres_client
 from dataio.protocols import ReaderClosable, WriterClosable
@@ -6,12 +8,22 @@ from dataio.urls import URL
 __all__ = ["PostgresURLHandler"]
 
 
-def _get_table(url: URL) -> str:
+def _split_url(url: URL) -> Tuple[URL, str]:
     parts = url.path.split("::")
     if len(parts) != 2 or parts[1] == "":
         raise ValueError("No table provided for dumping the csv data")
+    path = parts[0]
     table = parts[1]
-    return table
+    conn_url = URL.from_components(
+        scheme=url.scheme,
+        username=url.username,
+        password=url.password,
+        hostname=url.hostname,
+        port=url.port,
+        path=path,
+        query=url.query,
+    )
+    return conn_url, table
 
 
 class PostgresURLHandler:
@@ -29,6 +41,6 @@ class PostgresURLHandler:
            `postgresql://user:pass@host/database::table`. The target table needs the columns
            with the same names as the field names.
         """
-        table = _get_table(url)
-        client = postgres_client.PostgresClient(url, **extras)
+        conn_url, table = _split_url(url)
+        client = postgres_client.PostgresClient(conn_url, **extras)
         return DatabaseCsvWriter(client, table)
