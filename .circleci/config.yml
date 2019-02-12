@@ -1,13 +1,13 @@
 # Python CircleCI 2.0 configuration file
 #
-# Check https://circleci.com/docs/2.0/language-python/ for more details
+# INFO: Check CircleCI documentation for more details
+#       https://circleci.com/docs/2.0/language-python/
 
 version: 2.0
 
 jobs:
 
-  build:
-
+  lint:
     working_directory: ~/lib
 
     docker:
@@ -15,51 +15,95 @@ jobs:
 
     steps:
       - checkout
+
       - restore_cache:
           # Increasingly general patterns to restore
           # https://circleci.com/docs/2.0/caching/#using-keys-and-templates
           keys:
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
       - run:
           name: Install Python packages
           command: make sync
+
       - save_cache:
           # Pipenv venv and pip cached wheels
           paths:
             - "~/.local"
             - "~/.cache"
-          key: pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
       - run:
-          name: Run linters and tests
-          command: make test
+          name: Run linters
+          command: make lint
 
-  functional-postgres:
-
+  unit:
     working_directory: ~/lib
 
     docker:
       - image: circleci/python:3.6.6
-        environment:
-          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
-      - image: circleci/postgres:9.5.10
-        environment:
-          # CircleCI img run under `circleci` user
-          POSTGRES_USER: circleci
-          POSTGRES_DB: dataio-test
 
     steps:
       - checkout
+
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
       - run:
-          name: Run postgres functional tests 
-          command: make functional-postgres 
+          name: Install Python packages
+          command: make sync
+
+      - save_cache:
+          paths:
+            - "~/.local"
+            - "~/.cache"
+          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run unit tests
+          command: make unit
+
+      - store_test_results:
+          path: /tmp/results/
+
+  integration:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
+      - run:
+          name: Install Python packages
+          command: make sync
+
+      - save_cache:
+          paths:
+            - "~/.local"
+            - "~/.cache"
+          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run integration tests
+          command: make integration
+
+      - store_test_results:
+          path: /tmp/results/
 
   functional-ftp:
-
     working_directory: ~/lib
 
     docker:
@@ -74,16 +118,16 @@ jobs:
 
     steps:
       - checkout
+
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Run postgres functional tests 
           command: make functional-ftp
 
   functional-sftp:
-
     working_directory: ~/lib
 
     docker:
@@ -96,26 +140,91 @@ jobs:
 
     steps:
       - checkout
+
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.PIP_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Run sftp functional tests 
           command: make functional-sftp
+
+  functional-postgres:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+          POSTGRES_TEST_URL: postgresql://:@localhost:5432/dataio-test
+
+      - image: circleci/postgres:9.5.10
+        environment:
+          # CircleCI img run under `circleci` user
+          POSTGRES_USER: circleci
+          POSTGRES_DB: dataio-test
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run postgres functional tests
+          command: make functional-postgres
+
+  deploy:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+           - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Build wheel
+          command: make package
+
+      - store_artifacts:
+          path: dist
+          destination: wheel
+
 workflows:
 
   version: 2
 
-  test-build:
+  test-build-deploy:
     jobs:
-        - build
-        - functional-sftp:
-            requires:
-                - build
+        - lint
+        - unit
+        - integration
         - functional-ftp:
             requires:
-                - build
+                - lint
+                - unit
+                - integration
+        - functional-sftp:
+            requires:
+                - lint
+                - unit
+                - integration
         - functional-postgres:
             requires:
-                - build
+                - lint
+                - unit
+                - integration
+        - deploy:
+            requires:
+              - functional-ftp
+              - functional-sftp
+              - functional-postgres
+            filters:
+              branches:
+                # Change this to the branch you want to deploy into test
+                only: master
