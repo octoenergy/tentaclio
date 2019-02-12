@@ -3,7 +3,7 @@ import boto3
 import moto
 import pytest
 
-from dataio.api import open_reader, open_writer
+from dataio.api import _open_reader, _open_writer
 from dataio.urls import URL
 
 
@@ -30,10 +30,10 @@ def test_open_s3_url_writing(fixture_conn):
     conn.create_bucket(Bucket="my_bucket")
 
     expected = bytes("hello from url", "utf-8")
-    with open_writer("s3://public_key:private_key@my_bucket/my_file", mode="b") as writer:
+    with _open_writer("s3://public_key:private_key@my_bucket/my_file", mode="b") as writer:
         writer.write(expected)
 
-    with open_reader("s3://public_key:private_key@my_bucket/my_file", mode="b") as reader:
+    with _open_reader("s3://public_key:private_key@my_bucket/my_file", mode="b") as reader:
         contents = reader.read()
 
     assert contents == expected
@@ -46,10 +46,10 @@ def test_open_s3_url_writing_string(fixture_conn):
     conn.create_bucket(Bucket="my_bucket")
 
     expected = "hello from url"
-    with open_writer("s3://public_key:private_key@my_bucket/my_file") as writer:
+    with _open_writer("s3://public_key:private_key@my_bucket/my_file") as writer:
         writer.write(expected)
 
-    with open_reader("s3://public_key:private_key@my_bucket/my_file") as reader:
+    with _open_reader("s3://public_key:private_key@my_bucket/my_file") as reader:
         contents = reader.read()
 
     assert contents == expected
