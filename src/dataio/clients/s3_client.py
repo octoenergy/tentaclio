@@ -64,7 +64,7 @@ class S3Client(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get(self, writer: protocols.Writer, bucket_name: str = None, key_name: str = None) -> None:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
@@ -73,7 +73,7 @@ class S3Client(stream_client.StreamClient):
 
         self.conn.download_fileobj(s3_bucket, s3_key, writer)  # type: ignore
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(
         self, file_obj: protocols.Reader, bucket_name: str = None, key_name: str = None
     ) -> None:

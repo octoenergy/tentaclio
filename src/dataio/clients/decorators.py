@@ -1,27 +1,24 @@
-from typing import Any, Callable
+import functools
+from typing import Callable, TypeVar
 
 from dataio.clients import exceptions
 
 
-class check_conn:
-    """
-    Decorator for testing the status of a client connection
-    """
+T = TypeVar("T")
 
-    def __init__(self, *args, **kwargs) -> None:
-        ...
 
-    def __call__(self, func: Callable) -> Callable:
-        def _wrapper(*args, **kwargs) -> Any:
-            # Instance is passed as first positional argument
-            inst = args[0]
+def check_conn(func: Callable[..., T]) -> Callable[..., T]:
+    @functools.wraps(func)
+    def _wrapper(*args, **kwargs) -> T:
+        # Instance is passed as first positional argument
+        inst = args[0]
 
-            if hasattr(inst, "conn"):
-                if inst.conn is None:
-                    raise exceptions.ConnectionError("Inactive client connection")
-            else:
-                raise AttributeError("Missing instance connection attribute")
+        if hasattr(inst, "conn"):
+            if inst.conn is None:
+                raise exceptions.ConnectionError("Inactive client connection")
+        else:
+            raise AttributeError("Missing instance connection attribute")
 
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
 
-        return _wrapper
+    return _wrapper

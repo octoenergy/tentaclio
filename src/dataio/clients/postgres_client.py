@@ -21,7 +21,7 @@ class PostgresClient(SQLAlchemyClient):
 
     # Postgres Copy Expert methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def dump_df(self, df: pd.DataFrame, dest_table: str) -> None:
         """Dump a data frame into an existing Postgres table."""
         buff = io.StringIO()
@@ -29,7 +29,7 @@ class PostgresClient(SQLAlchemyClient):
         buff.seek(0)
         self._copy_expert_csv(buff, df.columns, dest_table)
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
         """Dump a csv reader into the database."""
         self._copy_expert_csv(csv_reader, columns, dest_table)
