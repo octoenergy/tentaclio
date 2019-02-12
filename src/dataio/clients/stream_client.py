@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-class StreamClient(base_client.BaseClient):
+class StreamClient(base_client.BaseClient["StreamClient"]):
     """
     Interface for stream-based connections
     """
