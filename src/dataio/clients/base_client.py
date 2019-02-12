@@ -11,13 +11,13 @@ class BaseClient(metaclass=abc.ABCMeta):
 
     url: urls.URL
     conn: Optional[protocols.Closable] = None
-    allowed_schemes: Optional[Iterable[str]] = None
+    allowed_schemes: Iterable[str] = []
 
     def __init__(self, url: Union[urls.URL, str]) -> None:
         if isinstance(url, str):
             url = urls.URL(url)
         self.url = url
-        if self.allowed_schemes is not None and self.url.scheme not in self.allowed_schemes:
+        if self.url.scheme not in self.allowed_schemes:
             raise ValueError(
                 f"Allowed schemes for {type(self).__name__} are {self.allowed_schemes}; "
                 f"found '{self.url.scheme}'"

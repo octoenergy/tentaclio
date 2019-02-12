@@ -22,6 +22,9 @@ class TestCheckConn:
         url = "file:///path"
 
         class TestClient(base_client.BaseClient):
+
+            allowed_schemes = ["file"]
+
             def connect(self):
                 return True
 
