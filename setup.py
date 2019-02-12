@@ -40,7 +40,7 @@ setup_args = dict(
     license="Proprietary",
     # Package data
     package_dir={"": "src"},
-    packages=find_packages("src", exclude=["*tests*"]),
+    packages=find_packages("src", include=["*dataio*"]),
     entry_points={
         'console_scripts': [
             'data-url = dataio.cli.url:command_compose_url'
