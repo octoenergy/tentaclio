@@ -18,7 +18,10 @@ class BaseClient(metaclass=abc.ABCMeta):
             url = urls.URL(url)
         self.url = url
         if self.allowed_schemes is not None and self.url.scheme not in self.allowed_schemes:
-            raise ValueError(f"Incorrect scheme {self.url.scheme}")
+            raise ValueError(
+                f"Allowed schemes for {type(self).__name__} are {self.allowed_schemes}; "
+                f"found '{self.url.scheme}'"
+            )
 
     # Context manager:
 
