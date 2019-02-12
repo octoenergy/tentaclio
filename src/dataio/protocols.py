@@ -1,4 +1,4 @@
-from typing import Any, ByteString, Generic, TypeVar
+from typing import Any, ByteString, Generic, TypeVar, Union
 
 from typing_extensions import Protocol
 
@@ -11,6 +11,7 @@ __all__ = [
     "ByteWriter",
     "ReaderClosable",
     "WriterClosable",
+    "AnyReaderWriter",
 ]
 
 # https://blog.daftcode.pl/covariance-contravariance-and-invariance-the-ultimate-python-guide-8fabc0c24278
@@ -58,3 +59,6 @@ class ReaderClosable(Reader, Closable, Protocol):
 
 class WriterClosable(Writer, Closable, Protocol):
     ...
+
+
+AnyReaderWriter = Union[Reader, Writer]
