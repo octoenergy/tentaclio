@@ -2,6 +2,7 @@ from typing import Optional
 from urllib import parse
 
 import requests
+import io
 
 from . import decorators, exceptions, stream_client
 from .. import protocols
@@ -70,10 +71,10 @@ class HTTPClient(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get(
         self,
-        writer: protocols.Writer,
+        writer: protocols.ByteWriter,
         endpoint: str = None,
         params: dict = None,
         options: dict = None,
@@ -85,17 +86,17 @@ class HTTPClient(stream_client.StreamClient):
 
         writer.write(response.content)
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(
         self,
-        reader: protocols.Reader,
+        reader: protocols.ByteReader,
         endpoint: str = None,
         params: dict = None,
         options: dict = None,
     ) -> None:
         url = self._fetch_url(endpoint or "")
-
-        request = self._build_request("POST", url, default_data=reader, default_params=params)
+        buff = io.StringIO(bytes(reader.read()).decode(encoding="utf-8"))
+        request = self._build_request("POST", url, default_data=buff, default_params=params)
         self._send_request(request, default_options=options)
 
     # Helpers:

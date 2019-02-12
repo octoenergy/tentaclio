@@ -6,13 +6,15 @@ from dataio.clients import http_client
 __all__ = ["SlackHook"]
 
 
-class SlackHook(http_client.HTTPClient):
+class SlackHook:
     """
     Slack incoming web hook (POST messages)
     """
 
+    client: http_client.HTTPClient
+
     def __init__(self, url: str) -> None:
-        super().__init__(url)
+        self.client = http_client.HTTPClient(url)
 
     def notify(
         self, message: str, channel: str = None, username: str = None, icon_emoji: str = None
@@ -20,12 +22,9 @@ class SlackHook(http_client.HTTPClient):
         body = self._build_request_body(
             message, channel=channel, username=username, icon_emoji=icon_emoji
         )
-        # Body streamed as StringIO reader
-        f = io.StringIO()
-        f.write(body)
-        f.seek(0)
+        stream = io.BytesIO(bytes(body, encoding="utf-8"))
         # Post streamed request
-        super().put(f)
+        self.client.put(stream)
 
     # Helpers:
 

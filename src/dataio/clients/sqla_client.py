@@ -81,7 +81,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     # Query methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def query(self, sql_query: str, **params) -> result.ResultProxy:
         """
         Execute a read-only SQL query, and return results
@@ -90,7 +90,7 @@ class SQLAlchemyClient(base_client.QueryClient):
         """
         return self.conn.execute(sql_query, params=params)  # type: ignore
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def execute(self, sql_query: str, **params) -> None:
         """
         Execute a raw SQL query command
@@ -108,7 +108,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     # Dataframe methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get_df(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
         """
         Run a raw SQL query and return a data frame

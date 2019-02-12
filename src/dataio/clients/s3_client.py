@@ -2,6 +2,7 @@ from typing import Optional, Tuple, Union, cast
 
 import boto3
 from botocore import client as boto_client
+
 from dataio import protocols, urls
 
 from . import decorators, exceptions, stream_client
@@ -61,8 +62,10 @@ class S3Client(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
-    def get(self, writer: protocols.Writer, bucket_name: str = None, key_name: str = None) -> None:
+    @decorators.check_conn
+    def get(
+        self, writer: protocols.ByteWriter, bucket_name: str = None, key_name: str = None
+    ) -> None:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
         if not self._isfile(s3_bucket, s3_key):
@@ -70,9 +73,9 @@ class S3Client(stream_client.StreamClient):
 
         self.conn.download_fileobj(s3_bucket, s3_key, writer)  # type: ignore
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(
-        self, file_obj: protocols.Reader, bucket_name: str = None, key_name: str = None
+        self, reader: protocols.ByteReader, bucket_name: str = None, key_name: str = None
     ) -> None:
         s3_bucket, s3_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
@@ -81,7 +84,7 @@ class S3Client(stream_client.StreamClient):
             extra_args["ServerSideEncryption"] = "AES256"
 
         cast(boto_client.BaseClient, self.conn).upload_fileobj(
-            file_obj, s3_bucket, s3_key, ExtraArgs=extra_args
+            reader, s3_bucket, s3_key, ExtraArgs=extra_args
         )
 
     # Helpers:

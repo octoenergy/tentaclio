@@ -1,10 +1,12 @@
 import abc
-from typing import Iterable, Optional, Union
+from typing import Generic, Iterable, Optional, TypeVar, Union
 
 from .. import protocols, urls
 
+T = TypeVar("T")
 
-class BaseClient(metaclass=abc.ABCMeta):
+
+class BaseClient(Generic[T], metaclass=abc.ABCMeta):
     """
     Abstract base class for clients, wrapping a connection
     """
@@ -26,7 +28,7 @@ class BaseClient(metaclass=abc.ABCMeta):
     # Context manager:
 
     @abc.abstractmethod
-    def __enter__(self):
+    def __enter__(self) -> T:
         ...
 
     def __exit__(self, *args) -> None:
@@ -44,7 +46,7 @@ class BaseClient(metaclass=abc.ABCMeta):
             self.conn = None
 
 
-class QueryClient(BaseClient):
+class QueryClient(BaseClient["QueryClient"]):
     """
     Interface for query-based connections
     """
