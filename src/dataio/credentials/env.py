@@ -26,7 +26,7 @@ def _get_connection_urls(env: Env) -> List[urls.URL]:
     return connections
 
 
-def add_creds_from_env(
+def add_credentials_from_env(
     injector: CredentialsInjector, env: Optional[Env] = None
 ) -> CredentialsInjector:
     """Add urls with credentials from the environment.
