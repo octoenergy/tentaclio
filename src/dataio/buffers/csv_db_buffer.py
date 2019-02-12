@@ -1,7 +1,7 @@
 import csv
 import io
 import logging
-from typing import Sequence
+from typing import Any, Sequence
 
 from typing_extensions import Protocol
 
@@ -26,7 +26,11 @@ class CsvDumper(Protocol):
 
     # The context manager is an actual protcol defined in the
     # std library .... but it can't  be inherited from
-    def __enter__(self) -> protocols.Writer:
+    # Also protocols and return types still have gotchas,
+    # here PostgresClient won't be recognised as a CsvDumper
+    # the reason why we're using any
+    # def __enter__(self) -> "CsvDumper":
+    def __enter__(self) -> Any:
         ...
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
