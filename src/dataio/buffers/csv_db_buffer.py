@@ -5,9 +5,7 @@ from typing import Any, Sequence
 
 from typing_extensions import Protocol
 
-from dataio.protocols import AnyReaderWriter, Reader
-
-from .base_buffer import BaseBuffer
+from dataio import protocols
 
 
 logger = logging.getLogger(__name__)
@@ -27,17 +25,25 @@ def _get_field_names(reader: io.StringIO) -> Sequence[str]:
 class CsvDumper(Protocol):
     """Csv into db dumping contract."""
 
+    # The context manager is an actual protcol defined in the
+    # std library .... but it can't  be inherited from
+    # Also protocols and return types still have gotchas,
+    # here PostgresClient won't be recognised as a CsvDumper
+    # the reason why we're using any
+    # def __enter__(self) -> "CsvDumper":
     def __enter__(self) -> Any:
         ...
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         ...
 
-    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
+    def dump_csv(
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
+    ) -> None:
         ...
 
 
-class DatabaseCsvWriter(BaseBuffer):
+class DatabaseCsvWriter:
     """Writer that dumps the csv formated data into the specified table.
 
     The connection is done through the relevant client.
@@ -71,10 +77,8 @@ class DatabaseCsvWriter(BaseBuffer):
         self._flush()
         self.buff.close()
 
-    # base_buffer overwrites
-    def __enter__(self) -> AnyReaderWriter:
+    def __enter__(self) -> protocols.Writer:
         """Return self as Writer."""
-        # Note a pr down the line won't force this method to return a Any, but a writer
         return self
 
     def __exit__(self, *args) -> None:

@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-class StreamClient(base_client.BaseClient):
+class StreamClient(base_client.BaseClient["StreamClient"]):
     """
     Interface for stream-based connections
     """
@@ -48,11 +48,11 @@ class StreamClient(base_client.BaseClient):
     # Stream methods
 
     @abc.abstractmethod
-    def get(self, writer: protocols.Writer, **params) -> None:
+    def get(self, writer: protocols.ByteWriter, **params) -> None:
         ...
 
     @abc.abstractmethod
-    def put(self, reader: protocols.Reader, **params) -> None:
+    def put(self, reader: protocols.ByteReader, **params) -> None:
         ...
 
 
