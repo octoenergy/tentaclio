@@ -7,11 +7,11 @@ name = "pypi"
 python_version = "3.6.6"
 
 [packages]
-# Symlink to project root
-dataio = {editable = true,path = "."}
 # Lib-dependencies already defined within `setup.py`
 
 [dev-packages]
+# Symlink to project root
+dataio = {editable = true,path = "."}
 # Linter
 flake8 = "*"
 mypy = "*"

@@ -30,12 +30,6 @@ lint:
 	pipenv run flake8 tests
 	pipenv run mypy tests
 
-format:
-	black -l 99 --py36 src
-	black -l 99 --py36 tests
-	isort -l 99 -m 3 -lai 2 -rc src
-	isort -l 99 -m 3 -lai 2 -rc tests
-
 unit:
 	pipenv run pytest tests/unit
 
@@ -50,6 +44,12 @@ functional-sftp:
 
 functional-postgres:
 	pipenv run pytest tests/functional/postgres
+
+format:
+	black -l 99 --py36 src
+	black -l 99 --py36 tests
+	isort -rc src
+	isort -rc tests
 
 coverage:
 	pipenv run pytest --cov=src --cov-report html --cov-report term tests
