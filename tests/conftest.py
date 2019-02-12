@@ -6,12 +6,19 @@ https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
 import io
 import os
 from typing import Sequence
+from urllib import parse
 
 from dataio import URL, Reader, Writer, clients
 
 import pytest
 
+
 # Database fixtures:
+@pytest.fixture
+def sqlite_url():
+    db_file = ":memory:"
+    url = "sqlite:///" + db_file
+    return url
 
 
 POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
@@ -37,6 +44,7 @@ class FakeHandler(object):
 
 @pytest.fixture
 def register_handler(fake_handler):
+    parse.uses_netloc.append("registered")
     URL.register_handler("registered", fake_handler)
     return fake_handler
 

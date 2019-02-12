@@ -1,8 +1,8 @@
-import ftplib
 import io
 import logging
 from typing import Optional, Union
 
+import ftplib
 import pysftp
 
 from dataio import protocols
@@ -20,13 +20,9 @@ class FTPClient(stream_client.StreamClient):
     Generic FTP hook
     """
 
+    allowed_schemes = ["ftp"]
+
     conn: ftplib.FTP
-
-    def __init__(self, url: Union[str, URL], **kwargs) -> None:
-        super().__init__(url)
-
-        if self.url.scheme != "ftp":
-            raise exceptions.FTPError(f"Incorrect scheme {self.url.scheme}")
 
     # Connection methods:
 
@@ -78,13 +74,12 @@ class SFTPClient(stream_client.StreamClient):
     Generic SFTP hook
     """
 
+    allowed_schemes = ["sftp"]
+
     conn: pysftp.Connection
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
-
-        if self.url.scheme != "sftp":
-            raise exceptions.FTPError(f"Incorrect scheme {self.url.scheme}")
 
     # Connection methods:
 

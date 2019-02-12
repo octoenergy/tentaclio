@@ -19,6 +19,8 @@ class HTTPClient(stream_client.StreamClient):
     Generic HTTP hook
     """
 
+    allowed_schemes = ["http", "https"]
+
     conn: Optional[requests.Session]
     timeout: float
     headers: dict
@@ -38,8 +40,6 @@ class HTTPClient(stream_client.StreamClient):
         self.headers = default_headers or DEFAULT_HEADERS
         super().__init__(url)
 
-        if self.url.scheme not in ("http", "https"):
-            raise exceptions.HTTPError(f"Incorrect scheme {self.url.scheme}")
         self.protocol = self.url.scheme
 
         if self.url.hostname is None:

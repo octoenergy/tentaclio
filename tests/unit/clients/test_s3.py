@@ -19,7 +19,7 @@ def fixture_conn():
 
 class TestS3Client:
     def test_invalid_scheme(self, register_handler):
-        with pytest.raises(exceptions.S3Error):
+        with pytest.raises(ValueError):
             s3_client.S3Client("registered://file")
 
     @pytest.mark.parametrize(

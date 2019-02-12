@@ -10,6 +10,12 @@ class ConnectionError(ClientError):
     """
 
 
+class SQLAlchemyError(Exception):
+    """
+    Exception encountered over a SQLAlchemy client connection
+    """
+
+
 class PostgresError(Exception):
     """
     Exception encountered over a Postgres client connection

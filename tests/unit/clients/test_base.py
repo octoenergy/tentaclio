@@ -5,6 +5,8 @@ from dataio.urls import URL
 class FakeClient(base_client.BaseClient):
     connetion = None
 
+    allowed_schemes = 'registered'
+
     def connect(self):
         return self.connection
 
