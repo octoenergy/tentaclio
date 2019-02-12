@@ -1,7 +1,7 @@
 import pytest
 
 from dataio import URL
-from dataio import open_reader, open_writer
+from dataio.api import _open_reader, _open_writer
 
 
 athena_url = (
@@ -17,7 +17,7 @@ def test_athena_scheme():
 @pytest.mark.parametrize("mode", ["r", "w"])
 def test_handler_raises_error(mode):
     with pytest.raises(NotImplementedError):
-        open_reader(athena_url)
+        _open_reader(athena_url)
 
     with pytest.raises(NotImplementedError):
-        open_writer(athena_url)
+        _open_writer(athena_url)

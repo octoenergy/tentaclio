@@ -43,13 +43,13 @@ This is how to use `data-io` for your daily data ingestion and storing needs.
 In order to open streams to load or store data the universal functions are:
 
 ```python
-from dataio import open_reader, open_writer
+from dataio import open
 
-with open_reader("/path/to/my/file") as reader:
+with open("/path/to/my/file", 'r') as reader:
     contents = reader.read()
     [...]
 
-with open_writer("s3://bucket/file") as writer:
+with open("s3://bucket/file", 'w') as writer:
     writer.write(contents)
     [...]
 ```
@@ -69,14 +69,14 @@ You can use these readers and writers with pandas functions like:
 
 ```python
 import pandas as pd
-from dataio import open_reader, open_writer
+from dataio import open
 
-with open_reader("/path/to/my/file") as reader:
+with open("/path/to/my/file", 'r') as reader:
     df = pd.read_csv(reader) 
 
 [...]
 
-with open_writer("s3::/path/to/my/file") as writer:
+with open("s3::/path/to/my/file", 'w') as writer:
     df.to_parquet(writer) 
 ```
 `Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.

@@ -26,7 +26,7 @@ def test_open_http_url_reading(mode, content, expected_content, mocker):
         requests.Session, "send", return_value=mocked_response
     )
 
-    with api.open_reader("http://host.com/request", mode) as reader:
+    with api._open_reader("http://host.com/request", mode) as reader:
         read_content = reader.read()
 
     assert read_content == expected_content
@@ -38,5 +38,5 @@ def test_open_http_url_reading(mode, content, expected_content, mocker):
 )
 def test_open_http_url_writer(mode, content):
     with pytest.raises(NotImplementedError):
-        with api.open_writer("http://host.com/request", mode) as writer:
+        with api._open_writer("http://host.com/request", mode) as writer:
             writer.write(content)
