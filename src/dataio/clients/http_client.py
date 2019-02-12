@@ -73,7 +73,7 @@ class HTTPClient(stream_client.StreamClient):
     @decorators.check_conn
     def get(
         self,
-        writer: protocols.Writer,
+        writer: protocols.ByteWriter,
         endpoint: str = None,
         params: dict = None,
         options: dict = None,
@@ -88,7 +88,7 @@ class HTTPClient(stream_client.StreamClient):
     @decorators.check_conn
     def put(
         self,
-        reader: protocols.Reader,
+        reader: protocols.ByteReader,
         endpoint: str = None,
         params: dict = None,
         options: dict = None,
