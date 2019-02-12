@@ -1,11 +1,16 @@
 import ftplib
+import io
+import logging
 from typing import Optional, Union
 
 import pysftp
-from dataio.protocols import Reader, Writer
+
+from dataio import protocols
 from dataio.urls import URL
 
 from . import decorators, exceptions, stream_client
+
+logger = logging.getLogger(__name__)
 
 __all__ = ["FTPClient", "SFTPClient"]
 
@@ -15,7 +20,7 @@ class FTPClient(stream_client.StreamClient):
     Generic FTP hook
     """
 
-    conn: Optional[ftplib.FTP]
+    conn: ftplib.FTP
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
@@ -26,6 +31,7 @@ class FTPClient(stream_client.StreamClient):
     # Connection methods:
 
     def connect(self) -> ftplib.FTP:
+        logging.info(f"starting ftp connetion to {self.url}")
         return ftplib.FTP(
             self.url.hostname or "", self.url.username or "", self.url.password or ""
         )
@@ -33,7 +39,7 @@ class FTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, writer: Writer, file_path: str = None) -> None:
+    def get(self, writer: protocols.Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
@@ -41,11 +47,14 @@ class FTPClient(stream_client.StreamClient):
         if not self._isfile(remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
-        self.conn.retrbinary("RETR %s" % remote_path, writer.write)  # type: ignore
+        self.conn.retrbinary(f"RETR {remote_path}", writer.write)
 
     @decorators.check_conn()
-    def put(self, reader: Reader, **params) -> None:
-        raise NotImplementedError
+    def put(self, reader: protocols.Reader, file_path: Optional[str] = None) -> None:
+        remote_path = file_path or self.url.path
+        # storebinary only works with io.BytesIO
+        buff = io.BytesIO(reader.read())
+        self.conn.storbinary(f"STOR {remote_path}", buff)
 
     # Helpers:
 
@@ -57,9 +66,10 @@ class FTPClient(stream_client.StreamClient):
             # Query info
             # https://tools.ietf.org/html/rfc3659#section-7
             cmd = "MLST " + file_path
-            self.conn.sendcmd(cmd)  # type: ignore
+            self.conn.sendcmd(cmd)
             return True
-        except ftplib.error_perm:
+        except ftplib.error_perm as e:
+            logger.error("ftplib error: " + str(e))
             return False
 
 
@@ -68,7 +78,7 @@ class SFTPClient(stream_client.StreamClient):
     Generic SFTP hook
     """
 
-    conn: Optional[pysftp.Connection]
+    conn: pysftp.Connection
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
@@ -92,16 +102,27 @@ class SFTPClient(stream_client.StreamClient):
     # Stream methods:
 
     @decorators.check_conn()
-    def get(self, writer: Writer, file_path: str = None) -> None:
+    def get(self, writer: protocols.Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self.conn.isfile(remote_path):  # type: ignore
+        if not self.conn.isfile(remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
-        self.conn.getfo(remote_path, writer)  # type: ignore
+        logger.info(f"sftp reading from {remote_path}")
+        self.conn.getfo(remote_path, writer)
 
     @decorators.check_conn()
-    def put(self, reader: Reader, **params) -> None:
-        raise NotImplementedError
+    def put(self, reader: protocols.Reader, file_path: str = None) -> None:
+        remote_path = file_path or self.url.path
+        if remote_path == "":
+            raise exceptions.FTPError("Missing remote file path")
+
+        logger.info(f"sftp writing to {remote_path}")
+        # this gives permission error
+        # self.conn.putfo(remote_path, file_obj.read())
+        # but open works
+        with self.conn.open(remote_path, mode="wb") as f:
+            print("f", f)
+            f.write(reader.read())
