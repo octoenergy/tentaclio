@@ -1,3 +1,4 @@
+import io
 from typing import Optional
 from urllib import parse
 
@@ -95,8 +96,8 @@ class HTTPClient(stream_client.StreamClient):
         options: dict = None,
     ) -> None:
         url = self._fetch_url(endpoint or "")
-
-        request = self._build_request("POST", url, default_data=reader, default_params=params)
+        buff = io.StringIO(bytes(reader.read()).decode(encoding="utf-8"))
+        request = self._build_request("POST", url, default_data=buff, default_params=params)
         self._send_request(request, default_options=options)
 
     # Helpers:

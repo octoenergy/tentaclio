@@ -1,3 +1,5 @@
+import io
+
 import pytest
 
 from dataio.clients import exceptions, http_client
@@ -74,3 +76,20 @@ class TestHTTPClient:
 
             assert client.conn.auth == auth
             assert client._fetch_url(endpoint) == full_url
+
+    def test_put_bytes(self, mocker, mocked_http_conn):
+        """Check that the conversion from bytes to string works. """
+        buff = io.StringIO()
+
+        def mocked_request(_, __, default_data, default_params):
+            buff.write(default_data.read())
+            buff.seek(0)
+
+        with http_client.HTTPClient("http://host.com/endpoint") as client:
+            client._build_request = mocked_request
+            client._send_request = mocker.MagicMock()
+
+            data = io.BytesIO(bytes("my_data", encoding="utf-8"))
+            client.put(data)
+
+        assert buff.read() == "my_data"
