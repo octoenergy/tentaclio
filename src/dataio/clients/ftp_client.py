@@ -119,5 +119,4 @@ class SFTPClient(stream_client.StreamClient):
         # self.conn.putfo(remote_path, file_obj.read())
         # but open works
         with self.conn.open(remote_path, mode="wb") as f:
-            print("f", f)
             f.write(reader.read())
