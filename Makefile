@@ -42,6 +42,15 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
+functional-ftp:
+	pipenv run pytest tests/functional/ftp
+
+functional-sftp:
+	pipenv run pytest tests/functional/sftp
+
+functional-postgres:
+	pipenv run pytest tests/functional/postgres
+
 coverage:
 	pipenv run pytest --cov=src --cov-report html --cov-report term tests
 
