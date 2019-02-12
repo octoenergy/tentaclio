@@ -34,7 +34,7 @@ class FTPClient(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get(self, writer: protocols.Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
@@ -45,7 +45,7 @@ class FTPClient(stream_client.StreamClient):
 
         self.conn.retrbinary(f"RETR {remote_path}", writer.write)
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(self, reader: protocols.Reader, file_path: Optional[str] = None) -> None:
         remote_path = file_path or self.url.path
         # storebinary only works with io.BytesIO
@@ -96,7 +96,7 @@ class SFTPClient(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get(self, writer: protocols.Writer, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":
@@ -108,7 +108,7 @@ class SFTPClient(stream_client.StreamClient):
         logger.info(f"sftp reading from {remote_path}")
         self.conn.getfo(remote_path, writer)
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(self, reader: protocols.Reader, file_path: str = None) -> None:
         remote_path = file_path or self.url.path
         if remote_path == "":

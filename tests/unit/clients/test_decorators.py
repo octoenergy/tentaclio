@@ -5,7 +5,7 @@ from dataio.clients import base_client, decorators, exceptions
 class TestCheckConn:
     def test_missing_connection_attribute(self):
         class TestClient:
-            @decorators.check_conn()
+            @decorators.check_conn
             def func(self):
                 return True
 
@@ -27,7 +27,7 @@ class TestCheckConn:
             def connect(self):
                 return True
 
-            @decorators.check_conn()
+            @decorators.check_conn
             def func(self):
                 return True
 

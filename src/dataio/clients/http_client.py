@@ -70,7 +70,7 @@ class HTTPClient(stream_client.StreamClient):
 
     # Stream methods:
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def get(
         self,
         writer: protocols.Writer,
@@ -85,7 +85,7 @@ class HTTPClient(stream_client.StreamClient):
 
         writer.write(response.content)
 
-    @decorators.check_conn()
+    @decorators.check_conn
     def put(
         self,
         reader: protocols.Reader,
