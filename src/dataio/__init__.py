@@ -18,6 +18,10 @@ URL.register_handler("sftp", SFTPHandler())
 # postgres handler
 URL.register_handler("postgresql", PostgresURLHandler())
 
+# Assorted SQLAlchemy handlers that don't provide stream readers/writers
+URL.register_handler("awsathena+rest", NullHandler())
+URL.register_handler("sqlite", NullHandler())
+
 # http / https handlers
 URL.register_handler("http", HTTPHandler())
 URL.register_handler("https", HTTPHandler())

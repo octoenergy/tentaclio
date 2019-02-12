@@ -1,0 +1,22 @@
+import pytest
+
+from dataio import URL, open_reader, open_writer
+
+
+athena_url = (
+    "awsathena+rest://user:pw@athena.eu-west-1.amazonaws.com:443/default?s3_staging_dir=my_dir"
+)
+
+
+def test_athena_scheme():
+    url = URL(athena_url)  # would crash if no hander
+    assert url.scheme == "awsathena+rest"
+
+
+@pytest.mark.parametrize("mode", ["r", "w"])
+def test_handler_raises_error(mode):
+    with pytest.raises(NotImplementedError):
+        open_reader(athena_url)
+
+    with pytest.raises(NotImplementedError):
+        open_writer(athena_url)
