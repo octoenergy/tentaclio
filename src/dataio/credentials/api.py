@@ -1,7 +1,12 @@
 import functools
+import logging
 
-from .env import add_creds_from_env
+from .env import add_credentials_from_env
 from .injection import CredentialsInjector
+from .reader import add_credentials_from_env_file
+
+
+logger = logging.getLogger(__name__)
 
 
 __all__ = ["load_credentials_injector"]
@@ -12,5 +17,6 @@ __all__ = ["load_credentials_injector"]
 def load_credentials_injector() -> CredentialsInjector:
     """Load the credentials injector fetching configuration from the environment."""
     injector = CredentialsInjector()
-    injector = add_creds_from_env(injector)
+    injector = add_credentials_from_env(injector)
+    injector = add_credentials_from_env_file(injector)
     return injector
