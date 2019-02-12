@@ -108,7 +108,6 @@ def _compute_parts_similarity(elements_1: List[str], elements_2: List[str]) -> f
             break
         if path_element == elements_2[idx]:
             similarity += 1
-            print("similarity inside", similarity)
         else:
             break
     return similarity
