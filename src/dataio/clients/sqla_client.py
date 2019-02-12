@@ -21,6 +21,8 @@ class SQLAlchemyClient(base_client.QueryClient):
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
 
+    allowed_schemes = ["mssql", "postgresql", "sqlite", "awsathena+rest"]
+
     conn: Optional[Connection]
     engine = None
     execution_options: dict
