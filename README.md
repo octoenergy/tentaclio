@@ -81,6 +81,16 @@ with open("s3::/path/to/my/file", 'w') as writer:
 ```
 `Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
 
+### Automatic credentials injection. 
+For urls opened through `dataio.open_reader` and `dataio.open_writer` dataio allows to automatically inject credentials without having to manipulate the urls.
+In order for the credentials injection to work the corresponding _matching_ credentials have to be defined following the convention:
+
+* environmental variables starting with the prefix `OCTOIO__CONN__` i.e. `OCOTOIO__CONN__DATASETS_DATABASE_CREDENTIALS=postgresql://real_user:132ldsf@octoenergy.systems/datasets`
+* The url passed to `dataio.open_reader` or `dataio.open` has the correct scheme (`postgresql`), the correct correct host name, or the wildcard `hostname` if that should be injected too, 
+and the correct path to identify matching credentials. In this case when calling `dataio.open("postgresql://octoenergy.systems/datasets::my_table")` the correct credentials will be set for the 
+client making the call equivalent to `dataio.open("postgresql://real_user:132ldsf@octoenergy.systems/datasets::my_table")`. This is also equivalent to `dataio.open("postgresql://hostname/datasets::my_table")`. Note that the `::table` part of the path doesn't need to be defined in the credentials url.
+
+This is particulary useful when using dataio for distributed system where the url producer doesn't know the credentials of a given server, database, etc... and this information should not be travelling in plain text through the system.
 
 
 ### StreamClients and QueryClients
