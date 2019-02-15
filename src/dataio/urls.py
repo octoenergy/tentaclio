@@ -2,8 +2,10 @@ import logging
 from typing import Any, ClassVar, ContextManager, Dict, Optional
 from urllib import parse
 
-from dataio import protocols
 from typing_extensions import Protocol
+
+from dataio import protocols
+
 
 __all__ = ["URLError", "URLHandlerRegistry", "URL"]
 
@@ -32,7 +34,7 @@ class URLHandlerRegistry(object):
 
     def register(self, scheme: str, url_handler: URLHandler):
         if scheme not in self.registry:
-            logger.info("registering url scheme {scheme}")
+            logger.info(f"registering url scheme {scheme}")
             self.registry[scheme] = url_handler
 
     def get_handler(self, scheme: str):
@@ -136,6 +138,28 @@ class URL:
         else:
             self._query = None
 
+    def copy(
+        self,
+        scheme: str = None,
+        username: str = None,
+        password: str = None,
+        hostname: str = None,
+        port: int = None,
+        path: str = None,
+        query: str = None,
+    ) -> "URL":
+        """Copy this url optionally overwriting the provided components.
+        """
+        return URL.from_components(
+            scheme=scheme or self.scheme,
+            username=username or self.username,
+            password=password or self.password,
+            hostname=hostname or self.hostname,
+            port=port or self.port,
+            path=path or self.path,
+            query=query or self.query,
+        )
+
     @classmethod
     def from_components(
         cls,
@@ -160,7 +184,11 @@ class URL:
         return URL(url)
 
     def __str__(self):
-        return self._url
+        """Return a string representation of the url hidding compromising credentials."""
+        password = self.password
+        if password:
+            password = "__secret__" + password[-4:]
+        return self.copy(password=password)._url
 
     def __eq__(self, other: Any):
         if not isinstance(other, URL):
