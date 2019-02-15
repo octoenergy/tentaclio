@@ -1,6 +1,6 @@
 from typing import ContextManager
 
-from dataio import protocols, urls
+from dataio import credentials, protocols, urls
 
 
 __all__ = ["open"]
@@ -9,13 +9,15 @@ __all__ = ["open"]
 def _open_reader(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Reader]:
     """Opens the url and returns a reader """
     mode = mode or ""
-    return urls.URL(url).open_reader(mode, extras=kwargs)
+    authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
+    return authenticated.open_reader(mode, extras=kwargs)
 
 
 def _open_writer(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Writer]:
     """Opens the url and returns a writer"""
     mode = mode or ""
-    return urls.URL(url).open_writer(mode, extras=kwargs)
+    authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
+    return authenticated.open_writer(mode, extras=kwargs)
 
 
 def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyReaderWriter]:
