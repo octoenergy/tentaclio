@@ -1,10 +1,10 @@
+import io
 import os
 import tempfile
 
 import pytest
 
-from dataio import URL
-from dataio.api import _open_reader, _open_writer
+from dataio import URL, api
 
 
 @pytest.fixture
@@ -41,10 +41,25 @@ def test_file_scheme():
     ],
 )
 def test_file_read_write(extras, expected, temp_filename):
-    with _open_writer(temp_filename, **extras) as writer:
+    with api._open_writer(temp_filename, **extras) as writer:
         contents = writer.write(expected)
 
-    with _open_reader(temp_filename, **extras) as reader:
+    with api._open_reader(temp_filename, **extras) as reader:
         contents = reader.read()
 
     assert contents == expected
+
+
+@pytest.mark.parametrize(["mode"], [("r"), ("b")])
+def test_expand_user(mode, mocker):
+    file_name = "~"
+    mocked_open = mocker.patch("builtins.open")
+    opened_path = io.StringIO()
+
+    mocked_open.side_effect = lambda path, mode: opened_path.write(path)
+
+    # just to check the value used in open, and not having
+    # to create a full context manager
+    api.open(file_name, mode=mode).__enter__()
+
+    assert opened_path.getvalue() == os.path.expanduser(file_name)
