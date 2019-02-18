@@ -1,6 +1,6 @@
-from dataio import URL, URLError, URLHandlerRegistry
-
 import pytest
+
+from dataio import URL, URLError, URLHandlerRegistry
 
 
 class TestRegistry(object):
@@ -146,3 +146,47 @@ class TestURL:
     )
     def test_url_equality(self, url_1, url_2, should_be_equal, register_handler):
         assert (URL(url_1) == URL(url_2)) == should_be_equal
+
+    @pytest.mark.parametrize(
+        "original,components,expected",
+        [
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"username": "myuser"},
+                "registered://myuser:password@hostname.com:7744/path?my_arg=my_value",
+            ),
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"password": "mypassword"},
+                "registered://user:mypassword@hostname.com:7744/path?my_arg=my_value",
+            ),
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"hostname": "google.com"},
+                "registered://user:password@google.com:7744/path?my_arg=my_value",
+            ),
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"port": 80},
+                "registered://user:password@hostname.com:80/path?my_arg=my_value",
+            ),
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"path": "otherpath"},
+                "registered://user:password@hostname.com:7744/otherpath?my_arg=my_value",
+            ),
+            (
+                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                {"query": {"my_arg": "other_value"}},
+                "registered://user:password@hostname.com:7744/path?my_arg=other_value",
+            ),
+        ],
+    )
+    def test_copy(self, original, components, expected, register_handler):
+        result = URL(original).copy(**components)
+        assert result == URL(expected)
+
+    def test_string_hides_password(self, register_handler):
+        original = URL("registered://user:password@hostname.com")
+        str_url = str(original)
+        assert str_url == "registered://user:__secret__word@hostname.com"
