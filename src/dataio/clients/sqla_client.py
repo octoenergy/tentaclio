@@ -25,7 +25,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     allowed_schemes = ["mssql", "postgresql", "sqlite", "awsathena+rest"]
 
-    conn: Optional[Connection]
+    conn: Connection
     engine = None
     execution_options: dict
     connect_args: dict
@@ -55,7 +55,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     # Connection methods:
 
-    def connect(self) -> Connection:
+    def _connect(self) -> Connection:
 
         parsed_url = sqla_url.URL(
             drivername=self.drivername,
@@ -90,7 +90,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
         Remark: will NOT commit any changes to DB
         """
-        return self.conn.execute(sql_query, params=params)  # type: ignore
+        return self.conn.execute(sql_query, params=params)
 
     @decorators.check_conn
     def execute(self, sql_query: str, **params) -> None:
@@ -99,9 +99,9 @@ class SQLAlchemyClient(base_client.QueryClient):
 
         Remark: will commit changes to DB
         """
-        trans = self.conn.begin()  # type: ignore
+        trans = self.conn.begin()
         try:
-            self.conn.execute(sql_query, params=params)  # type: ignore
+            self.conn.execute(sql_query, params=params)
         except Exception:
             trans.rollback()
             raise

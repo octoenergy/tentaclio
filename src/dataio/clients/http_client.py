@@ -23,7 +23,7 @@ class HTTPClient(stream_client.StreamClient):
 
     allowed_schemes = ["http", "https"]
 
-    conn: Optional[requests.Session]
+    conn: requests.Session
     timeout: float
     headers: dict
     protocol: str
@@ -57,7 +57,7 @@ class HTTPClient(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> requests.Session:
+    def _connect(self) -> requests.Session:
         session = requests.Session()
 
         # credentials provided
@@ -128,12 +128,12 @@ class HTTPClient(stream_client.StreamClient):
         else:
             raise NotImplementedError
 
-        return self.conn.prepare_request(request)  # type: ignore
+        return self.conn.prepare_request(request)
 
     def _send_request(self, request: requests.PreparedRequest, default_options: dict = None):
         options = default_options or {}
 
-        response = self.conn.send(  # type: ignore
+        response = self.conn.send(
             request,
             stream=options.get("stream", False),
             verify=options.get("verify", False),

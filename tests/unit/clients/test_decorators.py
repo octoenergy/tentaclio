@@ -11,7 +11,7 @@ class TestCheckConn:
                 return True
 
             def __enter__(self):
-                pass
+                ...
 
         test_client = TestClient()
 
@@ -32,8 +32,11 @@ class TestCheckConn:
             def func(self):
                 return True
 
+            def _connect(self):
+                ...
+
             def __enter__(self):
-                pass
+                ...
 
         test_client = TestClient(url)
 

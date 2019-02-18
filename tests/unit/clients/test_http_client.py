@@ -7,7 +7,7 @@ from dataio.clients import exceptions, http_client
 
 @pytest.fixture()
 def mocked_http_conn(mocker):
-    with mocker.patch.object(http_client.HTTPClient, "connect", return_value=mocker.Mock()):
+    with mocker.patch.object(http_client.HTTPClient, "_connect", return_value=mocker.Mock()):
         yield
 
 

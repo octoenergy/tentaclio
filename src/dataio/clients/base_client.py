@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Iterable, Optional, TypeVar, Union
+from typing import Generic, Iterable, TypeVar, Union
 
 from .. import protocols, urls
 
@@ -13,8 +13,9 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
     """
 
     url: urls.URL
-    conn: Optional[protocols.Closable] = None
+    conn: protocols.Closable
     allowed_schemes: Iterable[str] = []
+    closed: bool = True
 
     def __init__(self, url: Union[urls.URL, str]) -> None:
         if isinstance(url, str):
@@ -37,14 +38,21 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
 
     # Connection methods:
 
-    @abc.abstractmethod
     def connect(self) -> protocols.Closable:
+        self.closed = False
+        return self._connect()
+
+    @abc.abstractmethod
+    def _connect(self) -> protocols.Closable:
         ...
 
-    def close(self):
-        if self.conn is not None:
-            self.conn.close()
-            self.conn = None
+    def close(self) -> None:
+        """Close the client connection. """
+        if self.closed:
+            raise ValueError("Trying to close a closed client")
+
+        self.conn.close()
+        self.closed = True
 
 
 class QueryClient(BaseClient["QueryClient"]):
