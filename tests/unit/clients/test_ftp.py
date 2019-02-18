@@ -7,13 +7,13 @@ import pytest
 
 @pytest.fixture()
 def mocked_ftp_conn(mocker):
-    with mocker.patch.object(ftp_client.FTPClient, "connect", return_value=mocker.MagicMock()):
+    with mocker.patch.object(ftp_client.FTPClient, "_connect", return_value=mocker.MagicMock()):
         yield
 
 
 @pytest.fixture()
 def mocked_sftp_conn(mocker):
-    with mocker.patch.object(ftp_client.SFTPClient, "connect", return_value=mocker.MagicMock()):
+    with mocker.patch.object(ftp_client.SFTPClient, "_connect", return_value=mocker.MagicMock()):
         yield
 
 

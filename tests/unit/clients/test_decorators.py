@@ -1,4 +1,5 @@
 import pytest
+
 from dataio.clients import base_client, decorators, exceptions
 
 
@@ -10,7 +11,7 @@ class TestCheckConn:
                 return True
 
             def __enter__(self):
-                pass
+                ...
 
         test_client = TestClient()
 
@@ -22,7 +23,7 @@ class TestCheckConn:
 
         class TestClient(base_client.BaseClient):
 
-            allowed_schemes = ['file']
+            allowed_schemes = ["file"]
 
             def connect(self):
                 return True
@@ -31,8 +32,11 @@ class TestCheckConn:
             def func(self):
                 return True
 
+            def _connect(self):
+                ...
+
             def __enter__(self):
-                pass
+                ...
 
         test_client = TestClient(url)
 

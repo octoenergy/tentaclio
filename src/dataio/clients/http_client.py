@@ -56,7 +56,7 @@ class HTTPClient(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> requests.Session:
+    def _connect(self) -> requests.Session:
         session = requests.Session()
 
         # credentials provided

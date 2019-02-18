@@ -53,7 +53,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     # Connection methods:
 
-    def connect(self) -> Connection:
+    def _connect(self) -> Connection:
 
         parsed_url = sqla_url.URL(
             drivername=self.drivername,

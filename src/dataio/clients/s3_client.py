@@ -43,7 +43,7 @@ class S3Client(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> boto_client.BaseClient:
+    def _connect(self) -> boto_client.BaseClient:
         # Revert to Boto default credentials
 
         # Exception: 's3' hostname not a valid bucket
@@ -57,8 +57,9 @@ class S3Client(stream_client.StreamClient):
 
     def close(self) -> None:
         # s3 doesn't have close method
-        if self.conn is not None:
-            self.conn = None
+        if self.closed:
+            raise ValueError("Trying to close a closed client")
+        self.closed = True
 
     # Stream methods:
 

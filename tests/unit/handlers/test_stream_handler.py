@@ -10,12 +10,10 @@ class FakeClient(StreamClient):
     def __init__(self, url: URL, message: bytearray = None):
         self._writer = io.BytesIO()
         self._message = message or bytes("hello", encoding="utf-8")
+        self._closed = False
 
-    def connect(self):
-        pass
-
-    def __enter__(self):
-        pass
+    def _connect(self):
+        return None
 
     def get(self, writer: Writer) -> None:
         writer.write(self._message)
@@ -34,11 +32,7 @@ def test_open_reader_for_string(register_handler):
 def test_open_reader_for_bytes(register_handler):
     message = bytes("hello", "utf-8")
     handler = StreamURLHandler(FakeClient)
-    reader = handler.open_reader_for(
-        URL("registered://my/path"),
-        mode="b",
-        extras={},
-    )
+    reader = handler.open_reader_for(URL("registered://my/path"), mode="b", extras={})
     assert message == reader.read()
 
 
@@ -47,7 +41,6 @@ def test_open_writer_for_string(register_handler):
     client = FakeClient(url)
     handler = StreamURLHandler(lambda url, **kwargs: client)
     writer = handler.open_writer_for(url, mode="t", extras={})
-
     writer.write("test")
     writer.close()
 
