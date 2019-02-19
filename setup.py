@@ -23,7 +23,8 @@ REQUIREMENTS = [
     # Utils
     "typing-extensions",
     "pandas",
-    "click"
+    "click",
+    "pyyaml"
 ]
 
 
