@@ -1,4 +1,5 @@
 import logging
+import os
 
 from dataio.protocols import ReaderClosable, WriterClosable
 from dataio.urls import URL
@@ -14,7 +15,7 @@ def _get_mode_extras(mode: str) -> str:
 
 
 class LocalFileHandler:
-    """Handler for opening writers and readers for S3 buckets."""
+    """Handler for opening writers and readers for local files."""
 
     def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
         """Open a local file for reading.
@@ -26,7 +27,7 @@ class LocalFileHandler:
         """
         mode = "r" + _get_mode_extras(mode)
         logger.debug(f"opening {url.path} with mode {mode}")
-        return open(url.path, mode)
+        return open(os.path.expanduser(url.path), mode)
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open an s3 bucket for writing.
@@ -38,4 +39,4 @@ class LocalFileHandler:
         """
         mode = "w" + _get_mode_extras(mode)
         logger.debug(f"opening {url.path} with mode {mode}")
-        return open(url.path, mode)
+        return open(os.path.expanduser(url.path), mode)
