@@ -6,16 +6,14 @@ from dataio import credentials, protocols, urls
 __all__ = ["open"]
 
 
-def _open_reader(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Reader]:
+def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[protocols.Reader]:
     """Opens the url and returns a reader """
-    mode = mode or ""
     authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
     return authenticated.open_reader(mode, extras=kwargs)
 
 
-def _open_writer(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.Writer]:
+def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[protocols.Writer]:
     """Opens the url and returns a writer"""
-    mode = mode or ""
     authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
     return authenticated.open_writer(mode, extras=kwargs)
 
@@ -30,13 +28,22 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyRe
         >>> open(path, 'rw')  # ! raises ValueError due to ambiguity
     """
     mode = mode or ""
-    is_read_mode = "r" in mode or "R" in mode
-    is_write_mode = "w" in mode or "W" in mode
-    if is_read_mode and is_write_mode:
-        raise ValueError(f'Mode must not contain both "r" and "w", found {mode}')
-    for flag_letter in "rRwW":
-        mode = mode.replace(flag_letter, "")
+
+    _assert_mode(mode)
+    is_write_mode = "w" in mode
+
     if is_write_mode:
         return _open_writer(url=url, mode=mode, **kwargs)
     else:
         return _open_reader(url=url, mode=mode, **kwargs)
+
+
+VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
+
+
+def _assert_mode(mode: str):
+    """Check that mode is valid or raise error otherwise.
+    """
+    if mode not in VALID_MODES:
+        valid_modes = ",".join(VALID_MODES)
+        raise ValueError(f"Mode {mode} is not allowed. Valid modes are  {valid_modes}")

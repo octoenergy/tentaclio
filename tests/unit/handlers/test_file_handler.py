@@ -29,22 +29,14 @@ def test_file_scheme():
 
 
 @pytest.mark.parametrize(
-    ["extras", "expected"],
-    [
-        ({}, "hello file"),
-        ({"mode": "t"}, "hello file"),
-        ({"mode": "rt"}, "hello file"),
-        ({"mode": "wt"}, "hello file"),
-        ({"mode": "b"}, bytes("hello file", "utf-8")),
-        ({"mode": "wb"}, bytes("hello file", "utf-8")),
-        ({"mode": "rb"}, bytes("hello file", "utf-8")),
-    ],
+    ["mode", "expected"],
+    [("", "hello file"), ("t", "hello file"), ("b", bytes("hello file", "utf-8"))],
 )
-def test_file_read_write(extras, expected, temp_filename):
-    with api._open_writer(temp_filename, **extras) as writer:
+def test_file_read_write(mode, expected, temp_filename):
+    with api.open(temp_filename, mode="w" + mode) as writer:
         contents = writer.write(expected)
 
-    with api._open_reader(temp_filename, **extras) as reader:
+    with api.open(temp_filename, mode=mode) as reader:
         contents = reader.read()
 
     assert contents == expected
