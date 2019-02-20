@@ -17,7 +17,7 @@ def test_handler_is_registered(url, scheme):
 @pytest.mark.parametrize(
     "mode,content, expected_content", [
         ("b", bytes(TEST_PAYLOAD, "utf-8"), bytes(TEST_PAYLOAD, "utf-8")),
-        ("s", bytes(TEST_PAYLOAD, "utf-8"), TEST_PAYLOAD)
+        ("t", bytes(TEST_PAYLOAD, "utf-8"), TEST_PAYLOAD)
     ]
 )
 def test_open_http_url_reading(mode, content, expected_content, mocker):
@@ -26,7 +26,7 @@ def test_open_http_url_reading(mode, content, expected_content, mocker):
         requests.Session, "send", return_value=mocked_response
     )
 
-    with api._open_reader("http://host.com/request", mode) as reader:
+    with api.open("http://host.com/request", mode=mode) as reader:
         read_content = reader.read()
 
     assert read_content == expected_content
@@ -34,9 +34,9 @@ def test_open_http_url_reading(mode, content, expected_content, mocker):
 
 
 @pytest.mark.parametrize(
-    "mode,content", [("b", bytes(TEST_PAYLOAD, "utf-8")), ("s", TEST_PAYLOAD)]
+    "mode,content", [("wb", bytes(TEST_PAYLOAD, "utf-8")), ("wt", TEST_PAYLOAD)]
 )
 def test_open_http_url_writer(mode, content):
     with pytest.raises(NotImplementedError):
-        with api._open_writer("http://host.com/request", mode) as writer:
+        with api.open("http://host.com/request", mode=mode) as writer:
             writer.write(content)
