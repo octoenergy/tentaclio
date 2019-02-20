@@ -9,7 +9,7 @@ from sqlalchemy.sql.schema import MetaData
 
 from dataio.urls import URL
 
-from . import base_client, decorators, exceptions
+from . import base_client, decorators
 
 
 __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
@@ -116,8 +116,6 @@ class SQLAlchemyClient(base_client.QueryClient):
         Run a raw SQL query and return a data frame
         """
         df = pd.read_sql(sql_query, self.conn, params=params, **kwargs)
-        if df.empty:
-            raise exceptions.SQLAlchemyError("Empty Pandas dataframe content")
         return df
 
 
