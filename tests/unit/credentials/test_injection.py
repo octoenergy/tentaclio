@@ -33,6 +33,11 @@ import pytest
             "registered://user:password@octo.energy/database",
         ],
         [
+            "registered://user:password@octo.energy:5544/database",
+            "registered://octo.energy/database",  # hostname wildcard
+            "registered://user:password@octo.energy:5544/database",
+        ],
+        [
             "registered://user:password@octo.energy/database",
             "registered://octo.energy/database2",
             "registered://octo.energy/database2",  # the path is similar but not identical
