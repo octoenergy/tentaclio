@@ -10,6 +10,7 @@ from dataio.urls import URL
 
 from . import decorators, exceptions, stream_client
 
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["FTPClient", "SFTPClient"]
@@ -77,9 +78,15 @@ class SFTPClient(stream_client.StreamClient):
     allowed_schemes = ["sftp"]
 
     conn: pysftp.Connection
+    username: str
+    password: str
+    port: int
 
     def __init__(self, url: Union[str, URL], **kwargs) -> None:
         super().__init__(url)
+        self.username = self.url.username or ""
+        self.password = self.url.password or ""
+        self.port = self.url.port or 22
 
     # Connection methods:
 
@@ -88,10 +95,10 @@ class SFTPClient(stream_client.StreamClient):
         cnopts.hostkeys = None
         return pysftp.Connection(
             self.url.hostname,
-            username=self.url.username,
-            password=self.url.password,
+            username=self.username,
+            password=self.password,
             cnopts=cnopts,
-            port=self.url.port,
+            port=self.port,
         )
 
     # Stream methods:

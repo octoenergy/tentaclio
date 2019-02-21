@@ -1,8 +1,8 @@
 import io
 
-from dataio.clients import exceptions, ftp_client
-
 import pytest
+
+from dataio.clients import exceptions, ftp_client
 
 
 @pytest.fixture()
@@ -115,3 +115,14 @@ class TestSFTPClient:
         result.seek(0)
 
         assert result.getvalue() == expected
+
+    @pytest.mark.parametrize(
+        ["url", "port"],
+        [
+            ("sftp://user:pass@localhost/myfile.txt", 22),
+            ("sftp://user:pass@localhost:200/myfile.txt", 200),
+        ],
+    )
+    def test_set_default_port(self, url, port, mocked_sftp_conn):
+        client = ftp_client.SFTPClient(url)
+        assert client.port == port
