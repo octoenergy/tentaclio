@@ -13,7 +13,7 @@ update:
 	pipenv clean
 
 clean:
-	rm -rf build dist
+	rm -rf build dist htmlcov
 	find src -type d -name __pycache__ | xargs rm -rf
 
 sync:

@@ -1,22 +1,22 @@
+import typing
+
 import click
 
 from dataio import urls
 
 
-def _compose_url(scheme, username, password, hostname, port, path, query):
-    url = urls.URL.from_components(
-        scheme=scheme,
-        username=username,
-        password=password,
-        hostname=hostname,
-        port=port,
-        path=path,
-        query=query,
-    ).url
-    return url
+# CLI main entry point
 
 
-@click.command()
+@click.group()
+def main():
+    pass
+
+
+# Register CLI commands
+
+
+@main.command()
 @click.option("--scheme", default=None, required=True)
 @click.option("--username", default=None)
 @click.option("--password", default=None)
@@ -30,15 +30,16 @@ def _compose_url(scheme, username, password, hostname, port, path, query):
     multiple=True,
     help="Provide key-value pairs using [--key KEY VALUE]",
 )
-def command_compose_url(scheme, username, password, hostname, port, path, key):
+def compose_url(scheme, username, password, hostname, port, path, key):
+    """Compose a client URL from individual components"""
     if not hostname and not path:
-        raise click.ClickException("Provide at least one of `hostname`, `path`.")
-    query = key
-    if query:
+        raise click.ClickException("Provide at least one of `hostname`, `path`")
+
+    query: typing.Optional[dict] = None
+    if key:
         query = {k: v for k, v in key}
-    else:
-        query = None
-    url = _compose_url(
+
+    composed_url = urls.URL.from_components(
         scheme=scheme,
         username=username,
         password=password,
@@ -47,4 +48,6 @@ def command_compose_url(scheme, username, password, hostname, port, path, key):
         path=path,
         query=query,
     )
-    click.echo(url, nl=False)
+
+    # Output composed url (with no hidden secrets)
+    click.echo(composed_url.url, nl=False)
