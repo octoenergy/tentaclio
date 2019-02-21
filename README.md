@@ -39,28 +39,32 @@ To refresh Python dependencies,
 ## How to use
 This is how to use `data-io` for your daily data ingestion and storing needs.
 
-### URL streams
-In order to open streams to load or store data the universal functions are:
+### Streams
+In order to open streams to load or store data the universal function is:
 
 ```python
-from dataio import open
+import dataio 
 
-with open("/path/to/my/file", 'r') as reader:
+with dataio.open("/path/to/my/file") as reader:
     contents = reader.read()
-    [...]
 
-with open("s3://bucket/file", 'w') as writer:
+with dataio.open("s3://bucket/file", mode='w') as writer:
     writer.write(contents)
-    [...]
+
 ```
-The supported protocols are:
+Allowed modes are `r`, `w`, `rb`, and `wb`. You can use `t` instead of `b` to indicate text streams, but that's the default.
+
+
+The supported url protocols are:
 
 * `/local/file`
 * `file:///local/file`
 * `s3://bucket/file`
 * `ftp://path/to/file`
 * `sftp://path/to/file`
-* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names (:warning: note that the table goes after `::` :warning:).
+* `http://host.com/path/to/resource`
+* `https://host.com/path/to/resource`
+* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
 
 You can add the credentials for any of the urls in order to access protected resources.
 
@@ -69,31 +73,19 @@ You can use these readers and writers with pandas functions like:
 
 ```python
 import pandas as pd
-from dataio import open
+import dataio 
 
-with open("/path/to/my/file", 'r') as reader:
+with dataio.open("/path/to/my/file") as reader:
     df = pd.read_csv(reader) 
 
 [...]
 
-with open("s3::/path/to/my/file", 'w') as writer:
+with dataio.open("s3::/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer) 
 ```
 `Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
 
-### Automatic credentials injection. 
-For urls opened through `dataio.open_reader` and `dataio.open_writer` dataio allows to automatically inject credentials without having to manipulate the urls.
-In order for the credentials injection to work the corresponding _matching_ credentials have to be defined following the convention:
-
-* environmental variables starting with the prefix `OCTOIO__CONN__` i.e. `OCOTOIO__CONN__DATASETS_DATABASE_CREDENTIALS=postgresql://real_user:132ldsf@octoenergy.systems/datasets`
-* The url passed to `dataio.open_reader` or `dataio.open` has the correct scheme (`postgresql`), the correct correct host name, or the wildcard `hostname` if that should be injected too, 
-and the correct path to identify matching credentials. In this case when calling `dataio.open("postgresql://octoenergy.systems/datasets::my_table")` the correct credentials will be set for the 
-client making the call equivalent to `dataio.open("postgresql://real_user:132ldsf@octoenergy.systems/datasets::my_table")`. This is also equivalent to `dataio.open("postgresql://hostname/datasets::my_table")`. Note that the `::table` part of the path doesn't need to be defined in the credentials url.
-
-This is particulary useful when using dataio for distributed system where the url producer doesn't know the credentials of a given server, database, etc... and this information should not be travelling in plain text through the system.
-
-
-### StreamClients and QueryClients
+### QueryClients
 
 The module `dataio.client` gives more control over the resources, and allows to run queries against a database.  
 
@@ -107,7 +99,44 @@ with clients.PostgresClient(POSTGRES_TEST_URL) as client:
     result =client.query(query)
 [...]
 ```
-     
+
+The supported db schemes are:
+
+* `postgresql://`
+* `sqlite://`
+* `awsathena+rest://`
+
+### Automatic credentials injection. 
+
+1. Configure credencials by using environmental variables prefixed with `OCTOIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems/datasets`).
+
+2. Open a stream:
+```python
+with dataio.open("sftp://octoenergy.com/file.csv") as reader:
+    reader.read()
+```
+The credentials get injected into the url. 
+
+3. Open a db client and explictily authorise your url:
+```python
+from dataio import clients, credentials
+
+with clients.PostgresClient(authorise("postgresql://hostname/my_data_base")) as client:
+    client.query("select 1")
+```
+Note that `hostname` in the url to be authenticated is a wildcard that will match any hostname. So `authenticate("http://hostname/file.txt")` will be injected to `http://user:pass@octo.co/file.txt` if the credential for `http://user:pass@octo.co/` exists.
+
+
+#### Credentials file:
+
+You can also set a credentials file that looks like:
+```
+secrets:
+    db_1: postgresql://user1:pass1@myhost.com/database_1
+    db_2: postgresql://user2:pass2@otherhost.com/database_2
+    ftp_server: ftp://fuser:fpass@ftp.myhost.com
+```
+And make it accessible to data-io by setting the environmental variable `OCTOIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality. 
 
 ## Development
 
