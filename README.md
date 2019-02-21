@@ -6,7 +6,7 @@ Python package regrouping a collection of I/O connectors, used in the data world
 
 - a boilerplate for developers to expose new connectors (`dataio.clients`).
 - an interface to acess file resources,
-    - thanks to a unified syntax (`dataio.open_reader`, `dataio.open_writer`),
+    - thanks to a unified syntax (`dataio.open`),
     - and a simplified interface (`dataio.protocols`).
 
 ## Quickstart
@@ -108,7 +108,7 @@ The supported db schemes are:
 
 ### Automatic credentials injection. 
 
-1. Configure credencials by using environmental variables prefixed with `OCTOIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems/datasets`).
+1. Configure credencials by using environmental variables prefixed with `OCTOIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
 
 2. Open a stream:
 ```python
