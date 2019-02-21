@@ -8,7 +8,7 @@ TEST_COLUMNS = ["column_int", "column_str", "column_float"]
 TEST_VALUES = [1, "test_1", 123.456]
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixture_client(db_client):
     test_meta = sqla.MetaData()
     sqla.Table(
@@ -25,7 +25,7 @@ def fixture_client(db_client):
     db_client.delete_schema(test_meta)
 
 
-@pytest.fixture()
+@pytest.fixture
 def fixture_df():
     df = pd.DataFrame(data=[TEST_VALUES], columns=TEST_COLUMNS)
     return df

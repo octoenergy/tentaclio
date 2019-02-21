@@ -13,7 +13,12 @@ import pytest
 from dataio import URL, Reader, Writer, clients
 
 
-# Database fixtures:
+POSTGRES_TEST_URL = os.getenv("OCTOIO__CONN__POSTGRES_TEST")
+
+
+# URL fixtures
+
+
 @pytest.fixture
 def sqlite_url():
     db_file = ":memory:"
@@ -21,22 +26,23 @@ def sqlite_url():
     return url
 
 
-POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
-
-
 @pytest.fixture(scope="session")
 def postgres_url():
-    assert POSTGRES_TEST_URL is not None, "Missing test config in environment variables"
+    assert POSTGRES_TEST_URL is not None, "Missing postgres URL in environment variables"
     return POSTGRES_TEST_URL
+
+
+# Client fixtures
 
 
 @pytest.fixture(scope="session")
 def db_client(postgres_url):
-    """
-    Create and tear down the session-wide SQLAlchemy Db connection
-    """
+    """Create and tear down the session-wide SQLAlchemy Db connection"""
     with clients.PostgresClient(postgres_url) as client:
         yield client
+
+
+# Handler fixtures
 
 
 class FakeHandler(object):
@@ -48,15 +54,18 @@ class FakeHandler(object):
 
 
 @pytest.fixture
+def fake_handler():
+    return FakeHandler()
+
+
+@pytest.fixture
 def register_handler(fake_handler):
     parse.uses_netloc.append("registered")
     URL.register_handler("registered", fake_handler)
     return fake_handler
 
 
-@pytest.fixture
-def fake_handler():
-    return FakeHandler()
+# Stream fixtures
 
 
 class CsvDumperRecorder:
