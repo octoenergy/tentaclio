@@ -26,8 +26,10 @@ from dataio import protocols
 
 from . import base_client
 
+
 __all__ = [
     "StreamClient",
+    "StreamBaseIO",
     "StreamClientReader",
     "StreamClientWriter",
     "StringToBytesClientWriter",

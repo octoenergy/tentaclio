@@ -1,18 +1,20 @@
 import csv
 import io
 import logging
-from typing import Any, Sequence
+from typing import IO, Any, Sequence
 
 from typing_extensions import Protocol
 
 from dataio import protocols
+from dataio.clients.stream_client import StreamBaseIO
+
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["DatabaseCsvWriter"]
 
 
-def _get_field_names(reader: io.StringIO) -> Sequence[str]:
+def _get_field_names(reader: IO) -> Sequence[str]:
     """Get the field names from the contents."""
 
     csv_reader = csv.DictReader(reader)
@@ -42,7 +44,7 @@ class CsvDumper(Protocol):
         ...
 
 
-class DatabaseCsvWriter:
+class DatabaseCsvWriter(StreamBaseIO):
     """Writer that dumps the csv formated data into the specified table.
 
     The connection is done through the relevant client.
@@ -58,23 +60,23 @@ class DatabaseCsvWriter:
         """
         self.csv_dumper = csv_dumper
         self.table = table
-        self.buff = io.StringIO()
+        super().__init__(io.StringIO())
 
     def write(self, contents) -> int:
         """Append contents to the internal buffer."""
-        return self.buff.write(contents)
+        return self.buffer.write(contents)
 
     def _flush(self) -> None:
         """Use the client to dump the data into the configured table."""
-        self.buff.seek(0)
-        field_names = _get_field_names(self.buff)
+        self.buffer.seek(0)
+        field_names = _get_field_names(self.buffer)
         with self.csv_dumper:
-            self.csv_dumper.dump_csv(self.buff, field_names, self.table)
+            self.csv_dumper.dump_csv(self.buffer, field_names, self.table)
 
     def close(self) -> None:
-        """Close the internal buffer and flush the contents to db."""
+        """Close the internal bufferer and flush the contents to db."""
         self._flush()
-        self.buff.close()
+        self.buffer.close()
 
     def __enter__(self) -> protocols.Writer:
         """Return self as Writer."""
