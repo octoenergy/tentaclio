@@ -2,8 +2,8 @@ import pandas as pd
 import pytest
 import sqlalchemy as sqla
 
-from dataio import api, clients
-from dataio.credentials import api
+import dataio
+from dataio import clients, credentials
 
 
 TEST_TABLE_NAME = "test_table"
@@ -35,10 +35,12 @@ def fixture_df():
 
 
 def test_authenticated_api_calls(fixture_client, fixture_df):
-    with api.open("postgres://localhost::test_table", mode="w") as writer:
+    with dataio.open("postgresql://localhost/dataio-test::test_table", mode="w") as writer:
         fixture_df.to_csv(writer, index=False)
 
-    with clients.PostgresClient(api.authenticate("postgres://localhost")) as client:
+    with clients.PostgresClient(
+        credentials.authenticate("postgresql://localhost/dataio-test")
+    ) as client:
         retrieved_df = client.get_df(f"select * from {TEST_TABLE_NAME}")
 
     assert retrieved_df.equals(fixture_df)
