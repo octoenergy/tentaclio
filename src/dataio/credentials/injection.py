@@ -36,6 +36,8 @@ class CredentialsInjector(object):
         else:
             if len(candidates) > 1:
                 logger.warn("The crendentials for %s returned more than one candidate" % str(url))
+                for candidate in candidates:
+                    logger.info("{candidate}")
 
             # return the best candidate, i.e the one with the highest similarty to
             # the passed url
@@ -45,7 +47,7 @@ class CredentialsInjector(object):
                 username=creds.username,
                 password=creds.password,
                 hostname=creds.hostname,
-                port=url.port,
+                port=creds.port or url.port,
                 path=url.path,
                 query=url.query,
             )
