@@ -8,9 +8,9 @@ import os
 from typing import Sequence
 from urllib import parse
 
-from dataio import URL, Reader, Writer, clients
-
 import pytest
+
+from dataio import URL, Reader, Writer, clients
 
 
 # Database fixtures:
@@ -25,12 +25,17 @@ POSTGRES_TEST_URL = os.getenv("POSTGRES_TEST_URL")
 
 
 @pytest.fixture(scope="session")
-def db_client():
+def postgres_url():
+    assert POSTGRES_TEST_URL is not None, "Missing test config in environment variables"
+    return POSTGRES_TEST_URL
+
+
+@pytest.fixture(scope="session")
+def db_client(postgres_url):
     """
     Create and tear down the session-wide SQLAlchemy Db connection
     """
-    assert POSTGRES_TEST_URL is not None, "Missing test config in environment variables"
-    with clients.PostgresClient(POSTGRES_TEST_URL) as client:
+    with clients.PostgresClient(postgres_url) as client:
         yield client
 
 
@@ -61,9 +66,7 @@ class CsvDumperRecorder:
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass
 
-    def dump_csv(
-        self, csv_reader: Reader, columns: Sequence[str], dest_table: str
-    ) -> None:
+    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
         self.buff = io.StringIO()
         self.buff.write(csv_reader.read())
         self.buff.seek(0)
