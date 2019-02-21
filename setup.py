@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*
 import pathlib
 from setuptools import find_packages, setup
 
@@ -24,7 +24,7 @@ REQUIREMENTS = [
     "typing-extensions",
     "pandas",
     "click",
-    "pyyaml"
+    "pyyaml",
 ]
 
 
@@ -42,11 +42,7 @@ setup_args = dict(
     # Package data
     package_dir={"": "src"},
     packages=find_packages("src", include=["*dataio*"]),
-    entry_points={
-        'console_scripts': [
-            'data-url = dataio.cli.url:command_compose_url'
-        ]
-    },
+    entry_points={"console_scripts": ["dataio = dataio.cli:main"]},
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
