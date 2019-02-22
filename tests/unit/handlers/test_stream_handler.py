@@ -1,7 +1,7 @@
 import io
 
 from dataio import URL, Reader, Writer
-from dataio.clients import StreamClient
+from dataio.clients.base_client import StreamClient
 from dataio.handlers.stream_handler import StreamURLHandler
 
 

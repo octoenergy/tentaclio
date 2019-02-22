@@ -8,9 +8,7 @@ T = TypeVar("T")
 
 
 class BaseClient(Generic[T], metaclass=abc.ABCMeta):
-    """
-    Abstract base class for clients, wrapping a connection
-    """
+    """Abstract base class for clients, wrapping a connection"""
 
     url: urls.URL
     conn: protocols.Closable
@@ -55,10 +53,30 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
         self.closed = True
 
 
+class StreamClient(BaseClient["StreamClient"]):
+    """Interface for stream-based connections"""
+
+    # Context manager:
+
+    def __enter__(self) -> "StreamClient":
+        self.conn = self.connect()
+        return self
+
+    # Stream methods:
+
+    @abc.abstractmethod
+    def get(self, writer: protocols.ByteWriter, **params) -> None:
+        ...
+
+    @abc.abstractmethod
+    def put(self, reader: protocols.ByteReader, **params) -> None:
+        ...
+
+
 class QueryClient(BaseClient["QueryClient"]):
-    """
-    Interface for query-based connections
-    """
+    """Interface for query-based connections"""
+
+    # Context manager:
 
     def __enter__(self) -> "QueryClient":
         self.conn = self.connect()

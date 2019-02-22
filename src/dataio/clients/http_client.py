@@ -4,7 +4,7 @@ from urllib import parse
 
 import requests
 
-from . import decorators, exceptions, stream_client
+from . import base_client, decorators, exceptions
 from .. import protocols
 
 
@@ -16,7 +16,7 @@ DEFAULT_TIMEOUT = 10.0
 DEFAULT_HEADERS = {"Accept": "application/json"}
 
 
-class HTTPClient(stream_client.StreamClient):
+class HTTPClient(base_client.StreamClient):
     """
     Generic HTTP hook
     """

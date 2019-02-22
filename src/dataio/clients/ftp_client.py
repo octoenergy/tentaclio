@@ -8,7 +8,7 @@ import pysftp
 from dataio import protocols
 from dataio.urls import URL
 
-from . import decorators, exceptions, stream_client
+from . import base_client, decorators, exceptions
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["FTPClient", "SFTPClient"]
 
 
-class FTPClient(stream_client.StreamClient):
+class FTPClient(base_client.StreamClient):
     """
     Generic FTP hook
     """
@@ -70,7 +70,7 @@ class FTPClient(stream_client.StreamClient):
             return False
 
 
-class SFTPClient(stream_client.StreamClient):
+class SFTPClient(base_client.StreamClient):
     """
     Generic SFTP hook
     """

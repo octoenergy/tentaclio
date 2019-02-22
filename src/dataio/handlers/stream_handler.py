@@ -2,17 +2,17 @@ import io
 from typing import Callable
 
 from dataio.clients import (
-    StreamClient,
     StreamClientReader,
     StreamClientWriter,
     StringToBytesClientReader,
-    StringToBytesClientWriter
+    StringToBytesClientWriter,
+    base_client
 )
 from dataio.protocols import ReaderClosable, WriterClosable
 from dataio.urls import URL
 
 
-StreamClientFactory = Callable[..., StreamClient]
+StreamClientFactory = Callable[..., base_client.StreamClient]
 
 
 def _is_bytes_mode(mode: str) -> bool:

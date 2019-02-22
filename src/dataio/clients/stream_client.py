@@ -18,43 +18,19 @@ used and only exposes the bytes versions to the S3Client.
 This is down by using TextIOWrapper when text is needed by the client code and exposes
 the inner buffer to the underlying client.
 """
-import abc
 import io
 from typing import IO, Any
 
-from dataio import protocols
-
-from . import base_client
+from dataio.clients import base_client
 
 
 __all__ = [
-    "StreamClient",
     "StreamBaseIO",
     "StreamClientReader",
     "StreamClientWriter",
     "StringToBytesClientWriter",
     "StringToBytesClientReader",
 ]
-
-
-class StreamClient(base_client.BaseClient["StreamClient"]):
-    """
-    Interface for stream-based connections
-    """
-
-    def __enter__(self) -> "StreamClient":
-        self.conn = self.connect()
-        return self
-
-    # Stream methods
-
-    @abc.abstractmethod
-    def get(self, writer: protocols.ByteWriter, **params) -> None:
-        ...
-
-    @abc.abstractmethod
-    def put(self, reader: protocols.ByteReader, **params) -> None:
-        ...
 
 
 class StreamBaseIO(object):
@@ -91,7 +67,7 @@ class StreamClientWriter(StreamBaseIO):
     connection atomic.
     """
 
-    def __init__(self, client: StreamClient, buffer: IO):
+    def __init__(self, client: base_client.StreamClient, buffer: IO):
         super().__init__(buffer)
         self.client = client
 
@@ -119,7 +95,7 @@ class StreamClientReader(StreamBaseIO):
 
     buffer: IO
 
-    def __init__(self, client: StreamClient, buffer: IO):
+    def __init__(self, client: base_client.StreamClient, buffer: IO):
         super().__init__(buffer)
         self.client = client
         self._load()
@@ -149,7 +125,7 @@ class StringToBytesClientReader(StreamClientReader):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: StreamClient):
+    def __init__(self, client: base_client.StreamClient):
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
 
@@ -170,7 +146,7 @@ class StringToBytesClientWriter(StreamClientWriter):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: StreamClient):
+    def __init__(self, client: base_client.StreamClient):
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
 
