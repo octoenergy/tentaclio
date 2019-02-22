@@ -1,12 +1,12 @@
+class URLError(Exception):
+    """
+    Error encountered while processing a URL
+    """
+
+
 class ClientError(Exception):
     """
     Basic exception raised for a given product
-    """
-
-
-class ConnError(ClientError):
-    """
-    Exception encountered while calling a client connection
     """
 
 
@@ -25,10 +25,4 @@ class S3Error(ClientError):
 class HTTPError(ClientError):
     """
     Exception encountered over a HTTP client connection
-    """
-
-
-class URLError(Exception):
-    """
-    Error encountered while processing a URL
     """

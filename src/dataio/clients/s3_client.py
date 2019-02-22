@@ -85,9 +85,7 @@ class S3Client(base_client.StreamClient):
         if self.conn_encrypt:
             extra_args["ServerSideEncryption"] = "AES256"
 
-        self.conn.upload_fileobj(
-            reader, s3_bucket, s3_key, ExtraArgs=extra_args
-        )
+        self.conn.upload_fileobj(reader, s3_bucket, s3_key, ExtraArgs=extra_args)
 
     # Helpers:
 
