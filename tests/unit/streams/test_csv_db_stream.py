@@ -3,7 +3,7 @@ import io
 
 import pytest
 
-from dataio.buffers import DatabaseCsvWriter
+from dataio.streams import csv_db_stream
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def csv_data():
 
 def test_dump_csv(csv_data, csv_dumper):
 
-    with DatabaseCsvWriter(csv_dumper, "my_table") as writer:
+    with csv_db_stream.DatabaseCsvWriter(csv_dumper, "my_table") as writer:
         writer.write(csv_data.getvalue())
 
     # reset the reader buffer

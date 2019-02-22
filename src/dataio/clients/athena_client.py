@@ -1,10 +1,10 @@
-from .sqla_client import SQLAlchemyClient, atomic_session, bound_session
+from . import sqla_client
 
 
-__all__ = ["AthenaClient", "bound_session", "atomic_session"]
+__all__ = ["AthenaClient"]
 
 
-class AthenaClient(SQLAlchemyClient):
+class AthenaClient(sqla_client.SQLAlchemyClient):
     """
     Generic Athena hook, backed by a SQLAlchemy connection
     """

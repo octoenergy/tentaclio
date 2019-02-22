@@ -1,6 +1,6 @@
 import pytest
 
-from dataio.clients import base_client, decorators, exceptions
+from dataio.clients import base_client, decorators
 
 
 class TestCheckConn:
@@ -40,5 +40,5 @@ class TestCheckConn:
 
         test_client = TestClient(url)
 
-        with pytest.raises(exceptions.ConnectionError):
+        with pytest.raises(ConnectionError):
             test_client.func()

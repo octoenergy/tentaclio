@@ -8,18 +8,26 @@ import os
 from typing import Sequence
 from urllib import parse
 
+import moto
 import pytest
 
 from dataio import URL, Reader, Writer, clients
 
 
+S3_TEST_URL = os.getenv("OCTOIO__CONN__S3_TEST")
 POSTGRES_TEST_URL = os.getenv("OCTOIO__CONN__POSTGRES_TEST")
 
 
 # URL fixtures
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
+def s3_url():
+    assert S3_TEST_URL is not None, "Missing s3 URL in environment variables"
+    return S3_TEST_URL
+
+
+@pytest.fixture(scope="session")
 def sqlite_url():
     db_file = ":memory:"
     url = "sqlite:///" + db_file
@@ -33,6 +41,14 @@ def postgres_url():
 
 
 # Client fixtures
+
+
+@pytest.fixture(scope="function")
+def s3_client(s3_url):
+    """Function level fixture due to cumbersome way of deleting non-empty AWS buckets"""
+    with moto.mock_s3():
+        with clients.S3Client(s3_url) as client:
+            yield client
 
 
 @pytest.fixture(scope="session")

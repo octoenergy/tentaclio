@@ -7,7 +7,7 @@ from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from dataio.urls import URL
+from dataio import urls
 
 from . import base_client, decorators
 
@@ -37,7 +37,7 @@ class SQLAlchemyClient(base_client.QueryClient):
     port: Optional[int]
 
     def __init__(
-        self, url: Union[str, URL], execution_options: dict = None, connect_args: dict = None
+        self, url: Union[str, urls.URL], execution_options: dict = None, connect_args: dict = None
     ) -> None:
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
@@ -115,8 +115,7 @@ class SQLAlchemyClient(base_client.QueryClient):
         """
         Run a raw SQL query and return a data frame
         """
-        df = pd.read_sql(sql_query, self.conn, params=params, **kwargs)
-        return df
+        return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
 
 # Session context managers:

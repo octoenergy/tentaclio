@@ -5,10 +5,9 @@ from typing import Optional, Union
 
 import pysftp
 
-from dataio import protocols
-from dataio.urls import URL
+from dataio import protocols, urls
 
-from . import decorators, exceptions, stream_client
+from . import base_client, decorators, exceptions
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["FTPClient", "SFTPClient"]
 
 
-class FTPClient(stream_client.StreamClient):
+class FTPClient(base_client.StreamClient):
     """
     Generic FTP hook
     """
@@ -70,7 +69,7 @@ class FTPClient(stream_client.StreamClient):
             return False
 
 
-class SFTPClient(stream_client.StreamClient):
+class SFTPClient(base_client.StreamClient):
     """
     Generic SFTP hook
     """
@@ -82,7 +81,7 @@ class SFTPClient(stream_client.StreamClient):
     password: str
     port: int
 
-    def __init__(self, url: Union[str, URL], **kwargs) -> None:
+    def __init__(self, url: Union[str, urls.URL], **kwargs) -> None:
         super().__init__(url)
         self.username = self.url.username or ""
         self.password = self.url.password or ""

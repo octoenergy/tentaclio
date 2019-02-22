@@ -3,16 +3,15 @@ from typing import Sequence
 
 import pandas as pd
 
-from dataio.protocols import Reader
+from dataio import protocols
 
-from . import decorators
-from .sqla_client import SQLAlchemyClient, atomic_session, bound_session
-
-
-__all__ = ["PostgresClient", "bound_session", "atomic_session"]
+from . import decorators, sqla_client
 
 
-class PostgresClient(SQLAlchemyClient):
+__all__ = ["PostgresClient"]
+
+
+class PostgresClient(sqla_client.SQLAlchemyClient):
     """
     Generic Postgres hook, backed by a SQLAlchemy connection
     """
@@ -30,12 +29,14 @@ class PostgresClient(SQLAlchemyClient):
         self._copy_expert_csv(buff, df.columns, dest_table)
 
     @decorators.check_conn
-    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
+    def dump_csv(
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
+    ) -> None:
         """Dump a csv reader into the database."""
         self._copy_expert_csv(csv_reader, columns, dest_table)
 
     def _copy_expert_csv(
-        self, csv_reader: Reader, columns: Sequence[str], dest_table: str
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
     ) -> None:
         """Dump a csv reader into the given table. """
         sql_columns = ",".join(columns)

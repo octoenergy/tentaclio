@@ -4,37 +4,19 @@ class ClientError(Exception):
     """
 
 
-class ConnectionError(ClientError):
-    """
-    Exception encountered while calling a client connection
-    """
-
-
-class SQLAlchemyError(Exception):
-    """
-    Exception encountered over a SQLAlchemy client connection
-    """
-
-
-class PostgresError(Exception):
-    """
-    Exception encountered over a Postgres client connection
-    """
-
-
-class FTPError(Exception):
+class FTPError(ClientError):
     """
     Exception encountered over a FTP client connection
     """
 
 
-class S3Error(Exception):
+class S3Error(ClientError):
     """
     Exception encountered over a S3 client connection
     """
 
 
-class HTTPError(Exception):
+class HTTPError(ClientError):
     """
     Exception encountered over a HTTP client connection
     """

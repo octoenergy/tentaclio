@@ -4,10 +4,10 @@ from urllib import parse
 
 from typing_extensions import Protocol
 
-from dataio import protocols
+from . import protocols
 
 
-__all__ = ["URLError", "URLHandlerRegistry", "URL"]
+__all__ = ["URLHandlerRegistry", "URL"]
 
 logger = logging.getLogger(__name__)
 

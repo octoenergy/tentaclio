@@ -71,11 +71,13 @@ jobs:
       - store_test_results:
           path: /tmp/results/
 
-  integration:
+  functional-s3:
     working_directory: ~/lib
 
     docker:
       - image: circleci/python:3.6.6
+        environment:
+            OCTOIO__CONN__S3_TEST: s3://public_key:private_key@dataio-bucket
 
     steps:
       - checkout
@@ -83,25 +85,10 @@ jobs:
       - restore_cache:
           keys:
             - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
 
       - run:
-          name: Install Python packages
-          command: make sync
-
-      - save_cache:
-          paths:
-            - "~/.local"
-            - "~/.cache"
-          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Run integration tests
-          command: make integration
-
-      - store_test_results:
-          path: /tmp/results/
+          name: Run S3 functional tests
+          command: make functional-s3
 
   functional-ftp:
     working_directory: ~/lib
@@ -155,13 +142,13 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
         environment:
-          OCTOIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/dataio-test
+          OCTOIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/dataio-db
 
       - image: circleci/postgres:9.5.10
         environment:
           # CircleCI img run under `circleci` user
           POSTGRES_USER: circleci
-          POSTGRES_DB: dataio-test
+          POSTGRES_DB: dataio-db
 
     steps:
       - checkout
@@ -203,24 +190,25 @@ workflows:
     jobs:
         - lint
         - unit
-        - integration
+        - functional-s3:
+            requires:
+                - lint
+                - unit
         - functional-ftp:
             requires:
                 - lint
                 - unit
-                - integration
         - functional-sftp:
             requires:
                 - lint
                 - unit
-                - integration
         - functional-postgres:
             requires:
                 - lint
                 - unit
-                - integration
         - deploy:
             requires:
+              - functional-s3
               - functional-ftp
               - functional-sftp
               - functional-postgres

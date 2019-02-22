@@ -1,8 +1,8 @@
 from typing import Tuple
 
-from dataio.buffers import DatabaseCsvWriter
 from dataio.clients import postgres_client
 from dataio.protocols import ReaderClosable, WriterClosable
+from dataio.streams import csv_db_stream
 from dataio.urls import URL
 
 
@@ -44,4 +44,4 @@ class PostgresURLHandler:
         """
         conn_url, table = _split_url(url)
         client = postgres_client.PostgresClient(conn_url, **extras)
-        return DatabaseCsvWriter(client, table)
+        return csv_db_stream.DatabaseCsvWriter(client, table)

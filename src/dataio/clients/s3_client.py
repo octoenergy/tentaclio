@@ -5,13 +5,13 @@ from botocore import client as boto_client
 
 from dataio import protocols, urls
 
-from . import decorators, exceptions, stream_client
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["S3Client"]
 
 
-class S3Client(stream_client.StreamClient):
+class S3Client(base_client.StreamClient):
     """
     Generic S3 hook, backed by boto3
 
@@ -86,9 +86,7 @@ class S3Client(stream_client.StreamClient):
         if self.conn_encrypt:
             extra_args["ServerSideEncryption"] = "AES256"
 
-        self.conn.upload_fileobj(
-            reader, s3_bucket, s3_key, ExtraArgs=extra_args
-        )
+        self.conn.upload_fileobj(reader, s3_bucket, s3_key, ExtraArgs=extra_args)
 
     # Helpers:
 
