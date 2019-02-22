@@ -4,8 +4,8 @@ from urllib import parse
 
 import requests
 
-from . import base_client, decorators, exceptions
-from .. import protocols
+from . import base_client, decorators
+from .. import exceptions, protocols
 
 
 __all__ = ["HTTPClient"]

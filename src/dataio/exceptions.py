@@ -4,21 +4,9 @@ class ClientError(Exception):
     """
 
 
-class ConnectionError(ClientError):
+class ConnError(ClientError):
     """
     Exception encountered while calling a client connection
-    """
-
-
-class SQLAlchemyError(Exception):
-    """
-    Exception encountered over a SQLAlchemy client connection
-    """
-
-
-class PostgresError(Exception):
-    """
-    Exception encountered over a Postgres client connection
     """
 
 

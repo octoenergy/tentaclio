@@ -1,7 +1,7 @@
 import functools
 from typing import Callable, TypeVar
 
-from dataio.clients import exceptions
+from .. import exceptions
 
 
 T = TypeVar("T")
@@ -15,7 +15,7 @@ def check_conn(func: Callable[..., T]) -> Callable[..., T]:
 
         if hasattr(inst, "closed"):
             if inst.closed:
-                raise exceptions.ConnectionError("The connection is closed")
+                raise exceptions.ConnError("The connection is closed")
         else:
             raise AttributeError("Missing instance closed attribute")
 

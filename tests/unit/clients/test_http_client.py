@@ -2,7 +2,8 @@ import io
 
 import pytest
 
-from dataio.clients import exceptions, http_client
+from dataio import exceptions
+from dataio.clients import http_client
 
 
 @pytest.fixture()

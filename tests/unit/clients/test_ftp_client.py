@@ -2,7 +2,8 @@ import io
 
 import pytest
 
-from dataio.clients import exceptions, ftp_client
+from dataio import exceptions
+from dataio.clients import ftp_client
 
 
 @pytest.fixture()

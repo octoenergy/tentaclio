@@ -5,10 +5,10 @@ from typing import Optional, Union
 
 import pysftp
 
-from dataio import protocols
+from dataio import exceptions, protocols
 from dataio.urls import URL
 
-from . import base_client, decorators, exceptions
+from . import base_client, decorators
 
 
 logger = logging.getLogger(__name__)
