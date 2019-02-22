@@ -27,7 +27,7 @@ class FTPClient(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> ftplib.FTP:
+    def _connect(self) -> ftplib.FTP:
         logging.info(f"starting ftp connetion to {self.url}")
         return ftplib.FTP(
             self.url.hostname or "", self.url.username or "", self.url.password or ""
@@ -90,7 +90,7 @@ class SFTPClient(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> pysftp.Connection:
+    def _connect(self) -> pysftp.Connection:
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
         return pysftp.Connection(

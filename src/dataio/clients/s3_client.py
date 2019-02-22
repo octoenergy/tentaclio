@@ -20,7 +20,7 @@ class S3Client(stream_client.StreamClient):
 
     allowed_schemes = ["s3"]
 
-    conn: Optional[boto_client.BaseClient]
+    conn: boto_client.BaseClient
     aws_profile: Optional[str]
     conn_encrypt: bool
     aws_access_key_id: Optional[str]
@@ -45,7 +45,7 @@ class S3Client(stream_client.StreamClient):
 
     # Connection methods:
 
-    def connect(self) -> boto_client.BaseClient:
+    def _connect(self) -> boto_client.BaseClient:
         # Revert to Boto default credentials
 
         # Exception: 's3' hostname not a valid bucket
@@ -59,8 +59,9 @@ class S3Client(stream_client.StreamClient):
 
     def close(self) -> None:
         # s3 doesn't have close method
-        if self.conn is not None:
-            self.conn = None
+        if self.closed:
+            raise ValueError("Trying to close a closed client")
+        self.closed = True
 
     # Stream methods:
 
@@ -73,7 +74,7 @@ class S3Client(stream_client.StreamClient):
         if not self._isfile(s3_bucket, s3_key):
             raise exceptions.S3Error("Unable to fetch the remote file")
 
-        self.conn.download_fileobj(s3_bucket, s3_key, writer)  # type: ignore
+        self.conn.download_fileobj(s3_bucket, s3_key, writer)
 
     @decorators.check_conn
     def put(
@@ -85,7 +86,7 @@ class S3Client(stream_client.StreamClient):
         if self.conn_encrypt:
             extra_args["ServerSideEncryption"] = "AES256"
 
-        cast(boto_client.BaseClient, self.conn).upload_fileobj(
+        self.conn.upload_fileobj(
             reader, s3_bucket, s3_key, ExtraArgs=extra_args
         )
 
@@ -107,7 +108,7 @@ class S3Client(stream_client.StreamClient):
         Checks if a key exists in a bucket
         """
         try:
-            self.conn.head_object(Bucket=bucket, Key=key)  # type: ignore
+            self.conn.head_object(Bucket=bucket, Key=key)
             return True
         except Exception:
             return False

@@ -8,7 +8,7 @@ from dataio.clients import exceptions, s3_client
 
 @pytest.fixture()
 def mocked_conn(mocker):
-    with mocker.patch.object(s3_client.S3Client, "connect", return_value=mocker.Mock()):
+    with mocker.patch.object(s3_client.S3Client, "_connect", return_value=mocker.Mock()):
         yield
 
 

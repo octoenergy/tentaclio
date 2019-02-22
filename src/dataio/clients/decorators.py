@@ -13,11 +13,11 @@ def check_conn(func: Callable[..., T]) -> Callable[..., T]:
         # Instance is passed as first positional argument
         inst = args[0]
 
-        if hasattr(inst, "conn"):
-            if inst.conn is None:
-                raise exceptions.ConnectionError("Inactive client connection")
+        if hasattr(inst, "closed"):
+            if inst.closed:
+                raise exceptions.ConnectionError("The connection is closed")
         else:
-            raise AttributeError("Missing instance connection attribute")
+            raise AttributeError("Missing instance closed attribute")
 
         return func(*args, **kwargs)
 
