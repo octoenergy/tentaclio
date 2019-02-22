@@ -1,10 +1,33 @@
 import csv
 import io
-from typing import IO, Sequence
+from typing import IO, Any, Sequence
+
+from typing_extensions import Protocol
 
 from dataio import protocols
 
 from . import base_stream
+
+
+class CsvDumper(Protocol):
+    """Csv into db dumping contract."""
+
+    # The context manager is an actual protocol defined in the
+    # std library .... but it can't  be inherited from
+    # Also protocols and return types still have gotchas,
+    # here PostgresClient won't be recognised as a CsvDumper
+    # the reason why we're using any
+    # def __enter__(self) -> "CsvDumper":
+    def __enter__(self) -> Any:
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        ...
+
+    def dump_csv(
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
+    ) -> None:
+        ...
 
 
 def _get_field_names(reader: IO) -> Sequence[str]:
@@ -24,7 +47,7 @@ class DatabaseCsvWriter(base_stream.StreamBaseIO):
     the data is delimited by `,`.
     """
 
-    def __init__(self, csv_dumper: protocols.CsvDumper, table: str) -> None:
+    def __init__(self, csv_dumper: CsvDumper, table: str) -> None:
         """Create a new csv writer initialising the internal buffer.
 
         :csv_dumper: an object that is able to write csv files into a table.
