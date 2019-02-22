@@ -35,7 +35,7 @@ def fixture_df():
 
 
 def test_authenticated_api_calls(fixture_client, fixture_df):
-    with dataio.open("postgresql://localhost/dataio-test::test_table", mode="w") as writer:
+    with dataio.open(f"postgresql://localhost/dataio-test::{TEST_TABLE_NAME}", mode="w") as writer:
         fixture_df.to_csv(writer, index=False)
 
     with clients.PostgresClient(

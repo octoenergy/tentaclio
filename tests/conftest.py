@@ -13,10 +13,17 @@ import pytest
 from dataio import URL, Reader, Writer, clients
 
 
+S3_TEST_URL = os.getenv("OCTOIO__CONN__S3_TEST")
 POSTGRES_TEST_URL = os.getenv("OCTOIO__CONN__POSTGRES_TEST")
 
 
 # URL fixtures
+
+
+@pytest.fixture(scope="session")
+def s3_url():
+    assert S3_TEST_URL is not None, "Missing s3 URL in environment variables"
+    return S3_TEST_URL
 
 
 @pytest.fixture
@@ -33,6 +40,12 @@ def postgres_url():
 
 
 # Client fixtures
+
+
+@pytest.fixture(scope="session")
+def s3_client(s3_url):
+    with clients.S3Client(s3_url) as client:
+        yield client
 
 
 @pytest.fixture(scope="session")

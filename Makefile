@@ -36,6 +36,9 @@ unit:
 integration:
 	pipenv run pytest tests/integration
 
+functional-s3:
+	pipenv run pytest tests/functional/s3
+
 functional-ftp:
 	pipenv run pytest tests/functional/ftp
 

@@ -103,6 +103,25 @@ jobs:
       - store_test_results:
           path: /tmp/results/
 
+  functional-s3:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+            OCTOIO__CONN__S3_TEST: s3://public_key:private_key@s3
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run S3 functional tests
+          command: make functional-s3
+
   functional-ftp:
     working_directory: ~/lib
 
