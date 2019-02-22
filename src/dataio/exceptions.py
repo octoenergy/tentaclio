@@ -10,19 +10,25 @@ class ConnError(ClientError):
     """
 
 
-class FTPError(Exception):
+class FTPError(ClientError):
     """
     Exception encountered over a FTP client connection
     """
 
 
-class S3Error(Exception):
+class S3Error(ClientError):
     """
     Exception encountered over a S3 client connection
     """
 
 
-class HTTPError(Exception):
+class HTTPError(ClientError):
     """
     Exception encountered over a HTTP client connection
+    """
+
+
+class URLError(Exception):
+    """
+    Error encountered while processing a URL
     """
