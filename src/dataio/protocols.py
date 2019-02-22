@@ -1,4 +1,4 @@
-from typing import Any, ByteString, Generic, TypeVar, Union
+from typing import Any, ByteString, Generic, Sequence, TypeVar, Union
 
 from typing_extensions import Protocol
 
@@ -12,6 +12,7 @@ __all__ = [
     "ReaderClosable",
     "WriterClosable",
     "AnyReaderWriter",
+    "CsvDumper",
 ]
 
 # https://blog.daftcode.pl/covariance-contravariance-and-invariance-the-ultimate-python-guide-8fabc0c24278
@@ -62,3 +63,22 @@ class WriterClosable(Writer, Closable, Protocol):
 
 
 AnyReaderWriter = Union[Reader, Writer]
+
+
+class CsvDumper(Protocol):
+    """Csv into db dumping contract."""
+
+    # The context manager is an actual protocol defined in the
+    # std library .... but it can't  be inherited from
+    # Also protocols and return types still have gotchas,
+    # here PostgresClient won't be recognised as a CsvDumper
+    # the reason why we're using any
+    # def __enter__(self) -> "CsvDumper":
+    def __enter__(self) -> Any:
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        ...
+
+    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
+        ...

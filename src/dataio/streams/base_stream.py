@@ -1,22 +1,19 @@
-"""
-General note on streams and writers/resaders.
+"""General note on streams and writers/readers.
 We are using byte streams (writers and readers that only operate with byte arrays)
-as cannonical format to avoid a huge mess in string vs bytes duality.
+as canonical format to avoid a huge mess in string vs bytes duality.
 
 We still allow client code open/write string data if they want to.
-But that the actual data is always send to the under lying client (ftp, s3...)
-as bytes.
+But that the actual data is always send to the under lying client (ftp, s3...) as bytes.
 
 One of the reasons is that S3 only supports streams as binary data, which is not fully pythonic
-(albeit problably more sane).
+(albeit being probably more sane).
 
-In order to offer client code the possibility to write csv/parquet files into s3
-buckets without having to worry about the underlying implementations,
-We hide which stream flavour (string, bytes) is
-used and only exposes the bytes versions to the S3Client.
+In order to offer client code the possibility to write csv/parquet files into s3 buckets without
+having to worry about the underlying implementations. We hide which stream flavour (string, bytes)
+is used and only exposes the bytes versions to the S3Client.
 
-This is down by using TextIOWrapper when text is needed by the client code and exposes
-the inner buffer to the underlying client.
+This is down by using TextIOWrapper when text is needed by the client code and exposes the inner
+buffer to the underlying client.
 """
 import io
 from typing import IO, Any
@@ -24,20 +21,11 @@ from typing import IO, Any
 from dataio.clients import base_client
 
 
-__all__ = [
-    "StreamBaseIO",
-    "StreamClientReader",
-    "StreamClientWriter",
-    "StringToBytesClientWriter",
-    "StringToBytesClientReader",
-]
+class StreamBaseIO:
+    """Base class for IO streams that interact with StreamClients.
 
-
-class StreamBaseIO(object):
-    """ Base clase for stream classes that interact with StreamClients.
-
-    The extra methods inlcuded are to ensure interoperability with loosely defined,
-    thrid party libraries such as pyarrow.
+    The extra methods included are to ensure interoperability with loosely defined,
+    third party libraries such as `pyarrow`.
     """
 
     buffer: IO

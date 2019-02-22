@@ -1,17 +1,10 @@
 import csv
 import io
-import logging
-from typing import IO, Any, Sequence
-
-from typing_extensions import Protocol
+from typing import IO, Sequence
 
 from dataio import protocols
-from dataio.clients.stream_client import StreamBaseIO
 
-
-logger = logging.getLogger(__name__)
-
-__all__ = ["DatabaseCsvWriter"]
+from . import base_stream
 
 
 def _get_field_names(reader: IO) -> Sequence[str]:
@@ -23,37 +16,16 @@ def _get_field_names(reader: IO) -> Sequence[str]:
     return csv_reader.fieldnames
 
 
-class CsvDumper(Protocol):
-    """Csv into db dumping contract."""
-
-    # The context manager is an actual protcol defined in the
-    # std library .... but it can't  be inherited from
-    # Also protocols and return types still have gotchas,
-    # here PostgresClient won't be recognised as a CsvDumper
-    # the reason why we're using any
-    # def __enter__(self) -> "CsvDumper":
-    def __enter__(self) -> Any:
-        ...
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        ...
-
-    def dump_csv(
-        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
-    ) -> None:
-        ...
-
-
-class DatabaseCsvWriter(StreamBaseIO):
-    """Writer that dumps the csv formated data into the specified table.
+class DatabaseCsvWriter(base_stream.StreamBaseIO):
+    """Writer that dumps the csv formatted data into the specified table.
 
     The connection is done through the relevant client.
     The csv data is expected to be native's python dialect. namely first row defines the header and
     the data is delimited by `,`.
     """
 
-    def __init__(self, csv_dumper: CsvDumper, table: str) -> None:
-        """Create a new csv writer initilising the internal buffer.
+    def __init__(self, csv_dumper: protocols.CsvDumper, table: str) -> None:
+        """Create a new csv writer initialising the internal buffer.
 
         :csv_dumper: an object that is able to write csv files into a table.
         :table: the name of the destination table in the database.
@@ -74,7 +46,7 @@ class DatabaseCsvWriter(StreamBaseIO):
             self.csv_dumper.dump_csv(self.buffer, field_names, self.table)
 
     def close(self) -> None:
-        """Close the internal bufferer and flush the contents to db."""
+        """Close the internal buffer and flush the contents to db."""
         self._flush()
         self.buffer.close()
 
