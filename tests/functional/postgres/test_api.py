@@ -35,11 +35,11 @@ def fixture_df():
 
 
 def test_authenticated_api_calls(fixture_client, fixture_df):
-    with dataio.open(f"postgresql://localhost/dataio-test::{TEST_TABLE_NAME}", mode="w") as writer:
+    with dataio.open(f"postgresql://hostname/dataio-db::{TEST_TABLE_NAME}", mode="w") as writer:
         fixture_df.to_csv(writer, index=False)
 
     with clients.PostgresClient(
-        credentials.authenticate("postgresql://localhost/dataio-test")
+        credentials.authenticate("postgresql://hostname/dataio-db")
     ) as client:
         retrieved_df = client.get_df(f"select * from {TEST_TABLE_NAME}")
 
