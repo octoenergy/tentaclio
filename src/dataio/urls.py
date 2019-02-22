@@ -4,12 +4,18 @@ from urllib import parse
 
 from typing_extensions import Protocol
 
-from . import exceptions, protocols
+from . import protocols
 
 
 __all__ = ["URLHandlerRegistry", "URL"]
 
 logger = logging.getLogger(__name__)
+
+
+class URLError(Exception):
+    """
+    Error encountered while processing a URL
+    """
 
 
 class URLHandler(Protocol):
@@ -35,7 +41,7 @@ class URLHandlerRegistry(object):
         if scheme not in self.registry:
             msg = f"Scheme {scheme} not found in the registry"
             logger.error(msg)
-            raise exceptions.URLError(msg)
+            raise URLError(msg)
         return self.registry[scheme]
 
     def __contains__(self, scheme: str) -> bool:
@@ -109,7 +115,7 @@ class URL:
     def _parse_url(self) -> None:
         parsed_url = parse.urlparse(self._url)
         if parsed_url.scheme not in self._handler_registry:
-            raise exceptions.URLError(f"URL: scheme {parsed_url.scheme} not supported")
+            raise URLError(f"URL: scheme {parsed_url.scheme} not supported")
 
         self._scheme = parsed_url.scheme
         self._username = parsed_url.username

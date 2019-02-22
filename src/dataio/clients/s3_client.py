@@ -3,8 +3,9 @@ from typing import Optional, Tuple, Union, cast
 import boto3
 from botocore import client as boto_client
 
-from . import base_client, decorators
-from .. import exceptions, protocols, urls
+from dataio import protocols, urls
+
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["S3Client"]

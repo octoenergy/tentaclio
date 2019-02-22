@@ -1,9 +1,3 @@
-class URLError(Exception):
-    """
-    Error encountered while processing a URL
-    """
-
-
 class ClientError(Exception):
     """
     Basic exception raised for a given product

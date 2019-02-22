@@ -4,8 +4,9 @@ from urllib import parse
 
 import requests
 
-from . import base_client, decorators
-from .. import exceptions, protocols
+from dataio import protocols
+
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["HTTPClient"]

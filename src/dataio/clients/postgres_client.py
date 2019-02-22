@@ -3,7 +3,7 @@ from typing import Sequence
 
 import pandas as pd
 
-from dataio.protocols import Reader
+from dataio import protocols
 
 from . import decorators, sqla_client
 
@@ -29,12 +29,14 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
         self._copy_expert_csv(buff, df.columns, dest_table)
 
     @decorators.check_conn
-    def dump_csv(self, csv_reader: Reader, columns: Sequence[str], dest_table: str) -> None:
+    def dump_csv(
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
+    ) -> None:
         """Dump a csv reader into the database."""
         self._copy_expert_csv(csv_reader, columns, dest_table)
 
     def _copy_expert_csv(
-        self, csv_reader: Reader, columns: Sequence[str], dest_table: str
+        self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
     ) -> None:
         """Dump a csv reader into the given table. """
         sql_columns = ",".join(columns)

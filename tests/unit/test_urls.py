@@ -1,6 +1,6 @@
 import pytest
 
-from dataio import exceptions, urls
+from dataio import urls
 
 
 class TestRegistry(object):
@@ -12,7 +12,7 @@ class TestRegistry(object):
 
     def test_unknown_handler(self):
         registry = urls.URLHandlerRegistry()
-        with pytest.raises(exceptions.URLError):
+        with pytest.raises(urls.URLError):
             registry.get_handler("scheme")
 
     def test_contains_handler(self, fake_handler):
@@ -26,12 +26,12 @@ class TestURL:
 
     # Generic parsing rules:
     def test_missing_url(self):
-        with pytest.raises(exceptions.URLError):
+        with pytest.raises(urls.URLError):
             urls.URL(None)
 
     def test_unknown_url_scheme(self):
         url = "notregistered://localhost"
-        with pytest.raises(exceptions.URLError):
+        with pytest.raises(urls.URLError):
             urls.URL(url)
 
     def test_known_url_scheme(self, register_handler):

@@ -1,7 +1,7 @@
 import abc
 from typing import Generic, Iterable, TypeVar, Union
 
-from .. import protocols, urls
+from dataio import protocols, urls
 
 
 T = TypeVar("T")
