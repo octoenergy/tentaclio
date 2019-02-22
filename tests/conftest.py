@@ -8,6 +8,7 @@ import os
 from typing import Sequence
 from urllib import parse
 
+import moto
 import pytest
 
 from dataio import URL, Reader, Writer, clients
@@ -26,7 +27,7 @@ def s3_url():
     return S3_TEST_URL
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def sqlite_url():
     db_file = ":memory:"
     url = "sqlite:///" + db_file
@@ -42,10 +43,12 @@ def postgres_url():
 # Client fixtures
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def s3_client(s3_url):
-    with clients.S3Client(s3_url) as client:
-        yield client
+    """Function level fixture due to cumbersome way of deleting non-empty AWS buckets"""
+    with moto.mock_s3():
+        with clients.S3Client(s3_url) as client:
+            yield client
 
 
 @pytest.fixture(scope="session")
