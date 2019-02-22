@@ -5,14 +5,13 @@ import pandas as pd
 
 from dataio.protocols import Reader
 
-from . import decorators
-from .sqla_client import SQLAlchemyClient, atomic_session, bound_session
+from . import decorators, sqla_client
 
 
-__all__ = ["PostgresClient", "bound_session", "atomic_session"]
+__all__ = ["PostgresClient"]
 
 
-class PostgresClient(SQLAlchemyClient):
+class PostgresClient(sqla_client.SQLAlchemyClient):
     """
     Generic Postgres hook, backed by a SQLAlchemy connection
     """

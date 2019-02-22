@@ -115,8 +115,7 @@ class SQLAlchemyClient(base_client.QueryClient):
         """
         Run a raw SQL query and return a data frame
         """
-        df = pd.read_sql(sql_query, self.conn, params=params, **kwargs)
-        return df
+        return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
 
 # Session context managers:
