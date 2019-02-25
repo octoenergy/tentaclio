@@ -46,11 +46,9 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
 
     def close(self) -> None:
         """Close the client connection. """
-        if self.closed:
-            raise ValueError("Trying to close a closed client")
-
-        self.conn.close()
-        self.closed = True
+        if not self.closed:
+            self.conn.close()
+            self.closed = True
 
 
 class StreamClient(BaseClient["StreamClient"]):
