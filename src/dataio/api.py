@@ -1,6 +1,6 @@
 from typing import ContextManager
 
-from dataio import credentials, protocols, urls
+from dataio import clients, credentials, protocols
 
 
 __all__ = ["open"]
@@ -28,6 +28,12 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyRe
         return _open_reader(url=url, mode=mode, **kwargs)
 
 
+def db(url: str, **kwargs) -> clients.SQLAlchemyClient:
+    """Create an authenticated sqlachemy client."""
+    authenticated = credentials.authenticate(url)
+    return clients.SQLAlchemyClient(authenticated, **kwargs)
+
+
 # Helpers
 
 
@@ -40,11 +46,11 @@ def _assert_mode(mode: str):
 
 def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[protocols.Writer]:
     """Open a url and return a writer"""
-    authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
+    authenticated = credentials.authenticate(url)
     return authenticated.open_writer(mode, extras=kwargs)
 
 
 def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[protocols.Reader]:
     """Open a url and return a reader"""
-    authenticated = credentials.load_credentials_injector().inject(urls.URL(url))
+    authenticated = credentials.authenticate(url)
     return authenticated.open_reader(mode, extras=kwargs)
