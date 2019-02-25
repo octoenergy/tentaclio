@@ -33,3 +33,9 @@ def test_reader_modes(mode, mocker):
     api.open("file://path/query", mode)
 
     mocked_open_reader.assert_called_once()
+
+
+def test_database(mocker):
+    mocked_client = mocker.patch("dataio.clients.SQLAlchemyClient")
+    api.db("postgresql://hostname/database")
+    mocked_client.assert_called_once()
