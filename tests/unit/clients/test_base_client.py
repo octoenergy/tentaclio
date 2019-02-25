@@ -1,7 +1,5 @@
 import io
 
-import pytest
-
 from dataio.clients import base_client
 from dataio.urls import URL
 
@@ -51,10 +49,3 @@ class TestBaseClient:
         with FakeClient(url) as fake_client:
             fake_client.conn = mocked_conn
             assert not fake_client.closed
-
-    def test_client_error_closed_(self, mocker, register_handler):
-        url = "registered:///path"
-        fake_client = FakeClient(url)
-        # never opened
-        with pytest.raises(ValueError):
-            fake_client.close()
