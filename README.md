@@ -128,6 +128,12 @@ with dataio.db("postgresql://hostname/my_data_base") as client:
 ```
 Note that `hostname` in the url to be authenticated is a wildcard that will match any hostname. So `authenticate("http://hostname/file.txt")` will be injected to `http://user:pass@octo.co/file.txt` if the credential for `http://user:pass@octo.co/` exists.
 
+Different components of the URL are set differently:
+- Scheme and path will be set from the URL, and null if missing.
+- Username, password and hostname will be set from the stored credentials.
+- Port will be set from the stored credentials if it exists, otherwise from the URL.
+- Query will be set from the URL if it exists, otherwise from the stored credentials (so it can be
+  overriden)
 
 #### Credentials file:
 

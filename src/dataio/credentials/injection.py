@@ -49,7 +49,7 @@ class CredentialsInjector(object):
                 hostname=creds.hostname,
                 port=creds.port or url.port,
                 path=url.path,
-                query=url.query,
+                query=url.query or creds.query,
             )
             return with_creds
 
