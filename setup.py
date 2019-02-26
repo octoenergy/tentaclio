@@ -18,6 +18,8 @@ REQUIREMENTS = [
     # Postgres
     "psycopg2-binary",
     "sqlalchemy>=1.2.0,<1.3",
+    # Athena
+    "PyAthena[SQLAlchemy]",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils

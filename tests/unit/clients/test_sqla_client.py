@@ -4,7 +4,7 @@ from dataio.clients.sqla_client import SQLAlchemyClient
 
 
 @pytest.mark.parametrize(
-    "url, drivername, username, password, hostname, port, database",
+    "url, drivername, username, password, hostname, port, database, query",
     [
         (
             "postgresql://login:pass@localhost",
@@ -14,19 +14,23 @@ from dataio.clients.sqla_client import SQLAlchemyClient
             "localhost",
             None,
             "",
+            None,
         ),
         (
-            "awsathena+rest://:@localhost:5432/database",
+            "awsathena+rest://:@localhost:5432/database?key=value",
             "awsathena+rest",
             "",
             "",
             "localhost",
             5432,
             "database",
+            dict(key="value"),
         ),
     ],
 )
-def test_parsing_postgres_url(url, drivername, username, password, hostname, port, database):
+def test_parsing_postgres_url(
+    url, drivername, username, password, hostname, port, database, query
+):
     client = SQLAlchemyClient(url)
 
     assert client.drivername == drivername
@@ -35,6 +39,7 @@ def test_parsing_postgres_url(url, drivername, username, password, hostname, por
     assert client.password == password
     assert client.port == port
     assert client.database == database
+    assert client.url_query == query
 
 
 def test_execute_query(sqlite_url):

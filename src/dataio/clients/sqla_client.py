@@ -52,6 +52,7 @@ class SQLAlchemyClient(base_client.QueryClient):
         self.password = self.url.password
         self.host = self.url.hostname
         self.port = self.url.port
+        self.url_query = self.url.query
 
     # Connection methods:
 
@@ -64,6 +65,7 @@ class SQLAlchemyClient(base_client.QueryClient):
             host=self.host,
             port=self.port,
             database=self.database,
+            query=self.url_query,
         )
         if self.engine is None:
             self.engine = create_engine(
