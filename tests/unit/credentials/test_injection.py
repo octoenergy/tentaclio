@@ -34,13 +34,23 @@ from dataio.credentials import injection
         ],
         [
             "registered://user:password@octo.energy:5544/database",
-            "registered://octo.energy/database",  # hostname wildcard
+            "registered://octo.energy/database",
             "registered://user:password@octo.energy:5544/database",
         ],
         [
             "registered://user:password@octo.energy/database",
             "registered://octo.energy/database2",
             "registered://octo.energy/database2",  # the path is similar but not identical
+        ],
+        [
+            "registered://user:password@octo.energy:5544/database?key=value",
+            "registered://octo.energy/database",
+            "registered://user:password@octo.energy:5544/database?key=value",
+        ],
+        [
+            "registered://user:password@octo.energy:5544/database?key=value_1",
+            "registered://octo.energy/database?key=value_2",
+            "registered://user:password@octo.energy:5544/database?key=value_2",
         ],
     ],
 )
