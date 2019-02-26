@@ -85,17 +85,18 @@ with dataio.open("s3::/path/to/my/file", mode='w') as writer:
 ```
 `Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
 
-### QueryClients
 
-The module `dataio.client` gives more control over the resources, and allows to run queries against a database.  
+### Database access  
+
+In order to open db connections you can use `dataio.db` and have instant access to postgres, sqlite, athena and mssql.  
 
 ```python
-from dataio import clients 
+import dataio
 
 [...] 
 
 query = "select 1";
-with clients.PostgresClient(POSTGRES_TEST_URL) as client:
+with dataio.db(POSTGRES_TEST_URL) as client:
     result =client.query(query)
 [...]
 ```
@@ -105,6 +106,7 @@ The supported db schemes are:
 * `postgresql://`
 * `sqlite://`
 * `awsathena+rest://`
+* `mssql://`
 
 ### Automatic credentials injection. 
 
@@ -117,11 +119,11 @@ with dataio.open("sftp://octoenergy.com/file.csv") as reader:
 ```
 The credentials get injected into the url. 
 
-3. Open a db client and explictily authorise your url:
+3. Open a db client:
 ```python
-from dataio import clients, credentials
+import dataio
 
-with clients.PostgresClient(authorise("postgresql://hostname/my_data_base")) as client:
+with dataio.db("postgresql://hostname/my_data_base") as client:
     client.query("select 1")
 ```
 Note that `hostname` in the url to be authenticated is a wildcard that will match any hostname. So `authenticate("http://hostname/file.txt")` will be injected to `http://user:pass@octo.co/file.txt` if the credential for `http://user:pass@octo.co/` exists.
