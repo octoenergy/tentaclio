@@ -3,7 +3,7 @@ from typing import ContextManager
 from dataio import clients, credentials, protocols
 
 
-__all__ = ["open"]
+__all__ = ["open", "db"]
 
 VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 
