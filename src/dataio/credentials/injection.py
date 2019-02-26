@@ -98,16 +98,26 @@ def _similarity(path_1: str, path_2: str) -> float:
 
     That means that the path of the url to inject to should be more specific than the credentials.
     """
+    path_1 = _clean_path(path_1)
+    path_2 = _clean_path(path_2)
+
     if not path_1 and not path_2:
         return 0.5  # non-zero similarity when path is empty
 
     if not path_1 or not path_2:
         return 0.5
+
     # split path elements
-    path_1_elements = re.split(PATH_DELIMITERS, path_1.lstrip("/"))
-    path_2_elements = re.split(PATH_DELIMITERS, path_2.lstrip("/"))
+
+    path_1_elements = re.split(PATH_DELIMITERS, path_1)
+    path_2_elements = re.split(PATH_DELIMITERS, path_2)
 
     return _compute_parts_similarity(path_1_elements, path_2_elements)
+
+
+def _clean_path(path: str):
+    path = path or ""
+    return path.strip("/")
 
 
 def _compute_parts_similarity(elements_1: List[str], elements_2: List[str]) -> float:
