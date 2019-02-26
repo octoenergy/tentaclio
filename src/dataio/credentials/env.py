@@ -22,7 +22,7 @@ def _get_connection_urls(env: Env) -> List[urls.URL]:
             try:
                 connections.append(urls.URL(val))
             except Exception as e:
-                logger.error("Error parsing credentials from the environment variable {key}")
+                logger.error(f"Error parsing credentials from the environment variable {key}")
                 raise e
     return connections
 
