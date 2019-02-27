@@ -12,10 +12,8 @@ class SlackHook:
     Slack incoming web hook (POST messages)
     """
 
-    client: http_client.HTTPClient
-
     def __init__(self, url: str) -> None:
-        self.client = http_client.HTTPClient(url)
+        self.url = url
 
     def notify(
         self, message: str, channel: str = None, username: str = None, icon_emoji: str = None
@@ -25,7 +23,8 @@ class SlackHook:
         )
         stream = io.BytesIO(bytes(body, encoding="utf-8"))
         # Post streamed request
-        self.client.put(stream)
+        with http_client.HTTPClient(self.url) as client:
+            client.put(stream)
 
     # Helpers:
 
