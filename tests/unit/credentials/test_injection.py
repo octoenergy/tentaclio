@@ -52,6 +52,16 @@ from dataio.credentials import injection
             "registered://octo.energy/database?key=value_2",
             "registered://user:password@octo.energy:5544/database?key=value_2",
         ],
+        [
+            "registered://user:password@octo.energy/",  # trailing slash
+            "registered://octo.energy/file",
+            "registered://user:password@octo.energy/file",
+        ],
+        [
+            "registered://user:password@octo.energy/",  # trailing slash
+            "registered://octo.energy/path/",
+            "registered://user:password@octo.energy/path/",
+        ],
     ],
 )
 def test_simple_authenticate(with_creds, raw, expected, register_handler):
