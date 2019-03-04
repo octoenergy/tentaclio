@@ -33,6 +33,16 @@ class TestStreamClientReader:
         contents = reader.read()
         assert expected == contents
 
+    def test_readline(self, mocker):
+        client = mocker.MagicMock()
+        expected = bytes("hello world\n", "utf-8")
+        retrieved = expected + bytes("this is a new line", "utf-8")
+        client.get = lambda f: f.write(retrieved)
+
+        reader = base_stream.StreamClientReader(client, io.BytesIO())
+        contents = reader.readline()
+        assert expected == contents
+
     def test_close(self, mocker):
         client = mocker.MagicMock()
 

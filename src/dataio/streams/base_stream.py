@@ -98,6 +98,11 @@ class StreamClientReader(StreamBaseIO):
         """Read the contents of the buffer."""
         return self.buffer.read(size)
 
+    def readline(self, size: int = -1):
+        """Read and return one line from the buffer."""
+        # Additional method required for unpickling Python objects
+        return self.buffer.readline(size)
+
     def close(self) -> None:
         """Close the writer."""
         self.buffer.close()
