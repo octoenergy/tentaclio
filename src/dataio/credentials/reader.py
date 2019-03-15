@@ -29,7 +29,7 @@ def add_credentials_from_env_file(
 
 
 def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
-    loaded_data = yaml.load(io.StringIO(yaml_reader.read()))
+    loaded_data = yaml.safe_load(io.StringIO(yaml_reader.read()))
     if SECRETS not in loaded_data:
         raise KeyError(f"no secrets in yaml data. Make sure the file has a '{SECRETS}' element")
     return loaded_data[SECRETS]
