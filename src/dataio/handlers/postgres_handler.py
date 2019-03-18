@@ -1,3 +1,4 @@
+"""Handler for postgresql:// urls."""
 from typing import Tuple
 
 from dataio.clients import postgres_client
@@ -37,10 +38,10 @@ class PostgresURLHandler:
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open writer to dump the csv into a table in database.
 
-           This stream writer only works for csv data at the moment. The url must contain
-           a table as the last part of the path separated by a doble colon i.e.
-           `postgresql://user:pass@host/database::table`. The target table needs the columns
-           with the same names as the field names.
+        This stream writer only works for csv data at the moment. The url must contain
+        a table as the last part of the path separated by a doble colon i.e.
+        `postgresql://user:pass@host/database::table`. The target table needs the columns
+        with the same names as the field names.
         """
         conn_url, table = _split_url(url)
         client = postgres_client.PostgresClient(conn_url, **extras)

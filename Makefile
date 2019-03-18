@@ -27,6 +27,7 @@ test: lint unit integration
 lint:
 	pipenv run flake8 src
 	pipenv run mypy src
+	pipenv run pydocstyle src
 	pipenv run flake8 tests
 	pipenv run mypy tests
 

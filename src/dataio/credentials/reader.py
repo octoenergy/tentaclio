@@ -1,3 +1,4 @@
+"""Read credentials from yaml file."""
 import io
 import logging
 import os

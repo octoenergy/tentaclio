@@ -1,3 +1,9 @@
+"""Postgres query client.
+
+Adds the convinience methods for loading csv data using copy_expert,
+which is more performant than using sql alchemy functions.
+"""
+
 import io
 from typing import Sequence
 
@@ -12,9 +18,7 @@ __all__ = ["PostgresClient"]
 
 
 class PostgresClient(sqla_client.SQLAlchemyClient):
-    """
-    Generic Postgres hook, backed by a SQLAlchemy connection
-    """
+    """Postgres client, backed by a SQLAlchemy connection."""
 
     allowed_schemes = ["postgresql"]
 
@@ -38,7 +42,7 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
     def _copy_expert_csv(
         self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
     ) -> None:
-        """Dump a csv reader into the given table. """
+        """Dump a csv reader into the given table."""
         sql_columns = ",".join(columns)
         sql_query = f"""COPY {dest_table} ({sql_columns}) FROM STDIN
                         WITH CSV HEADER DELIMITER AS ','

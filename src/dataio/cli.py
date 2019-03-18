@@ -1,3 +1,4 @@
+"""Helper cli to encode urls."""
 import typing
 
 import click
@@ -10,6 +11,7 @@ from dataio import urls
 
 @click.group()
 def main():
+    """Group the click commands."""
     pass
 
 
@@ -31,7 +33,7 @@ def main():
     help="Provide key-value pairs using [--key KEY VALUE]",
 )
 def compose_url(scheme, username, password, hostname, port, path, key):
-    """Compose a client URL from individual components"""
+    """Compose a client URL from individual components."""
     if not hostname and not path:
         raise click.ClickException("Provide at least one of `hostname`, `path`")
 

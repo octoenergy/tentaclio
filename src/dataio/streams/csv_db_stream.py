@@ -1,3 +1,4 @@
+"""Csv to database stream like access."""
 import csv
 import io
 from typing import IO, Any, Sequence
@@ -19,20 +20,22 @@ class CsvDumper(Protocol):
     # the reason why we're using any
     # def __enter__(self) -> "CsvDumper":
     def __enter__(self) -> Any:
+        """Enter the context."""
         ...
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exit the context."""
         ...
 
     def dump_csv(
         self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
     ) -> None:
+        """Dump the csv contents into the the given table."""
         ...
 
 
 def _get_field_names(reader: IO) -> Sequence[str]:
     """Get the field names from the contents."""
-
     csv_reader = csv.DictReader(reader)
     next(csv_reader)
     reader.seek(0)

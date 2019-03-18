@@ -1,3 +1,4 @@
+"""Decorators for internal use in clients module."""
 import functools
 from typing import Callable, TypeVar
 
@@ -6,6 +7,7 @@ T = TypeVar("T")
 
 
 def check_conn(func: Callable[..., T]) -> Callable[..., T]:
+    """Check that the connection to client is done otherwise raise an exception."""
     @functools.wraps(func)
     def _wrapper(*args, **kwargs) -> T:
         # Instance is passed as first positional argument

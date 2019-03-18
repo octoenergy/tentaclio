@@ -15,6 +15,7 @@ dataio = {editable = true,path = "."}
 # Linter
 flake8 = "*"
 mypy = "*"
+pydocstyle = "*"
 # Testing
 moto = "*"
 pytest = "*"
