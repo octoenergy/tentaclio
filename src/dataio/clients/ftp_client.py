@@ -1,3 +1,4 @@
+"""FTP ans SFTP stream clients."""
 import ftplib
 import io
 import logging
@@ -16,9 +17,7 @@ __all__ = ["FTPClient", "SFTPClient"]
 
 
 class FTPClient(base_client.StreamClient):
-    """
-    Generic FTP hook
-    """
+    """Generic FTP client."""
 
     allowed_schemes = ["ftp"]
 
@@ -36,6 +35,12 @@ class FTPClient(base_client.StreamClient):
 
     @decorators.check_conn
     def get(self, writer: protocols.ByteWriter, file_path: str = None) -> None:
+        """Write the contents of a remote file into the passed writer.
+
+        Arguments:
+            :file_path: The path of the remote file if not passed
+                in the costructor as part of the url.
+        """
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
@@ -47,6 +52,12 @@ class FTPClient(base_client.StreamClient):
 
     @decorators.check_conn
     def put(self, reader: protocols.ByteReader, file_path: Optional[str] = None) -> None:
+        """Write the contents of the reader into the remote file.
+
+        Arguments:
+            :file_path: The path of the remote file if not passed
+                in the costructor as part of the url.
+        """
         remote_path = file_path or self.url.path
         # storebinary only works with io.BytesIO
         buff = io.BytesIO(bytearray(reader.read()))
@@ -55,9 +66,8 @@ class FTPClient(base_client.StreamClient):
     # Helpers:
 
     def _isfile(self, file_path: str) -> bool:
-        """
-        Caveat for missing method on standard FTPlib
-        """
+        """Check if the path exists in the remote server."""
+        # TODO Shall we just wait for the server to complain?
         try:
             # Query info
             # https://tools.ietf.org/html/rfc3659#section-7
@@ -70,9 +80,7 @@ class FTPClient(base_client.StreamClient):
 
 
 class SFTPClient(base_client.StreamClient):
-    """
-    Generic SFTP hook
-    """
+    """SFTP stream client."""
 
     allowed_schemes = ["sftp"]
 
@@ -82,6 +90,7 @@ class SFTPClient(base_client.StreamClient):
     port: int
 
     def __init__(self, url: Union[str, urls.URL], **kwargs) -> None:
+        """Create a new sftp client based on the url starting with sftp://."""
         super().__init__(url)
         self.username = self.url.username or ""
         self.password = self.url.password or ""
@@ -104,6 +113,12 @@ class SFTPClient(base_client.StreamClient):
 
     @decorators.check_conn
     def get(self, writer: protocols.ByteWriter, file_path: str = None) -> None:
+        """Write the contents of a remote file into the passed writer.
+
+        Arguments:
+            :file_path: The path of the remote file if not passed
+                in the costructor as part of the url.
+        """
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
@@ -116,6 +131,12 @@ class SFTPClient(base_client.StreamClient):
 
     @decorators.check_conn
     def put(self, reader: protocols.ByteReader, file_path: str = None) -> None:
+        """Write the contents of the reader into the remote file.
+
+        Arguments:
+            :file_path: The path of the remote file if not passed
+                in the costructor as part of the url.
+        """
         remote_path = file_path or self.url.path
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")

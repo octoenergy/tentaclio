@@ -1,3 +1,4 @@
+"""Load credentials from the environment."""
 import logging
 import os
 from typing import Dict, List, Optional, cast
@@ -33,7 +34,7 @@ def add_credentials_from_env(
     """Add urls with credentials from the environment.
 
     this funciton will scan the environment and add the variables
-    with the correct prefix to the pool of
+    with the prefix OCTOIO_CONN__ to the pool of
     available connection strings.
     """
     if env is None:

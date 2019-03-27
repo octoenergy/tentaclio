@@ -1,3 +1,8 @@
+"""Provide sql connection using sqlalchemy.
+
+This client is used for convinience when using different sql
+providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
+"""
 import contextlib
 from typing import Generator, Optional, Union
 
@@ -19,10 +24,9 @@ SessionGenerator = Generator[None, session.Session, None]
 
 
 class SQLAlchemyClient(base_client.QueryClient):
-    """
-    Generic Postgres hook, backed by a SQLAlchemy connection
-    """
+    """SQLAlchemy based client."""
 
+    # The allowed drivers depend on the dependencies installed.
     allowed_schemes = ["mssql", "postgresql", "sqlite", "awsathena+rest"]
 
     conn: Connection
@@ -39,6 +43,10 @@ class SQLAlchemyClient(base_client.QueryClient):
     def __init__(
         self, url: Union[str, urls.URL], execution_options: dict = None, connect_args: dict = None
     ) -> None:
+        """Create sqlalchemy client based on the passed url.
+
+        This is a wrapper for sqlalchemy engine/connection creation.
+        """
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or {}
         super().__init__(url)
@@ -78,29 +86,26 @@ class SQLAlchemyClient(base_client.QueryClient):
     # Schema methods:
 
     def set_schema(self, meta_data: MetaData) -> None:
+        """Create tables based on the metadata object."""
         meta_data.create_all(bind=self.conn)
 
     def delete_schema(self, meta_data: MetaData) -> None:
+        """Delete tables based on the metadata object."""
         meta_data.drop_all(bind=self.conn)
 
     # Query methods:
 
     @decorators.check_conn
     def query(self, sql_query: str, **params) -> result.ResultProxy:
-        """
-        Execute a read-only SQL query, and return results
+        """Execute a read-only SQL query, and return results.
 
-        Remark: will NOT commit any changes to DB
+        This will not commit any changes to the database.
         """
         return self.conn.execute(sql_query, params=params)
 
     @decorators.check_conn
     def execute(self, sql_query: str, **params) -> None:
-        """
-        Execute a raw SQL query command
-
-        Remark: will commit changes to DB
-        """
+        """Execute a raw SQL query command."""
         trans = self.conn.begin()
         try:
             self.conn.execute(sql_query, params=params)
@@ -114,9 +119,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     @decorators.check_conn
     def get_df(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
-        """
-        Run a raw SQL query and return a data frame
-        """
+        """Run a raw SQL query and return a data frame."""
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
 
@@ -125,6 +128,7 @@ class SQLAlchemyClient(base_client.QueryClient):
 
 @contextlib.contextmanager
 def bound_session(connection: Connection) -> SessionGenerator:
+    """Context manager for a sqlalchemy session."""
     Session = sessionmaker()
     sess = Session(bind=connection)
     try:
@@ -135,6 +139,7 @@ def bound_session(connection: Connection) -> SessionGenerator:
 
 @contextlib.contextmanager
 def atomic_session(connection: Connection) -> SessionGenerator:
+    """Context manager for a session that will rollback in case of an exception."""
     Session = sessionmaker()
     sess = Session(bind=connection)
     try:

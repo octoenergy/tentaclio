@@ -1,3 +1,4 @@
+"""Base handler."""
 import io
 from typing import Callable
 
@@ -22,6 +23,7 @@ class StreamURLHandler:
     client: StreamClientFactory
 
     def __init__(self, client_factory: StreamClientFactory):
+        """Create a handler using  a stream client factory to instantiate the underlying client."""
         self.client_factory = client_factory
 
     def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:

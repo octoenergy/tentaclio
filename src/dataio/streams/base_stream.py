@@ -1,4 +1,5 @@
 """General note on streams and writers/readers.
+
 We are using byte streams (writers and readers that only operate with byte arrays)
 as canonical format to avoid a huge mess in string vs bytes duality.
 
@@ -26,25 +27,36 @@ class StreamBaseIO:
 
     The extra methods included are to ensure interoperability with loosely defined,
     third party libraries such as `pyarrow`.
+
+    https://docs.python.org/3/library/io.html
     """
 
     buffer: IO
 
     def __init__(self, buffer: IO):
+        """Create a StreamBase which wraps the provided buffer."""
         self.buffer = buffer
 
     @property
     def closed(self):
+        """Tell if the resource is closed."""
         self.buffer.closed
 
     def __iter__(self):
+        """Return the resource as an iterable.
+
+        For pandas compatibility
+        https://github.com/pandas-dev/pandas/blob/master/pandas/core/dtypes/inference.py#L194
+        """
         # for pandas compatibility
         return self.buffer.__iter__()
 
     def seek(self, *args, **kargs):
+        """Change the stream position to the given byte offset."""
         return self.buffer.seek(*args, **kargs)
 
     def tell(self, *args, **kargs):
+        """Return the current stream position."""
         return self.buffer.tell(*args, **kargs)
 
 
@@ -56,10 +68,12 @@ class StreamClientWriter(StreamBaseIO):
     """
 
     def __init__(self, client: base_client.StreamClient, buffer: IO):
+        """Create a new writer based on a stream client and a buffer."""
         super().__init__(buffer)
         self.client = client
 
     def write(self, contents: Any) -> int:
+        """Write the contents to the underlying buffer."""
         return self.buffer.write(contents)
 
     def close(self) -> None:
@@ -84,6 +98,7 @@ class StreamClientReader(StreamBaseIO):
     buffer: IO
 
     def __init__(self, client: base_client.StreamClient, buffer: IO):
+        """Create a reader that will read from the given client to the passed buffer."""
         super().__init__(buffer)
         self.client = client
         self._load()
@@ -119,6 +134,7 @@ class StringToBytesClientReader(StreamClientReader):
     inner_buffer: io.BytesIO
 
     def __init__(self, client: base_client.StreamClient):
+        """Create a byte based reader that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
 
@@ -140,6 +156,7 @@ class StringToBytesClientWriter(StreamClientWriter):
     inner_buffer: io.BytesIO
 
     def __init__(self, client: base_client.StreamClient):
+        """Create a byte based write that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
 

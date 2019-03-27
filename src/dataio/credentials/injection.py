@@ -1,3 +1,4 @@
+"""Credentials injection utilities."""
 import collections
 import itertools
 import logging
@@ -15,14 +16,14 @@ HOSTNAME_WILDCARD = "hostname"
 
 
 class CredentialsInjector(object):
-
-    """Allows registering and injecting credentials to urls. """
+    """Allows registering and injecting credentials to urls."""
 
     def __init__(self):
+        """Create a new credentials injector."""
         self.registry: Dict[str, List[urls.URL]] = collections.defaultdict(list)
 
     def register_credentials(self, url: urls.URL) -> None:
-        """Register a set of credentials"""
+        """Register a set of credentials."""
         self.registry[url.scheme].append(url)
 
     def inject(self, url: urls.URL) -> urls.URL:
@@ -78,7 +79,9 @@ PATH_DELIMITERS = "/|::"
 
 
 def _similarity(path_1: str, path_2: str) -> float:
-    """compute the similarity of two strings as the
+    """Compute the similarity of two strings.
+
+    The similarity is calculated as the
     number of path elements (separated by / or ::) that they have in common.
     "/path/to/mything" and "/path/to/mything" have 3 as similarity index.
     "/path" and "/path/to/mything" have 1 as similarity index.

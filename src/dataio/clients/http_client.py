@@ -1,3 +1,4 @@
+"""HTTP Stream client."""
 import io
 from typing import Optional
 from urllib import parse
@@ -18,8 +19,10 @@ DEFAULT_HEADERS = {"Accept": "application/json"}
 
 
 class HTTPClient(base_client.StreamClient):
-    """
-    Generic HTTP hook
+    """HTTP stream client.
+
+    This client is useful when dealing inputs that may change from local files to http,
+    or from s3 to http in simple usecases. We're not intending to wrap requests or rewrite it.
     """
 
     allowed_schemes = ["http", "https"]
@@ -37,6 +40,7 @@ class HTTPClient(base_client.StreamClient):
     def __init__(
         self, url: str, default_timeout: float = None, default_headers: dict = None
     ) -> None:
+        """Create a new http/https client based on the passed url and extra params."""
         # Default connection timeout at 10''
         self.timeout = default_timeout or DEFAULT_TIMEOUT
         # Default JSON response back
@@ -81,6 +85,13 @@ class HTTPClient(base_client.StreamClient):
         params: dict = None,
         options: dict = None,
     ) -> None:
+        """Read the contents from the url and write them into the provided writer.
+
+        Arguments:
+            :end_point: Path to append to the url passed in the constructor.
+            :params: Url params to add
+            :options: More options for the request library.
+        """
         url = self._fetch_url(endpoint or "")
 
         request = self._build_request("GET", url, default_params=params)
@@ -96,6 +107,13 @@ class HTTPClient(base_client.StreamClient):
         params: dict = None,
         options: dict = None,
     ) -> None:
+        """Write the contents of the provided reader into the url using POST.
+
+        Arguments:
+            :end_point: Path to append to the url passed in the constructor.
+            :params: Url params to add
+            :options: More options for the request library.
+        """
         url = self._fetch_url(endpoint or "")
         buff = io.StringIO(bytes(reader.read()).decode(encoding="utf-8"))
         request = self._build_request("POST", url, default_data=buff, default_params=params)

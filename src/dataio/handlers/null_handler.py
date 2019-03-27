@@ -1,3 +1,4 @@
+"""Nop for url protocols."""
 import logging
 
 from dataio.protocols import ReaderClosable, WriterClosable
@@ -17,7 +18,9 @@ class NullHandler:
         raise NotImplementedError(self.error_msg_template % (url, mode))
 
     def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
+        """Throw not implemented error."""
         return self._failed_open(url, mode, extras)
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
+        """Throw not implemented error."""
         return self._failed_open(url, mode, extras)
