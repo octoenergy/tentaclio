@@ -36,11 +36,11 @@ class CredentialsInjector(object):
             return url
         else:
             if len(candidates) > 1:
-                logger.warn("The crendentials for %s returned more than one candidate" % str(url))
-                for candidate in candidates:
-                    logger.info("{candidate}")
+                logger.warning(
+                    "The credentials for %s returned %s candidates" % (str(url), len(candidates))
+                )
 
-            # return the best candidate, i.e the one with the highest similarty to
+            # return the best candidate, i.e the one with the highest similarity to
             # the passed url
             creds = candidates[0]
             with_creds = urls.URL.from_components(

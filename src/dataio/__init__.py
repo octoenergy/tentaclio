@@ -12,9 +12,10 @@ The main benefits are:
 
 from dataio.handlers import *  # noqa
 
+from .api import *  # noqa
 from .protocols import *  # noqa
 from .urls import *  # noqa
-from .api import *  # noqa
+
 
 # Local files
 URL.register_handler("", LocalFileHandler())
