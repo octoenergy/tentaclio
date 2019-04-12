@@ -1,10 +1,10 @@
 """Handler for postgresql:// urls."""
 from typing import Tuple
 
-from dataio.clients import postgres_client
-from dataio.protocols import ReaderClosable, WriterClosable
-from dataio.streams import csv_db_stream
-from dataio.urls import URL
+from tentaclio.clients import postgres_client
+from tentaclio.protocols import ReaderClosable, WriterClosable
+from tentaclio.streams import csv_db_stream
+from tentaclio.urls import URL
 
 
 __all__ = ["PostgresURLHandler"]

@@ -1,7 +1,7 @@
-"""Main entry points to octio-io."""
+"""Main entry points to tentaclio-io."""
 from typing import ContextManager
 
-from dataio import clients, credentials, protocols
+from tentaclio import clients, credentials, protocols
 
 
 __all__ = ["open", "db"]

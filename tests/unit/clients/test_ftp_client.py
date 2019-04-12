@@ -2,7 +2,7 @@ import io
 
 import pytest
 
-from dataio.clients import exceptions, ftp_client
+from tentaclio.clients import exceptions, ftp_client
 
 
 @pytest.fixture()

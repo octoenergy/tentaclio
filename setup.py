@@ -32,19 +32,19 @@ REQUIREMENTS = [
 
 setup_args = dict(
     # Description
-    name="dataio",
+    name="tentaclio",
     version=VERSION,
     description="Single repository regrouping all IO connectors used within the data world",
     long_description=README,
     # Credentials
     author="Octopus Energy",
     author_email="tech@octoenergy.com",
-    url="https://github.com/octoenergy/data-io",
+    url="https://github.com/octoenergy/tentaclio",
     license="Proprietary",
     # Package data
     package_dir={"": "src"},
-    packages=find_packages("src", include=["*dataio*"]),
-    entry_points={"console_scripts": ["dataio = dataio.cli:main"]},
+    packages=find_packages("src", include=["*tentaclio*"]),
+    entry_points={"console_scripts": ["tentaclio = tentaclio.cli:main"]},
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,

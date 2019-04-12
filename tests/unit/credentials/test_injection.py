@@ -1,7 +1,7 @@
 import pytest
 
-from dataio import URL
-from dataio.credentials import injection
+from tentaclio import URL
+from tentaclio.credentials import injection
 
 
 @pytest.mark.parametrize(

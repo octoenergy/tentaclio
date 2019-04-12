@@ -1,5 +1,5 @@
 """Handler for s3:// urls."""
-from dataio.clients import s3_client
+from tentaclio.clients import s3_client
 
 from .stream_handler import StreamURLHandler
 

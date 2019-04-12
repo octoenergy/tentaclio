@@ -3,7 +3,7 @@ import typing
 
 import click
 
-from dataio import urls
+from tentaclio import urls
 
 
 # CLI main entry point

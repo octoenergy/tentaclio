@@ -11,7 +11,7 @@ python_version = "3.6.6"
 
 [dev-packages]
 # Symlink to project root
-dataio = {editable = true,path = "."}
+tentaclio = {editable = true,path = "."}
 # Linter
 flake8 = "*"
 mypy = "*"

@@ -5,7 +5,7 @@ import logging
 import re
 from typing import Dict, List
 
-from dataio import urls
+from tentaclio import urls
 
 
 logger = logging.getLogger(__name__)

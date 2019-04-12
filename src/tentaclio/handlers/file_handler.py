@@ -5,8 +5,8 @@ Takes care of urls of the form '/tmp/myfile' and 'file:///tmp/myfile'.
 import logging
 import os
 
-from dataio.protocols import ReaderClosable, WriterClosable
-from dataio.urls import URL
+from tentaclio.protocols import ReaderClosable, WriterClosable
+from tentaclio.urls import URL
 
 
 logger = logging.getLogger(__name__)

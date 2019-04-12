@@ -1,7 +1,7 @@
 """Handler of http urls."""
-from dataio.clients import http_client
-from dataio.protocols import WriterClosable
-from dataio.urls import URL
+from tentaclio.clients import http_client
+from tentaclio.protocols import WriterClosable
+from tentaclio.urls import URL
 
 from .stream_handler import StreamURLHandler
 

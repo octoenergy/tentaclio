@@ -2,7 +2,7 @@
 import functools
 import logging
 
-from dataio import urls
+from tentaclio import urls
 
 from .env import add_credentials_from_env
 from .injection import CredentialsInjector

@@ -1,8 +1,8 @@
 import io
 
-from dataio import URL, Reader, Writer
-from dataio.clients.base_client import StreamClient
-from dataio.handlers.stream_handler import StreamURLHandler
+from tentaclio import URL, Reader, Writer
+from tentaclio.clients.base_client import StreamClient
+from tentaclio.handlers.stream_handler import StreamURLHandler
 
 
 class FakeClient(StreamClient):

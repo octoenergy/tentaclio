@@ -77,7 +77,7 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
         environment:
-            OCTOIO__CONN__S3_TEST: s3://public_key:private_key@dataio-bucket
+            TENTACLIO__CONN__S3_TEST: s3://public_key:private_key@tentaclio-bucket
 
     steps:
       - checkout
@@ -96,7 +96,7 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
         environment:
-            OCTOIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
+            TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
       - image: mauler/simple-ftp-server
         environment:
@@ -120,7 +120,7 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
         environment:
-            OCTOIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
+            TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
       - image: atmoz/sftp
         command: octopus:tentacle:::upload
@@ -142,13 +142,13 @@ jobs:
     docker:
       - image: circleci/python:3.6.6
         environment:
-          OCTOIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/dataio-db
+          TENTACLIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/tentaclio-db
 
       - image: circleci/postgres:9.5.10
         environment:
           # CircleCI img run under `circleci` user
           POSTGRES_USER: circleci
-          POSTGRES_DB: dataio-db
+          POSTGRES_DB: tentaclio-db
 
     steps:
       - checkout

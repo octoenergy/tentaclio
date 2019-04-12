@@ -1,7 +1,7 @@
 import pytest
 from click import testing
 
-from dataio import cli, urls
+from tentaclio import cli, urls
 
 
 @pytest.fixture

@@ -5,7 +5,7 @@ from urllib import parse
 
 import requests
 
-from dataio import protocols
+from tentaclio import protocols
 
 from . import base_client, decorators, exceptions
 

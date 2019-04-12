@@ -2,7 +2,7 @@ import io
 
 import pytest
 
-from dataio.clients import exceptions, http_client
+from tentaclio.clients import exceptions, http_client
 
 
 @pytest.fixture()

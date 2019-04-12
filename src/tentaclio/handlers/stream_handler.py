@@ -2,10 +2,10 @@
 import io
 from typing import Callable
 
-from dataio.clients import base_client
-from dataio.protocols import ReaderClosable, WriterClosable
-from dataio.streams import base_stream
-from dataio.urls import URL
+from tentaclio.clients import base_client
+from tentaclio.protocols import ReaderClosable, WriterClosable
+from tentaclio.streams import base_stream
+from tentaclio.urls import URL
 
 
 StreamClientFactory = Callable[..., base_client.StreamClient]

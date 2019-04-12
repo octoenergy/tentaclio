@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from dataio import URL, api
+from tentaclio import URL, api
 
 
 @pytest.fixture

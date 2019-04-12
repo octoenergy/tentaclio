@@ -2,8 +2,8 @@ import io
 
 import pytest
 
-from dataio import urls
-from dataio.credentials import injection, reader
+from tentaclio import urls
+from tentaclio.credentials import injection, reader
 
 
 @pytest.fixture

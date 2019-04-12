@@ -1,6 +1,6 @@
 import pytest
 
-from dataio import api
+from tentaclio import api
 
 
 W_MODES = ["w", "wt", "wb"]
@@ -36,6 +36,6 @@ def test_reader_modes(mode, mocker):
 
 
 def test_database(mocker):
-    mocked_client = mocker.patch("dataio.clients.SQLAlchemyClient")
+    mocked_client = mocker.patch("tentaclio.clients.SQLAlchemyClient")
     api.db("postgresql://hostname/database")
     mocked_client.assert_called_once()

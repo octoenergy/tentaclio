@@ -3,7 +3,7 @@ import io
 import moto
 import pytest
 
-from dataio.clients import exceptions, s3_client
+from tentaclio.clients import exceptions, s3_client
 
 
 @pytest.fixture()

@@ -1,6 +1,6 @@
 import pytest
 
-from dataio.clients import base_client, decorators
+from tentaclio.clients import base_client, decorators
 
 
 class TestCheckConn:

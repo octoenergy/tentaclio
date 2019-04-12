@@ -3,7 +3,7 @@ import io
 
 import pytest
 
-from dataio.streams import csv_db_stream
+from tentaclio.streams import csv_db_stream
 
 
 @pytest.fixture

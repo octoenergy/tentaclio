@@ -10,7 +10,7 @@ The main benefits are:
     * Credentials management that allows a distributed credentials storage.
 """
 
-from dataio.handlers import *  # noqa
+from tentaclio.handlers import *  # noqa
 
 from .api import *  # noqa
 from .protocols import *  # noqa

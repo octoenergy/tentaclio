@@ -2,7 +2,7 @@
 import io
 import json
 
-from dataio.clients import http_client
+from tentaclio.clients import http_client
 
 
 __all__ = ["SlackHook"]

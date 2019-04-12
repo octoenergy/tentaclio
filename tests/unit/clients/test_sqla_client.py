@@ -1,6 +1,6 @@
 import pytest
 
-from dataio.clients.sqla_client import SQLAlchemyClient
+from tentaclio.clients.sqla_client import SQLAlchemyClient
 
 
 @pytest.mark.parametrize(
