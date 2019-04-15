@@ -1,6 +1,6 @@
 import pytest
 
-from dataio import URL, api
+from tentaclio import URL, api
 
 
 athena_url = (

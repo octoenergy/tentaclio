@@ -1,19 +1,19 @@
-[![CircleCI status](https://circleci.com/gh/octoenergy/data-io/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/data-io/tree/master)
+[![CircleCI status](https://circleci.com/gh/octoenergy/tentaclio/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/tentaclio/tree/master)
 
 # DataIO
 
 Python package regrouping a collection of I/O connectors, used in the data world with the aim of providing:
 
-- a boilerplate for developers to expose new connectors (`dataio.clients`).
+- a boilerplate for developers to expose new connectors (`tentaclio.clients`).
 - an interface to acess file resources,
-    - thanks to a unified syntax (`dataio.open`),
-    - and a simplified interface (`dataio.protocols`).
+    - thanks to a unified syntax (`tentaclio.open`),
+    - and a simplified interface (`tentaclio.protocols`).
 
 ## Quickstart
 
 Make sure [Homebrew](https://brew.sh/) is installed and ensure it's up to date.
 
-    $ git clone git@github.com:octoenergy/data-io.git
+    $ git clone git@github.com:octoenergy/tentaclio.git
 
 
 ### Local installation
@@ -37,18 +37,18 @@ To refresh Python dependencies,
     $ make sync
 
 ## How to use
-This is how to use `data-io` for your daily data ingestion and storing needs.
+This is how to use `tentaclio` for your daily data ingestion and storing needs.
 
 ### Streams
 In order to open streams to load or store data the universal function is:
 
 ```python
-import dataio 
+import tentaclio 
 
-with dataio.open("/path/to/my/file") as reader:
+with tentaclio.open("/path/to/my/file") as reader:
     contents = reader.read()
 
-with dataio.open("s3://bucket/file", mode='w') as writer:
+with tentaclio.open("s3://bucket/file", mode='w') as writer:
     writer.write(contents)
 
 ```
@@ -73,14 +73,14 @@ You can use these readers and writers with pandas functions like:
 
 ```python
 import pandas as pd
-import dataio 
+import tentaclio 
 
-with dataio.open("/path/to/my/file") as reader:
+with tentaclio.open("/path/to/my/file") as reader:
     df = pd.read_csv(reader) 
 
 [...]
 
-with dataio.open("s3::/path/to/my/file", mode='w') as writer:
+with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer) 
 ```
 `Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
@@ -88,15 +88,15 @@ with dataio.open("s3::/path/to/my/file", mode='w') as writer:
 
 ### Database access  
 
-In order to open db connections you can use `dataio.db` and have instant access to postgres, sqlite, athena and mssql.  
+In order to open db connections you can use `tentaclio.db` and have instant access to postgres, sqlite, athena and mssql.  
 
 ```python
-import dataio
+import tentaclio
 
 [...] 
 
 query = "select 1";
-with dataio.db(POSTGRES_TEST_URL) as client:
+with tentaclio.db(POSTGRES_TEST_URL) as client:
     result =client.query(query)
 [...]
 ```
@@ -110,20 +110,20 @@ The supported db schemes are:
 
 ### Automatic credentials injection. 
 
-1. Configure credencials by using environmental variables prefixed with `OCTOIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
+1. Configure credencials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
 
 2. Open a stream:
 ```python
-with dataio.open("sftp://octoenergy.com/file.csv") as reader:
+with tentaclio.open("sftp://octoenergy.com/file.csv") as reader:
     reader.read()
 ```
 The credentials get injected into the url. 
 
 3. Open a db client:
 ```python
-import dataio
+import tentaclio
 
-with dataio.db("postgresql://hostname/my_data_base") as client:
+with tentaclio.db("postgresql://hostname/my_data_base") as client:
     client.query("select 1")
 ```
 Note that `hostname` in the url to be authenticated is a wildcard that will match any hostname. So `authenticate("http://hostname/file.txt")` will be injected to `http://user:pass@octo.co/file.txt` if the credential for `http://user:pass@octo.co/` exists.
@@ -144,7 +144,7 @@ secrets:
     db_2: postgresql://user2:pass2@otherhost.com/database_2
     ftp_server: ftp://fuser:fpass@ftp.myhost.com
 ```
-And make it accessible to data-io by setting the environmental variable `OCTOIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality. 
+And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality. 
 
 ## Development
 
@@ -167,7 +167,7 @@ And linting taking care by `flake8` and `mypy`:
 
 ### CircleCI
 
-Continuous integration is run on [CircleCI](https://circleci.com/gh/octoenergy/workflows/data-io), with the following steps:
+Continuous integration is run on [CircleCI](https://circleci.com/gh/octoenergy/workflows/tentaclio), with the following steps:
 
     $ make circleci
 
@@ -238,7 +238,7 @@ Our function will look like something like this:
 
 ```python
 import pandas as pd
-from dataio import Reader, Writer
+from tentaclio import Reader, Writer
 
 
 def sum(reader: Reader, writer: Writer) -> None:

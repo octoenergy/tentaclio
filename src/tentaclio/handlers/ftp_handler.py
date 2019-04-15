@@ -1,5 +1,5 @@
 """Handler for ftp urls."""
-from dataio.clients import ftp_client
+from tentaclio.clients import ftp_client
 
 from .stream_handler import StreamURLHandler
 

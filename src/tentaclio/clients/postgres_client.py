@@ -9,7 +9,7 @@ from typing import Sequence
 
 import pandas as pd
 
-from dataio import protocols
+from tentaclio import protocols
 
 from . import decorators, sqla_client
 

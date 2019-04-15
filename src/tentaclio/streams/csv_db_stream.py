@@ -5,7 +5,7 @@ from typing import IO, Any, Sequence
 
 from typing_extensions import Protocol
 
-from dataio import protocols
+from tentaclio import protocols
 
 from . import base_stream
 

@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from dataio import api, urls
+from tentaclio import api, urls
 
 
 TEST_PAYLOAD = json.dumps([{"result": "nothing is alright"}])

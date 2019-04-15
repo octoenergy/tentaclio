@@ -1,10 +1,10 @@
-# from dataio.handlers import s3_handler
+# from tentaclio.handlers import s3_handler
 import boto3
 import moto
 import pytest
 
-from dataio import api
-from dataio.urls import URL
+from tentaclio import api
+from tentaclio.urls import URL
 
 
 AWS_PUBLIC_KEY = "public_key"

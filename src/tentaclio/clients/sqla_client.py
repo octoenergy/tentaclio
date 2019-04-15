@@ -12,7 +12,7 @@ from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from dataio import urls
+from tentaclio import urls
 
 from . import base_client, decorators
 

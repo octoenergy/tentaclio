@@ -1,7 +1,7 @@
 import io
 
-from dataio.clients import base_client
-from dataio.urls import URL
+from tentaclio.clients import base_client
+from tentaclio.urls import URL
 
 
 class FakeClient(base_client.BaseClient):

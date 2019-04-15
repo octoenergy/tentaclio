@@ -1,8 +1,8 @@
 """Nop for url protocols."""
 import logging
 
-from dataio.protocols import ReaderClosable, WriterClosable
-from dataio.urls import URL
+from tentaclio.protocols import ReaderClosable, WriterClosable
+from tentaclio.urls import URL
 
 
 logger = logging.getLogger(__name__)

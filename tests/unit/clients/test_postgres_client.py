@@ -1,6 +1,6 @@
 import pytest
 
-from dataio.clients import postgres_client
+from tentaclio.clients import postgres_client
 
 
 class TestPostgresClient:

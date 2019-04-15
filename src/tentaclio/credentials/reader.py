@@ -5,14 +5,14 @@ import os
 
 import yaml
 
-from dataio import protocols, urls
-from dataio.credentials import injection
+from tentaclio import protocols, urls
+from tentaclio.credentials import injection
 
 
 logger = logging.getLogger(__name__)
 
 SECRETS = "secrets"
-OCTOIO_SECRETS_FILE = "OCTOIO__SECRETS_FILE"
+TENTACLIO_SECRETS_FILE = "TENTACLIO__SECRETS_FILE"
 
 
 def add_credentials_from_env_file(
@@ -21,9 +21,9 @@ def add_credentials_from_env_file(
     """Add credentials from a configurable yaml file.
 
     The path of this file is expected to be set in the environment as
-    `OCTOIO__SECRETS_FILE`
+    `TENTACLIO__SECRETS_FILE`
     """
-    secrets_file = os.getenv(OCTOIO_SECRETS_FILE, "")
+    secrets_file = os.getenv(TENTACLIO_SECRETS_FILE, "")
     if secrets_file != "":
         injector = _load_from_file(injector, secrets_file)
     return injector

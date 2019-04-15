@@ -1,6 +1,6 @@
 import io
 
-from dataio.streams import base_stream
+from tentaclio.streams import base_stream
 
 
 class TestStreamClientWriter:

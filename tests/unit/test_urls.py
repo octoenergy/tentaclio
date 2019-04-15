@@ -1,6 +1,6 @@
 import pytest
 
-from dataio import urls
+from tentaclio import urls
 
 
 class TestRegistry(object):

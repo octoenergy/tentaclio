@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union, cast
 import boto3
 from botocore import client as boto_client
 
-from dataio import protocols, urls
+from tentaclio import protocols, urls
 
 from . import base_client, decorators, exceptions
 

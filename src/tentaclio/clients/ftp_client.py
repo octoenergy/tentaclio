@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 import pysftp
 
-from dataio import protocols, urls
+from tentaclio import protocols, urls
 
 from . import base_client, decorators, exceptions
 

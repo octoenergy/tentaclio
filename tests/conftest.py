@@ -11,11 +11,11 @@ from urllib import parse
 import moto
 import pytest
 
-from dataio import URL, Reader, Writer, clients
+from tentaclio import URL, Reader, Writer, clients
 
 
-S3_TEST_URL = os.getenv("OCTOIO__CONN__S3_TEST")
-POSTGRES_TEST_URL = os.getenv("OCTOIO__CONN__POSTGRES_TEST")
+S3_TEST_URL = os.getenv("TENTACLIO__CONN__S3_TEST")
+POSTGRES_TEST_URL = os.getenv("TENTACLIO__CONN__POSTGRES_TEST")
 
 
 # URL fixtures

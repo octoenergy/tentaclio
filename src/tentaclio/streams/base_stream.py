@@ -19,7 +19,7 @@ buffer to the underlying client.
 import io
 from typing import IO, Any
 
-from dataio.clients import base_client
+from tentaclio.clients import base_client
 
 
 class StreamBaseIO:
