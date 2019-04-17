@@ -22,7 +22,7 @@ sync:
 
 # Testing
 
-test: lint unit integration
+test: lint unit
 
 lint:
 	pipenv run flake8 src
@@ -47,8 +47,8 @@ functional-postgres:
 	pipenv run pytest tests/functional/postgres
 
 format:
-	black -l 99 --py36 src
-	black -l 99 --py36 tests
+	black -l 99 src
+	black -l 99 tests
 	isort -rc src
 	isort -rc tests
 
