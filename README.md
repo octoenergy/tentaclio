@@ -1,11 +1,11 @@
 [![CircleCI status](https://circleci.com/gh/octoenergy/tentaclio/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/tentaclio/tree/master)
 
-# DataIO
+# Tentaclio
 
 Python package regrouping a collection of I/O connectors, used in the data world with the aim of providing:
 
 - a boilerplate for developers to expose new connectors (`tentaclio.clients`).
-- an interface to acess file resources,
+- an interface to access file resources,
     - thanks to a unified syntax (`tentaclio.open`),
     - and a simplified interface (`tentaclio.protocols`).
 
@@ -64,7 +64,7 @@ The supported url protocols are:
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
 * `https://host.com/path/to/resource`
-* `postgresql://host/database::table` will allow to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
+* `postgresql://host/database::table` will allow you to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
 
 You can add the credentials for any of the urls in order to access protected resources.
 
@@ -83,7 +83,7 @@ with tentaclio.open("/path/to/my/file") as reader:
 with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer) 
 ```
-`Readers`, `Writers` and they closeable versions can be used anywhere expecting a file like object, pandas or pickle are examples of such functions.
+`Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
 
 
 ### Database access  
@@ -108,9 +108,9 @@ The supported db schemes are:
 * `awsathena+rest://`
 * `mssql://`
 
-### Automatic credentials injection. 
+### Automatic credentials injection 
 
-1. Configure credencials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `OCOTOIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
+1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
 
 2. Open a stream:
 ```python
@@ -135,7 +135,7 @@ Different components of the URL are set differently:
 - Query will be set from the URL if it exists, otherwise from the stored credentials (so it can be
   overriden)
 
-#### Credentials file:
+#### Credentials file
 
 You can also set a credentials file that looks like:
 ```
@@ -161,7 +161,7 @@ Tests run via `py.test`:
 POSTGRES_TEST_URL=scheme://username:password@hostname:port/database
 ```
 
-And linting taking care by `flake8` and `mypy`:
+And linting is taken care of by `flake8` and `mypy`:
 
     $ make lint
 
