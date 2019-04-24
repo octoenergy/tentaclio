@@ -3,7 +3,7 @@
 import pathlib
 from setuptools import find_packages, setup
 
-VERSION = "0.0.1"
+VERSION = "0.0.1-alpha.1"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -34,13 +34,14 @@ setup_args = dict(
     # Description
     name="tentaclio",
     version=VERSION,
-    description="Single repository regrouping all IO connectors used within the data world",
+    description="Unification of data connectors for distributed data tasks",
     long_description=README,
+    long_description_content_type='text/markdown',
     # Credentials
     author="Octopus Energy",
-    author_email="tech@octoenergy.com",
+    author_email="nerds@octoenergy.com",
     url="https://github.com/octoenergy/tentaclio",
-    license="Proprietary",
+    license="MIT",
     # Package data
     package_dir={"": "src"},
     packages=find_packages("src", include=["*tentaclio*"]),
@@ -48,6 +49,16 @@ setup_args = dict(
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Typing :: Typed",
+    ],
 )
 
 

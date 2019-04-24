@@ -62,3 +62,8 @@ package:
 
 circleci:
 	circleci config validate
+
+# Release
+release:
+	pipenv run python setup.py sdist 
+	twine upload dist/*
