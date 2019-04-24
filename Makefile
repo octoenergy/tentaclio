@@ -10,15 +10,14 @@ reset: clean update
 
 update:
 	pipenv update --dev
-	pipenv clean
 
 clean:
 	rm -rf build dist htmlcov
 	find src -type d -name __pycache__ | xargs rm -rf
+	pipenv clean
 
 sync:
 	pipenv sync --dev
-	pipenv clean
 
 # Testing
 
