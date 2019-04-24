@@ -590,3 +590,6 @@ healthchecksdb
 # End of https://www.gitignore.io/api/vim,macos,python,pycharm,visualstudio
 
 \.vscode/
+
+# Coverage 
+junit

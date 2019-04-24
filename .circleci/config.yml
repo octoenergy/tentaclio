@@ -4,7 +4,10 @@
 # INFO: Check CircleCI documentation for more details
 #       https://circleci.com/docs/2.0/language-python/
 
-version: 2.0
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.4
 
 jobs:
   lint:
@@ -39,6 +42,7 @@ jobs:
           name: Run linters
           command: make lint
 
+
   unit:
     working_directory: ~/lib
 
@@ -68,8 +72,8 @@ jobs:
           name: Run unit tests
           command: make unit
 
-      - store_test_results:
-          path: /tmp/results/
+      - codecov/upload:
+          file: ./coverage.xml
 
   functional-s3:
     working_directory: ~/lib
