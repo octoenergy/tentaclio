@@ -11,13 +11,17 @@ with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
     README = f.read()
 
 REQUIREMENTS = [
+    # Security constrains
+    "urllib3>=1.24.2"
+
     # AWS
     "boto3>=1.9.0,<1.10",
     # Http
     "requests",
     # Postgres
     "psycopg2-binary",
-    "sqlalchemy>=1.2.0,<1.3",
+    # Sqlalchemy
+    "sqlalchemy>1.3",
     # Athena
     "PyAthena[SQLAlchemy]",
     # SFTP
