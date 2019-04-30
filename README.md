@@ -4,39 +4,112 @@
 
 # Tentaclio
 
-Python package regrouping a collection of I/O connectors, used in the data world with the aim of providing:
+Python library that simplifies:
+* Handling streams from different protocols such as `file:`, `ftp:`, `sftp:`, `s3:`, ...
+* Opening database connections.
+* Managing the credentials in distributed systems.
 
-- a boilerplate for developers to expose new connectors (`tentaclio.clients`).
-- an interface to access file resources,
-    - thanks to a unified syntax (`tentaclio.open`),
-    - and a simplified interface (`tentaclio.protocols`).
+Main considerations in the design:
+* Easy to use: all streams are open via `tentaclio.open`, all database connections through `tentaclio.db`.
+* URLs are the basic resource locator and db connection string.
+* Automagic authentication for protected resources.
+* Extensible: you can add your own handlers for other schemes.
+* Pandas interaction.
 
-## Quickstart
+# Quick Examples.
 
-Make sure [Homebrew](https://brew.sh/) is installed and ensure it's up to date.
+## Read and write streams.
+```python
+import tentaclio
+contents = "👋 🐙"
 
-    $ git clone git@github.com:octoenergy/tentaclio.git
+with tentaclio.open("ftp://localhost:2021/upload/file.txt", mode="w") as writer: 
+    writer.write(contents)
 
+# Using boto3 authentication under the hood.
+bucket = "s3://my-bucket/octopus/hello.txt"
+with tentaclio.open(bucket) as reader:
+    print(reader.read())
+```
 
-### Local installation
+## Copy streams
+```python
+import tentaclio
 
-Similarly to the [consumer-site](https://github.com/octoenergy/consumer-site/blob/master/README.md), the library must be deployed onto a machine running:
+with tentaclio.open("/home/constantine/data.csv") as reader, tentaclio.open(
+    "sftp://constantine:tentacl3@sftp.octoenergy.com/uploads/data.csv", mode="w") as writer: 
+) as writer:
+    writer.write(reader.read())
+```
 
-    - Python3
-    - a C compiler (either `gcc` via Homebrew, or `xcode` via the App store)
+## Authenticated resources.
+```python
+import os                                                                            
+                                                                                     
+import tentaclio                                                                     
+                                                                                     
+print("env ftp credentials", os.getenv("OCTOIO__CONN__OCTOENERGY_FTP"))              
+# This prints `sftp://constantine:tentacl3@sftp.octoenergy.com/`                     
+                                                                                     
+# Credentials get automatically injected.                                            
+                                                                                     
+with tentaclio.open("sftp://sftp.octoenergy.com/uploads/data.csv") as reader:        
+    print(reader.read())                                                             
+```
 
-Install [Pyenv](https://github.com/pyenv/pyenv) and [Pipenv](https://docs.pipenv.org/),
+## Database connections.
+```python
+import os                                                            
+                                                                     
+import tentaclio                                                     
+                                                                     
+print("env TENTACLIO__CONN__DB", os.getenv("TENTACLIO__CONN__DB"))   
+                                                                     
+# This prints `postgresql://octopus:tentacle@localhost:5444/example` 
+                                                                     
+# hostname is a wildcard, the credentials get injected.              
+with tentaclio.db("postgresql://hostname/example") as pg:            
+    results = pg.query("select * from my_table")                     
+```
 
-    $ brew install pyenv
-    $ brew install pipenv
+## Pandas interaction.
+```python
+import pandas as pd  # 🐼🐼                                                       
+import tentaclio  # 🐙                                                            
+                                                                                  
+df = pd.DataFrame([[1, 2, 3], [10, 20, 30]], columns=["col_1", "col_2", "col_3"]) 
+                                                                                  
+bucket = "s3://my-bucket/data/pandas.csv"                                         
+                                                                                  
+with tentaclio.open(bucket, mode="w") as writer:  # supports more pandas readers  
+    df.to_csv(writer, index=False)                                                
+                                                                                  
+with tentaclio.open(bucket) as reader:                                            
+    new_df = pd.read_csv(reader)                                                  
 
-Lock the Python dependencies and build a virtualenv,
+```
+ 
+# Installation
 
-    $ make update
+You can get tentaclio using pip
 
-To refresh Python dependencies,
+```sh
+pip install tentaclio
+```
+or pipenv
+```sh
+pipenv install tentaclio
+```
 
-    $ make sync
+## Developing. 
+
+Clone this repo and install [pipenv](https://pipenv.readthedocs.io/en/latest/):
+
+In the `Makefile` you'll find some useful targets for linting, testing, etc. i.e.:
+```sh
+make test
+```
+
 
 ## How to use
 This is how to use `tentaclio` for your daily data ingestion and storing needs.
@@ -112,11 +185,11 @@ The supported db schemes are:
 
 ### Automatic credentials injection 
 
-1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@octoenergy.systems`).
+1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@ftp.octoenergy.com`).
 
 2. Open a stream:
 ```python
-with tentaclio.open("sftp://octoenergy.com/file.csv") as reader:
+with tentaclio.open("sftp://ftp.octoenergy.com/file.csv") as reader:
     reader.read()
 ```
 The credentials get injected into the url. 
@@ -148,117 +221,8 @@ secrets:
 ```
 And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality. 
 
-## Development
 
-### Testing
-
-Tests run via `py.test`:
-
-    $ make unit
-    $ make integration
-
-:warning: Unit and integration tests will require a `.env` in this directory with the following contents: :warning:
-
-```dotenv
-POSTGRES_TEST_URL=scheme://username:password@hostname:port/database
-```
-
-And linting is taken care of by `flake8` and `mypy`:
-
-    $ make lint
-
-### CircleCI
-
-Continuous integration is run on [CircleCI](https://circleci.com/gh/octoenergy/workflows/tentaclio), with the following steps:
-
-    $ make circleci
-
-## Quick note on protocols
+## Quick note on protocols structural subtyping.
     
-In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we recommend to use [Protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo).
+In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).
 
-### Simple protocol example
-
-Let's suppose that we are going to write a function that loads a csv file, does some operation, and saves the result.
-
-```python
-import pandas as pd
-
-
-def sum(input_file: str, output_file: str) -> None:
-    df = pd.read_csv(input_file, index="index")
-    transformed_df = _transform(df)
-    pd.to_csv(output_file, transformed_df)
-```
-
-This has the following caveats:
-* The source and destination of the data are bound to be a file in the local system, we can't support other streams such as s3, `io.StringIO`, or `io.BytesIO`.
-* Testing is difficult and cumbersome as you need actual files for test the whole execution path.
-
-Many panda's io functions allow the file argument (i.e. _input_file_) to be a string or a _buffer_, namely anything that contains a read method. This is known as a protocol in python.
-Another protocols are `Sized`, any object that contains a `__len__` method, or `__getitem__`. Protocols are usually loosely bound to the receiver, and it's its respisability to check programmatically that the argument contains in fact that method.
-
-We could refactor this piece of code using the classes from the `io` package to make it more general as they acutally implement the `read` protocol.
-
-```python
-import pandas as pd
-from io import RawIOBase
-
-
-def sum(input_file: RawIOBase, output_file: RawIOBase) -> None: # this won't work by the way
-    df = pd.read_csv(input_file, index="index")
-    transformed_df = _transform(df)
-    pd.to_csv(output_file, transformed_df)
-```
-
-Now, the `io` package is a bit of a mess, it defines different classes such as `TextIOBase`, `StringIO`, `FileIO` which are similar but incompatible when it comes to typing due the differences between strings and bytes.  
-If you want to use a `StringIO` or `FileIO` as argument to the same typed function, the whole process becomes an ordeal. Not only that, imagine that you want to implement a custom reader for data stored in a db, you will have to add a bunch of useless methods if you inherit from things like `IOBase`, as we are only interested in the _read_ method.
-
-In order to have a more neat typed function that actually requires a read function we can use the [typing_extensions](https://pypi.org/project/typing-extensions/) package to create `Protocols`.
-
-```python
-from abc import abstractmethod
-from typing_extensions import Protocol
-
-
-class Reader(Protocol):
-
-    @abstractmethod
-    def read(self, i: int = -1):
-        pass
-
-
-class Writer(Protocol):
-
-    @abstractmethod
-    def write(self, content) -> int:
-        pass
-```
-Notice how cheekily the methods above are not typed to allow strings and bytes to be sent in and out. 
-
-Our function will look like something like this:
-
-```python
-import pandas as pd
-from tentaclio import Reader, Writer
-
-
-def sum(reader: Reader, writer: Writer) -> None:
-    df = pd.read_csv(reader, index="index")
-    transformed_df = _transform(df)
-    pd.to_csv(writer, transformed_df)
-```
-
-In the new signature we force our input just to have a `read` method, likewise the output just needs a `write` method. 
-
-Why is this cool? 
-* Now we can accept anything that fulfills the protocol expected by pandas while we are checking its type.
-* When creating new readers, we don't need to implement redundant methods to match any of the `io` base types.
-* Testing becomes less cumbersome as we can send a `StringIO` rather than an actual file, or create some kind of fake class that has a `read` method. 
-
-Caveats:
-* the typing of the `pickle.dump` function is not consistent with its documentation and actual implementation, so you'll have to comment `# type: ignore` in order to use a `Writer` when calling `dump`.
-
-## Pandas functions compatible with our Reader and Writer protocols 
-
-Anything that expects a _filepath_or_buffer_. The full list of io functions for pandas is [here](https://pandas.pydata.org/pandas-docs/stable/io.html#io-sql), although they are not fully documented, i.e. parquet works even though it's not documented.
