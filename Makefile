@@ -10,15 +10,14 @@ reset: clean update
 
 update:
 	pipenv update --dev
-	pipenv clean
 
 clean:
 	rm -rf build dist htmlcov
 	find src -type d -name __pycache__ | xargs rm -rf
+	pipenv clean
 
 sync:
 	pipenv sync --dev
-	pipenv clean
 
 # Testing
 
@@ -32,7 +31,7 @@ lint:
 	pipenv run mypy tests
 
 unit:
-	pipenv run pytest tests/unit
+	pipenv run pytest tests/unit --cov=./src/tentaclio/ --cov-report xml
 
 functional-s3:
 	pipenv run pytest tests/functional/s3
@@ -51,9 +50,6 @@ format:
 	black -l 99 tests
 	isort -rc src
 	isort -rc tests
-
-coverage:
-	pipenv run pytest --cov=src --cov-report html --cov-report term tests
 
 # Deployment
 
