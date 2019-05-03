@@ -12,8 +12,7 @@ with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
 
 REQUIREMENTS = [
     # Security constrains
-    "urllib3>=1.24.2"
-
+    "urllib3>=1.24.2",
     # AWS
     "boto3>=1.9.0,<1.10",
     # Http
@@ -23,7 +22,7 @@ REQUIREMENTS = [
     # Sqlalchemy
     "sqlalchemy>1.3",
     # Athena
-    "PyAthena[SQLAlchemy]",
+    "PyAthena",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
