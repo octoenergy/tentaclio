@@ -214,26 +214,6 @@ jobs:
           name: Run postgres functional tests
           command: make functional-postgres
 
-  deploy:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.6.6
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Build wheel
-          command: make package
-
-      - store_artifacts:
-          path: dist
-          destination: wheel
 
 workflows:
   version: 2
