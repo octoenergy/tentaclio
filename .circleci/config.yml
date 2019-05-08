@@ -97,6 +97,9 @@ jobs:
       - run:
           name: Run S3 functional tests
           command: make functional-s3
+      
+      - codecov/upload:
+          file: ./coverage.xml
 
   functional-ftp:
     working_directory: ~/lib
@@ -125,6 +128,9 @@ jobs:
       - run:
           name: Run postgres functional tests
           command: make functional-ftp
+      
+      - codecov/upload:
+          file: ./coverage.xml
 
   functional-sftp:
     working_directory: ~/lib
@@ -151,6 +157,9 @@ jobs:
       - run:
           name: Run sftp functional tests
           command: make functional-sftp
+      
+      - codecov/upload:
+          file: ./coverage.xml
 
   functional-postgres:
     working_directory: ~/lib
@@ -180,6 +189,9 @@ jobs:
       - run:
           name: Run postgres functional tests
           command: make functional-postgres
+      
+      - codecov/upload:
+          file: ./coverage.xml
 
   deploy:
     working_directory: ~/lib

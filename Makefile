@@ -31,7 +31,7 @@ lint:
 	pipenv run mypy tests
 
 unit:
-	pipenv run pytest tests/unit --cov=./src/tentaclio/ --cov-report xml
+	pipenv run pytest tests/unit
 
 functional-s3:
 	pipenv run pytest tests/functional/s3
