@@ -7,7 +7,6 @@ which is more performant than using sql alchemy functions.
 import pandas as pd
 from pyathena.pandas_cursor import PandasCursor
 
-
 from . import decorators, sqla_client
 
 
@@ -18,7 +17,7 @@ class AthenaClient(sqla_client.SQLAlchemyClient):
     """Postgres client, backed by a SQLAlchemy connection."""
 
     allowed_schemes = ["awsathena+rest"]
-
+    connect_args_default = dict(cursor_class=PandasCursor)
     # Athena-specific fast query result retrieval:
 
     @decorators.check_conn

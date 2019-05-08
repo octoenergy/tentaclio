@@ -28,6 +28,8 @@ class SQLAlchemyClient(base_client.QueryClient):
 
     # The allowed drivers depend on the dependencies installed.
     allowed_schemes = ["mssql", "postgresql", "sqlite", "awsathena+rest"]
+    # Default connect_args
+    connect_args_default: dict = {}
 
     conn: Connection
     engine = None
@@ -48,7 +50,7 @@ class SQLAlchemyClient(base_client.QueryClient):
         This is a wrapper for sqlalchemy engine/connection creation.
         """
         self.execution_options = execution_options or {}
-        self.connect_args = connect_args or {}
+        self.connect_args = connect_args or self.connect_args_default
         super().__init__(url)
 
         # the database doesn't start with /
