@@ -47,7 +47,7 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
         sql_query = f"""COPY {dest_table} ({sql_columns}) FROM STDIN
                         WITH CSV HEADER DELIMITER AS ','
                         NULL AS 'NULL';"""
-        raw_conn = self.conn.engine.raw_connection()
+        raw_conn = self._get_raw_conn()
         try:
             raw_conn.cursor().copy_expert(sql_query, csv_reader)
         except Exception:
