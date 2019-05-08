@@ -85,6 +85,10 @@ class SQLAlchemyClient(base_client.QueryClient):
             )
         return self.engine.connect()
 
+    def _get_raw_conn(self):
+        """Acquire raw DBAPI connection from the pool."""
+        return self.conn.engine.raw_connection()
+
     # Schema methods:
 
     def set_schema(self, meta_data: MetaData) -> None:
