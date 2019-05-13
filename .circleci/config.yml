@@ -75,6 +75,39 @@ jobs:
       - codecov/upload:
           file: ./coverage.xml
 
+  release:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.6.6
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
+      - run:
+          name: verify git tag vs. version
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            python setup.py verify
+      - run:
+          name: init .pypirc
+          command: |
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = octoenergy" >> ~/.pypirc
+            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+
+      - run:
+          name: create release
+          command: |
+            make release
+
   functional-s3:
     working_directory: ~/lib
 
@@ -193,26 +226,6 @@ jobs:
       - codecov/upload:
           file: ./coverage.xml
 
-  deploy:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.6.6
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Build wheel
-          command: make package
-
-      - store_artifacts:
-          path: dist
-          destination: wheel
 
 workflows:
   version: 2
@@ -237,7 +250,7 @@ workflows:
           requires:
             - lint
             - unit
-      - deploy:
+      - release:
           requires:
             - functional-s3
             - functional-ftp

@@ -12,12 +12,16 @@ python_version = "3.6.6"
 [dev-packages]
 # Symlink to project root
 tentaclio = {editable = true,path = "."}
-# Linter
+# Linting
 flake8 = "*"
 mypy = "*"
 pydocstyle = "*"
+
 # Testing
 moto = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+
+# Releasing
+twine = "*"

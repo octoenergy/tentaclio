@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all reset update clean sync test lint unit integration
+.PHONY: all reset update clean sync test lint unit integration release package
 
 all: reset test
 
@@ -53,13 +53,15 @@ format:
 
 # Deployment
 
-package:
-	pipenv run python setup.py bdist_wheel
-
 circleci:
 	circleci config validate
 
+release: package
+	pipenv run twine upload dist/*
+
 # Release
-release:
-	pipenv run python setup.py sdist 
-	twine upload dist/*
+package:
+	# create a source distribution
+	pipenv run python setup.py sdist
+	# create a wheel
+	pipenv run python setup.py bdist_wheel

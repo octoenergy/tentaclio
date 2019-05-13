@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
+import os
 import pathlib
+import sys
+
 from setuptools import find_packages, setup
+from setuptools.command.install import install
+
 
 VERSION = "0.0.1-alpha.1"
 
@@ -9,6 +14,20 @@ REPO_ROOT = pathlib.Path(__file__).parent
 
 with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
     README = f.read()
+
+
+class VerifyVersionCommand(install):
+    """Custom command to verify that the git tag matches our version"""
+
+    description = "verify that the git tag matches our version"
+
+    def run(self):
+        tag = os.getenv("CIRCLE_TAG")
+
+        if tag != VERSION:
+            info = f"Git tag: {tag} does not match the version of this app: {VERSION}"
+            sys.exit(info)
+
 
 REQUIREMENTS = [
     # Security constrains
@@ -39,7 +58,7 @@ setup_args = dict(
     version=VERSION,
     description="Unification of data connectors for distributed data tasks",
     long_description=README,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     # Credentials
     author="Octopus Energy",
     author_email="nerds@octoenergy.com",
@@ -62,6 +81,7 @@ setup_args = dict(
         "Programming Language :: Python :: 3.7",
         "Typing :: Typed",
     ],
+    cmdclass={"verify": VerifyVersionCommand},
 )
 
 
