@@ -257,6 +257,9 @@ workflows:
             - functional-sftp
             - functional-postgres
           filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/
             branches:
-              # Change this to the branch you want to deploy into test
-              only: master
+              ignore: /.*/
+
+
