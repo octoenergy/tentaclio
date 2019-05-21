@@ -26,7 +26,7 @@ class FTPClient(base_client.StreamClient):
     # Connection methods:
 
     def _connect(self) -> ftplib.FTP:
-        logging.info(f"starting ftp connetion to {self.url}")
+        logging.info(f"starting ftp connection to {self.url}")
         return ftplib.FTP(
             self.url.hostname or "", self.url.username or "", self.url.password or ""
         )
