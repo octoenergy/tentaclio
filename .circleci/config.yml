@@ -258,8 +258,8 @@ workflows:
             - functional-postgres
           filters:
             tags:
-              only: /[0-9]+(\.[0-9]+)*/
+              only: /[0-9]+(\.[0-9]+)*(-alpha\.[0-9]+)?/
             branches:
-              ignore: /.*/
+              only: master
 
 
