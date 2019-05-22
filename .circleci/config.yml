@@ -232,21 +232,40 @@ workflows:
 
   test-build-deploy:
     jobs:
-      - lint
-      - unit
+      - lint:
+        filters:
+          tags:
+            only: /.*/
+
+      - unit:
+          filters:
+            tags:
+              only: /.*/
       - functional-s3:
+          filters:
+            tags:
+              only: /.*/
           requires:
             - lint
             - unit
       - functional-ftp:
+          filters:
+            tags:
+              only: /.*/
           requires:
             - lint
             - unit
       - functional-sftp:
+          filters:
+            tags:
+              only: /.*/
           requires:
             - lint
             - unit
       - functional-postgres:
+          filters:
+            tags:
+              only: /.*/
           requires:
             - lint
             - unit
