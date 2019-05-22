@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.1-alpha.1"
+VERSION = "0.0.1-alpha.2"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
