@@ -1,4 +1,4 @@
-"""octo-io is a library that tries to unify how to load, store data.
+"""tentaclio is a library that tries to unify how to load, store data.
 
 The main use cases in mind are ETL processes and notebooks, but can be used in many other contexts.
 The main benefits are:
