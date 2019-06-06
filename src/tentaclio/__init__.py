@@ -15,26 +15,27 @@ from tentaclio.handlers import *  # noqa
 from .api import *  # noqa
 from .protocols import *  # noqa
 from .urls import *  # noqa
+from .registries import STREAM_HANDLER_REGISTRY
 
 
 # Local files
-URL.register_handler("", LocalFileHandler())
-URL.register_handler("file", LocalFileHandler())
+STREAM_HANDLER_REGISTRY.register("", LocalFileHandler())
+STREAM_HANDLER_REGISTRY.register("file", LocalFileHandler())
 
 # s3 buckets
-URL.register_handler("s3", S3URLHandler())
+STREAM_HANDLER_REGISTRY.register("s3", S3URLHandler())
 
 # ftp / sftp handlers
-URL.register_handler("ftp", FTPHandler())
-URL.register_handler("sftp", SFTPHandler())
+STREAM_HANDLER_REGISTRY.register("ftp", FTPHandler())
+STREAM_HANDLER_REGISTRY.register("sftp", SFTPHandler())
 
 # postgres handler
-URL.register_handler("postgresql", PostgresURLHandler())
+STREAM_HANDLER_REGISTRY.register("postgresql", PostgresURLHandler())
 
-# Assorted SQLAlchemy handlers that don't provide stream readers/writers
-URL.register_handler("awsathena+rest", NullHandler())
-URL.register_handler("sqlite", NullHandler())
+# Assorted SQLAlchemy handlers that doide stream readers/writers
+STREAM_HANDLER_REGISTRY.register("awsathena+rest", NullHandler())
+STREAM_HANDLER_REGISTRY.register("sqlite", NullHandler())
 
 # http / https handlers
-URL.register_handler("http", HTTPHandler())
-URL.register_handler("https", HTTPHandler())
+STREAM_HANDLER_REGISTRY.register("http", HTTPHandler())
+STREAM_HANDLER_REGISTRY.register("https", HTTPHandler())

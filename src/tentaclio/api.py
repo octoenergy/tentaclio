@@ -1,6 +1,8 @@
 """Main entry points to tentaclio-io."""
 from typing import ContextManager
 
+from tentaclio.registries import STREAM_HANDLER_REGISTRY
+
 from tentaclio import clients, credentials, protocols
 
 
@@ -52,10 +54,10 @@ def _assert_mode(mode: str):
 def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[protocols.Writer]:
     """Open a url and return a writer."""
     authenticated = credentials.authenticate(url)
-    return authenticated.open_writer(mode, extras=kwargs)
+    return STREAM_HANDLER_REGISTRY.open_stream_writer(authenticated, mode, extras=kwargs)
 
 
 def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[protocols.Reader]:
     """Open a url and return a reader."""
     authenticated = credentials.authenticate(url)
-    return authenticated.open_reader(mode, extras=kwargs)
+    return STREAM_HANDLER_REGISTRY.open_stream_reader(authenticated, mode, extras=kwargs)
