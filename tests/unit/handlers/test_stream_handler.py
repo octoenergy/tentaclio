@@ -24,21 +24,21 @@ class FakeClient(StreamClient):
         self._writer.seek(0)
 
 
-def test_open_reader_for_string(register_handler):
+def test_open_reader_for_string():
     handler = StreamURLHandler(FakeClient)
-    reader = handler.open_reader_for(URL("registered://my/path"), mode="t", extras={})
+    reader = handler.open_reader_for(URL("scheme://my/path"), mode="t", extras={})
     assert "hello" == reader.read()
 
 
-def test_open_reader_for_bytes(register_handler):
+def test_open_reader_for_bytes():
     message = bytes("hello", "utf-8")
     handler = StreamURLHandler(FakeClient)
-    reader = handler.open_reader_for(URL("registered://my/path"), mode="b", extras={})
+    reader = handler.open_reader_for(URL("scheme://my/path"), mode="b", extras={})
     assert message == reader.read()
 
 
-def test_open_writer_for_string(register_handler):
-    url = URL("registered://my/path")
+def test_open_writer_for_string():
+    url = URL("scheme://my/path")
     client = FakeClient(url)
     handler = StreamURLHandler(lambda url, **kwargs: client)
     writer = handler.open_writer_for(url, mode="t", extras={})
@@ -48,8 +48,8 @@ def test_open_writer_for_string(register_handler):
     assert client._writer.getvalue().decode("utf-8") == "test"
 
 
-def test_open_writer_for_bytes(register_handler):
-    url = URL("registered://my/path")
+def test_open_writer_for_bytes():
+    url = URL("scheme://my/path")
     client = FakeClient(url)
     handler = StreamURLHandler(lambda url, **kwargs: client)
     writer = handler.open_writer_for(url, mode="b", extras=dict())

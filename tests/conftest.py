@@ -6,7 +6,6 @@ https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
 import io
 import os
 from typing import Sequence
-from urllib import parse
 
 import moto
 import pytest
@@ -72,13 +71,6 @@ class FakeHandler(object):
 @pytest.fixture
 def fake_handler():
     return FakeHandler()
-
-
-@pytest.fixture
-def register_handler(fake_handler):
-    parse.uses_netloc.append("registered")
-    URL.register_handler("registered", fake_handler)
-    return fake_handler
 
 
 # Stream fixtures

@@ -58,7 +58,7 @@ def test_credentials(url, expected, creds_yaml):
     assert result == urls.URL(expected)
 
 
-def test_credentials_bad_url(register_handler, creds_yaml_bad_url):
+def test_credentials_bad_url(creds_yaml_bad_url):
     data = io.StringIO(creds_yaml_bad_url)
     with pytest.raises(Exception):
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)

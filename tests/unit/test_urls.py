@@ -29,25 +29,15 @@ class TestURL:
         with pytest.raises(urls.URLError):
             urls.URL(None)
 
-    def test_unknown_url_scheme(self):
-        url = "notregistered://localhost"
-        with pytest.raises(urls.URLError):
-            urls.URL(url)
-
-    def test_known_url_scheme(self, register_handler):
-        url = "registered://localhost"
-        # well, this shouldn't blow
-        urls.URL(url)
-
     @pytest.mark.parametrize(
         "url,username,password",
         [
-            ("registered://:@localhost", "", ""),
-            ("registered://abc_def%40123.com:@localhost", "abc_def@123.com", ""),
-            ("registered://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost", "", "@``Z_$-$@5%Ky/"),
+            ("scheme://:@localhost", "", ""),
+            ("scheme://abc_def%40123.com:@localhost", "abc_def@123.com", ""),
+            ("scheme://:%40%60%60Z_%24-%24%405%25Ky%2F@localhost", "", "@``Z_$-$@5%Ky/"),
         ],
     )
-    def test_url_escaped_fields(self, url, username, password, register_handler):
+    def test_url_escaped_fields(self, url, username, password):
         parsed_url = urls.URL(url)
 
         assert parsed_url.username == username
@@ -71,8 +61,8 @@ class TestURL:
         "url,scheme,username,password,hostname,port,path,query",
         [
             (
-                "registered:///path/to/file.ext",
-                "registered",
+                "scheme:/path/to/file.ext",
+                "scheme",
                 None,
                 None,
                 None,
@@ -81,8 +71,8 @@ class TestURL:
                 None,
             ),
             (
-                "registered://login:pass@localhost?key=value",
-                "registered",
+                "scheme://login:pass@localhost?key=value",
+                "scheme",
                 "login",
                 "pass",
                 "localhost",
@@ -91,8 +81,8 @@ class TestURL:
                 {"key": "value"},
             ),
             (
-                "registered://:@localhost:5432/database",
-                "registered",
+                "scheme://:@localhost:5432/database",
+                "scheme",
                 "",
                 "",
                 "localhost",
@@ -101,8 +91,8 @@ class TestURL:
                 {},
             ),
             (
-                "registered://log%3Ain:pass%2Fword@localhost/path/to?spaced+key=odd%2Fva%3B%3Alue",
-                "registered",
+                "scheme://log%3Ain:pass%2Fword@localhost/path/to?spaced+key=odd%2Fva%3B%3Alue",
+                "scheme",
                 "log:in",
                 "pass/word",
                 "localhost",
@@ -113,7 +103,7 @@ class TestURL:
         ],
     )
     def test_url_from_components(
-        self, url, scheme, username, password, hostname, port, path, query, register_handler
+        self, url, scheme, username, password, hostname, port, path, query
     ):
         parsed_url = urls.URL.from_components(
             scheme=scheme,
@@ -136,57 +126,57 @@ class TestURL:
     @pytest.mark.parametrize(
         ["url_1", "url_2", "should_be_equal"],
         [
-            ["registered://user:pass@host/path", "registered://user:pass@host/path", True],
-            ["registered://host/path", "registered://host/path", True],
-            ["registered://host/path?key=value", "registered://host/path?key=value", True],
-            ["registered://host/path", "registered://host/path?key=value", False],
-            ["registered://host/path", "registered://user:pass@host/path", False],
-            ["registered://host/path1", "registered://host/path2", False],
+            ["scheme://user:pass@host/path", "scheme://user:pass@host/path", True],
+            ["scheme://host/path", "scheme://host/path", True],
+            ["scheme://host/path?key=value", "scheme://host/path?key=value", True],
+            ["scheme://host/path", "scheme://host/path?key=value", False],
+            ["scheme://host/path", "scheme://user:pass@host/path", False],
+            ["scheme://host/path1", "scheme://host/path2", False],
         ],
     )
-    def test_url_equality(self, url_1, url_2, should_be_equal, register_handler):
+    def test_url_equality(self, url_1, url_2, should_be_equal):
         assert (urls.URL(url_1) == urls.URL(url_2)) == should_be_equal
 
     @pytest.mark.parametrize(
         "original,components,expected",
         [
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"username": "myuser"},
-                "registered://myuser:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://myuser:password@hostname.com:7744/path?my_arg=my_value",
             ),
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"password": "mypassword"},
-                "registered://user:mypassword@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:mypassword@hostname.com:7744/path?my_arg=my_value",
             ),
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"hostname": "google.com"},
-                "registered://user:password@google.com:7744/path?my_arg=my_value",
+                "scheme://user:password@google.com:7744/path?my_arg=my_value",
             ),
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"port": 80},
-                "registered://user:password@hostname.com:80/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:80/path?my_arg=my_value",
             ),
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"path": "otherpath"},
-                "registered://user:password@hostname.com:7744/otherpath?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/otherpath?my_arg=my_value",
             ),
             (
-                "registered://user:password@hostname.com:7744/path?my_arg=my_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=my_value",
                 {"query": {"my_arg": "other_value"}},
-                "registered://user:password@hostname.com:7744/path?my_arg=other_value",
+                "scheme://user:password@hostname.com:7744/path?my_arg=other_value",
             ),
         ],
     )
-    def test_copy(self, original, components, expected, register_handler):
+    def test_copy(self, original, components, expected):
         result = urls.URL(original).copy(**components)
         assert result == urls.URL(expected)
 
-    def test_string_hides_password(self, register_handler):
-        original = urls.URL("registered://user:password@hostname.com")
+    def test_string_hides_password(self):
+        original = urls.URL("scheme://user:password@hostname.com")
         str_url = str(original)
-        assert str_url == "registered://user:__secret__word@hostname.com"
+        assert str_url == "scheme://user:__secret__word@hostname.com"
