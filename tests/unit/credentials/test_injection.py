@@ -8,63 +8,63 @@ from tentaclio.credentials import injection
     ["with_creds", "raw", "expected"],
     [
         [
-            "registered://user:password@octo.energy/path",
-            "registered://octo.energy/path",
-            "registered://user:password@octo.energy/path",
+            "scheme://user:password@octo.energy/path",
+            "scheme://octo.energy/path",
+            "scheme://user:password@octo.energy/path",
         ],
         [
-            "registered://user:password@octo.energy/path/",
-            "registered://octo.energy/path/with/more/elements",
-            "registered://user:password@octo.energy/path/with/more/elements",
+            "scheme://user:password@octo.energy/path/",
+            "scheme://octo.energy/path/with/more/elements",
+            "scheme://user:password@octo.energy/path/with/more/elements",
         ],
         [
-            "registered://user:password@octo.energy/path/",
-            "registered://octo.energy/path/with/more/elements",
-            "registered://user:password@octo.energy/path/with/more/elements",
+            "scheme://user:password@octo.energy/path/",
+            "scheme://octo.energy/path/with/more/elements",
+            "scheme://user:password@octo.energy/path/with/more/elements",
         ],
         [
-            "registered://user:password@octo.energy/database",
-            "registered://octo.energy/database::table",
-            "registered://user:password@octo.energy/database::table",
+            "scheme://user:password@octo.energy/database",
+            "scheme://octo.energy/database::table",
+            "scheme://user:password@octo.energy/database::table",
         ],
         [
-            "registered://user:password@octo.energy/database",
-            "registered://hostname/database",  # hostname wildcard
-            "registered://user:password@octo.energy/database",
+            "scheme://user:password@octo.energy/database",
+            "scheme://hostname/database",  # hostname wildcard
+            "scheme://user:password@octo.energy/database",
         ],
         [
-            "registered://user:password@octo.energy:5544/database",
-            "registered://octo.energy/database",
-            "registered://user:password@octo.energy:5544/database",
+            "scheme://user:password@octo.energy:5544/database",
+            "scheme://octo.energy/database",
+            "scheme://user:password@octo.energy:5544/database",
         ],
         [
-            "registered://user:password@octo.energy/database",
-            "registered://octo.energy/database2",
-            "registered://octo.energy/database2",  # the path is similar but not identical
+            "scheme://user:password@octo.energy/database",
+            "scheme://octo.energy/database2",
+            "scheme://octo.energy/database2",  # the path is similar but not identical
         ],
         [
-            "registered://user:password@octo.energy:5544/database?key=value",
-            "registered://octo.energy/database",
-            "registered://user:password@octo.energy:5544/database?key=value",
+            "scheme://user:password@octo.energy:5544/database?key=value",
+            "scheme://octo.energy/database",
+            "scheme://user:password@octo.energy:5544/database?key=value",
         ],
         [
-            "registered://user:password@octo.energy:5544/database?key=value_1",
-            "registered://octo.energy/database?key=value_2",
-            "registered://user:password@octo.energy:5544/database?key=value_2",
+            "scheme://user:password@octo.energy:5544/database?key=value_1",
+            "scheme://octo.energy/database?key=value_2",
+            "scheme://user:password@octo.energy:5544/database?key=value_2",
         ],
         [
-            "registered://user:password@octo.energy/",  # trailing slash
-            "registered://octo.energy/file",
-            "registered://user:password@octo.energy/file",
+            "scheme://user:password@octo.energy/",  # trailing slash
+            "scheme://octo.energy/file",
+            "scheme://user:password@octo.energy/file",
         ],
         [
-            "registered://user:password@octo.energy/",  # trailing slash
-            "registered://octo.energy/path/",
-            "registered://user:password@octo.energy/path/",
+            "scheme://user:password@octo.energy/",  # trailing slash
+            "scheme://octo.energy/path/",
+            "scheme://user:password@octo.energy/path/",
         ],
     ],
 )
-def test_simple_authenticate(with_creds, raw, expected, register_handler):
+def test_simple_authenticate(with_creds, raw, expected):
     injector = injection.CredentialsInjector()
     with_creds_url = URL(with_creds)
     raw_url = URL(raw)
@@ -88,16 +88,16 @@ def test_similarites(path_1, path_2, expected):
     assert result == expected
 
 
-def test_hostname_is_wildcard(register_handler):
+def test_hostname_is_wildcard():
     matches = injection._filter_by_hostname(
-        URL("registered://hostname/"), [URL("registered://google.com/path")]
+        URL("scheme://hostname/"), [URL("scheme://google.com/path")]
     )
-    assert matches == [URL("registered://google.com/path")]
+    assert matches == [URL("scheme://google.com/path")]
 
 
-def test_filter_by_hostname(register_handler):
+def test_filter_by_hostname():
     matches = injection._filter_by_hostname(
-        URL("registered://google.com/"),
-        [URL("registered://google.com/path"), URL("registered://yahoo.com/path")],
+        URL("scheme://google.com/"),
+        [URL("scheme://google.com/path"), URL("scheme://yahoo.com/path")],
     )
-    assert matches == [URL("registered://google.com/path")]
+    assert matches == [URL("scheme://google.com/path")]

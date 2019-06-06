@@ -86,7 +86,7 @@ class _WriterContextManager(ContextManager[protocols.Writer]):
 
 
 def _netloc_from_components(username=None, password=None, hostname=None, port=None):
-    """Constract network location in accordance with urllib."""
+    """Construct network location in accordance with urllib."""
     netloc = ""
     if username is not None:
         netloc += parse.quote(username, safe="")
@@ -121,11 +121,11 @@ class URL:
         self._parse_url()
 
     # Helpers:
-
     def _parse_url(self) -> None:
+        if self._url is None:
+            raise URLError("None url")
+
         parsed_url = parse.urlparse(self._url)
-        if parsed_url.scheme not in self._handler_registry:
-            raise URLError(f"URL: scheme {parsed_url.scheme} not supported")
 
         self._scheme = parsed_url.scheme
         self._username = parsed_url.username
