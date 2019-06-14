@@ -1,7 +1,7 @@
 """File Scanner."""
 import logging
 import os
-from typing import Iterator
+from typing import Iterable
 
 from tentaclio.urls import URL
 
@@ -24,7 +24,7 @@ def _from_os_dir_entry(original: os.DirEntry) -> DirEntry:
 class LocalFileScanner:
     """Scan directories in the file system."""
 
-    def scandir(self, url: URL) -> Iterator[DirEntry]:
+    def scandir(self, url: URL) -> Iterable[DirEntry]:
         """Scan a local file system path and returns the dir entries."""
         path = url.path
 

@@ -14,6 +14,7 @@ from tentaclio.handlers import *  # noqa
 
 from .api import *  # noqa
 from .fs import *  # noqa
+from .fs.api import *  # noqa
 from .protocols import *  # noqa
 from .registries import STREAM_HANDLER_REGISTRY
 from .urls import *  # noqa

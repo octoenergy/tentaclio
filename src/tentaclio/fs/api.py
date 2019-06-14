@@ -1,11 +1,15 @@
 """Main entry points for fs/os like operations."""
+from typing import Iterable
+
 from tentaclio import credentials
-from typing import Iterator
 
 from .scanner import SCANNER_REGISTRY, DirEntry
 
 
-def scandir(url: str) -> Iterator[DirEntry]:
+__all__ = ["scandir"]
+
+
+def scandir(url: str) -> Iterable[DirEntry]:
     """Scan a directory-like url returning its entries.
 
     Return an iterator of tentaclio.fs.DirEntry objects corresponding

@@ -1,5 +1,5 @@
 """Functionality for listing directory-like urls."""
-from typing import ClassVar, Iterator
+from typing import ClassVar, Iterable
 
 from typing_extensions import Protocol
 
@@ -23,7 +23,7 @@ class DirEntry:
 class Scanner(Protocol):
     """Scan a directory-like url."""
 
-    def scandir(self, url: URL) -> Iterator[DirEntry]:
+    def scandir(self, url: URL) -> Iterable[DirEntry]:
         """Scan a directory-like url returning its entries.
 
         Return an iterator of tentaclio.fs.DirEntry objects corresponding
