@@ -1,88 +1,16 @@
 """URL related clasess."""
 import logging
-from typing import Any, ClassVar, ContextManager, Dict, Optional
+from typing import Any, Dict, Optional
 from urllib import parse
 
-from typing_extensions import Protocol
 
-from . import protocols
-
-
-__all__ = ["URLHandlerRegistry", "URL"]
+__all__ = ["URL"]
 
 logger = logging.getLogger(__name__)
 
 
 class URLError(Exception):
     """Error encountered while processing a URL."""
-
-
-class URLHandler(Protocol):
-    """Protocol for handling stream resources."""
-
-    def open_reader_for(self, url: "URL", mode: str, extras: dict) -> protocols.ReaderClosable:
-        """Open a reader for the given url."""
-        ...
-
-    def open_writer_for(self, url: "URL", mode: str, extras: dict) -> protocols.WriterClosable:
-        """Open a writer for the given url."""
-        ...
-
-
-class URLHandlerRegistry(object):
-    """Registry for url handlers based on the url scheme."""
-
-    registry: Dict[str, URLHandler]
-
-    def __init__(self):
-        """Create a new empty registry."""
-        self.registry = {}
-
-    def register(self, scheme: str, url_handler: URLHandler):
-        """Register the handler to the given scheme."""
-        if scheme not in self.registry:
-            logger.info(f"registering url scheme {scheme}")
-            self.registry[scheme] = url_handler
-
-    def get_handler(self, scheme: str):
-        """Get the handler for the give scheme. Raise an URLError if no handler is registred."""
-        if scheme not in self.registry:
-            msg = f"Scheme {scheme} not found in the registry"
-            logger.error(msg)
-            raise URLError(msg)
-        return self.registry[scheme]
-
-    def __contains__(self, scheme: str) -> bool:
-        """Check that the scheme is in the registry."""
-        return scheme in self.registry
-
-
-class _ReaderContextManager(ContextManager[protocols.Reader]):
-    """Composed context manager for ReaderCloseables."""
-
-    def __init__(self, resource: protocols.ReaderClosable):
-        super(_ReaderContextManager, self).__init__()
-        self.resource = resource
-
-    def __enter__(self) -> protocols.Reader:
-        return self.resource
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        return self.resource.close()
-
-
-class _WriterContextManager(ContextManager[protocols.Writer]):
-    """Composed context manager for WriterCloseables."""
-
-    def __init__(self, resource: protocols.WriterClosable):
-        super(_WriterContextManager, self).__init__()
-        self.resource = resource
-
-    def __enter__(self) -> protocols.Writer:
-        return self.resource
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        return self.resource.close()
 
 
 def _netloc_from_components(username=None, password=None, hostname=None, port=None):
@@ -102,10 +30,6 @@ def _netloc_from_components(username=None, password=None, hostname=None, port=No
 
 class URL:
     """Immutable class that give access to single url components and allows access to streams."""
-
-    # TODO this shouldn't live in this class, it breaks SRP. We need a registry that will
-    # return the handler given a url.
-    _handler_registry: ClassVar[URLHandlerRegistry] = URLHandlerRegistry()
 
     _scheme: str
     _username: Optional[str] = None
@@ -248,28 +172,3 @@ class URL:
     def url(self) -> str:
         """Return the original url."""
         return self._url
-
-    def open_reader(
-        self, mode: str, extras: Optional[dict] = None
-    ) -> ContextManager[protocols.Reader]:
-        """Open a reader for the stream located at this url."""
-        extras = extras or {}
-        reader = self._handler_registry.get_handler(self._scheme).open_reader_for(
-            self, mode, extras
-        )
-        return _ReaderContextManager(reader)
-
-    def open_writer(
-        self, mode: str, extras: Optional[dict] = None
-    ) -> ContextManager[protocols.Writer]:
-        """Open a writer for the stream located at this url."""
-        extras = extras or {}
-        writer = self._handler_registry.get_handler(self._scheme).open_writer_for(
-            self, mode, extras
-        )
-        return _WriterContextManager(writer)
-
-    @classmethod
-    def register_handler(cls, scheme: str, handler: URLHandler) -> None:
-        """Register handler for the given protcol/scheme."""
-        cls._handler_registry.register(scheme, handler)
