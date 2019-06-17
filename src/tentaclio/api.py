@@ -1,9 +1,8 @@
 """Main entry points to tentaclio-io."""
 from typing import ContextManager
 
-from tentaclio.registries import STREAM_HANDLER_REGISTRY
-
 from tentaclio import clients, credentials, protocols
+from tentaclio.registries import STREAM_HANDLER_REGISTRY
 
 
 __all__ = ["open", "db"]

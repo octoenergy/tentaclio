@@ -13,10 +13,14 @@ The main benefits are:
 from tentaclio.handlers import *  # noqa
 
 from .api import *  # noqa
+from .fs import *  # noqa
+from .fs.api import *  # noqa
 from .protocols import *  # noqa
-from .urls import *  # noqa
 from .registries import STREAM_HANDLER_REGISTRY
+from .urls import *  # noqa
 
+
+# Stream handlers
 
 # Local files
 STREAM_HANDLER_REGISTRY.register("", LocalFileHandler())
@@ -39,3 +43,8 @@ STREAM_HANDLER_REGISTRY.register("sqlite", NullHandler())
 # http / https handlers
 STREAM_HANDLER_REGISTRY.register("http", HTTPHandler())
 STREAM_HANDLER_REGISTRY.register("https", HTTPHandler())
+
+# Directory Scanners
+
+SCANNER_REGISTRY.register("", LocalFileScanner())
+SCANNER_REGISTRY.register("file", LocalFileScanner())
