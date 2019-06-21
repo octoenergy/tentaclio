@@ -1,5 +1,5 @@
 """Main entry points for fs/os like operations."""
-from typing import Iterable
+from typing import Iterable, List, Tuple
 
 from tentaclio import credentials
 
@@ -37,3 +37,49 @@ def listdir(url: str) -> Iterable[str]:
     """
     entries = scandir(url)
     return (str(entry.url) for entry in entries)
+
+
+def walk(top: str) -> Iterable[Tuple[str, str, str]]:
+    """Generate the file names in a directory tree by walking the tree.
+
+    For each directory in the tree rooted at directory top (including top itself),
+    it yields a 3-tuple (dirpath, dirnames, filenames).
+    """
+    return _walk(top, [])
+
+
+def _relativize(base: str, current: str) -> str:
+    """Remove the base url from the current url."""
+    if current.startswith(base):
+        return current.replace(base, "", 1)
+    return current
+
+
+def _process_entry(
+    entry: DirEntry, relative_path: str, dirs: List[str], files: List[str], to_walk: List[str]
+):
+    url = str(entry.url)
+    if entry.is_dir:
+        dirs.append(relative_path)
+        to_walk.append(url)  # if a dir keep walking it.
+    else:
+        files.append(relative_path)
+    return dirs, files, to_walk
+
+
+def _walk(top: str, walked: list) -> List[Tuple[str, str, str]]:
+    entries = scandir(top)
+    to_walk: List[str] = []  # keep a list of dirs to walk
+    dirs: List[str] = []
+    files: List[str] = []
+
+    for entry in entries:
+        relative = _relativize(top, str(entry.url))
+        dirs, files, to_walk = _process_entry(entry, relative, dirs, files, to_walk)
+
+    walked.append((top, dirs, files))
+
+    if len(to_walk):
+        for new_top in to_walk:
+            walked = _walk(new_top, walked)
+    return walked
