@@ -7,7 +7,7 @@ from tentaclio.registries.registry import URLHandlerRegistry
 from tentaclio.urls import URL
 
 
-__all__ = ["SCANNER_REGISTRY"]
+__all__ = ["SCANNER_REGISTRY", "DirEntry", "build_file_entry", "build_folder_entry"]
 
 
 class DirEntry:
@@ -18,6 +18,16 @@ class DirEntry:
         self.url: URL = url
         self.is_dir: bool = is_dir
         self.is_file: bool = is_file
+
+
+def build_folder_entry(url: URL) -> DirEntry:
+    """Build a DirEntry with is_dir = True."""
+    return DirEntry(url=url, is_file=False, is_dir=True)
+
+
+def build_file_entry(url: URL) -> DirEntry:
+    """Build a DirEntry with is_file = True."""
+    return DirEntry(url=url, is_file=True, is_dir=False)
 
 
 class Scanner(Protocol):

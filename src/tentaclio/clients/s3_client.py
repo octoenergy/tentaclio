@@ -1,10 +1,10 @@
 """S3 Stream client."""
-from typing import Optional, Tuple, Union, cast
+from typing import Generator, Iterable, Optional, Tuple, Union, cast
 
 import boto3
 from botocore import client as boto_client
 
-from tentaclio import protocols, urls
+from tentaclio import fs, protocols, urls
 
 from . import base_client, decorators, exceptions
 
@@ -49,8 +49,6 @@ class S3Client(base_client.BaseClient["S3Client"]):
 
         if self.bucket == "s3":
             self.bucket = None
-
-    # Connection methods:
 
     def _connect(self) -> boto_client.BaseClient:
         # Revert to Boto default credentials
@@ -131,3 +129,67 @@ class S3Client(base_client.BaseClient["S3Client"]):
             return True
         except Exception:
             return False
+
+    # scandir related methods
+
+    def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
+        """Scan the connection url to create dir entries."""
+        if self._is_root():
+            return self._build_bucket_entries()
+        return _KeyLister(self)
+
+    def _build_bucket_entries(self) -> Iterable[fs.DirEntry]:
+        return (
+            fs.DirEntry(url=urls.URL("s3://" + name), is_dir=True, is_file=False)
+            for name in self._get_buckets()
+        )
+
+    def _get_buckets(self):
+        resp = self.conn.list_buckets()
+        buckets = []
+        for metadata in resp["Buckets"]:
+            buckets.append(metadata["Name"])
+        return buckets
+
+    def _is_root(self):
+        return not self.bucket
+
+
+class _KeyLister(Iterable[fs.DirEntry]):
+    """List S3 keys.
+
+    Heavily inspired by
+    https://github.com/dask/s3fs/blob/05fc3d9c64a5f9ff701f9d9541f707aff5750349/s3fs/core.py#L357
+    """
+
+    def __init__(self, client: S3Client):
+        self.paginator = client.conn.get_paginator("list_objects_v2")
+        self.bucket = client.bucket
+        self.key = client.key_name
+
+    def _get_delimeted_key(self):
+        if self.key and self.key[-1] != "/":
+            return self.key + "/"
+        return self.key
+
+    def __iter__(self) -> Generator[fs.DirEntry, None, None]:
+        for page in self.paginator.paginate(
+            Bucket=self.bucket, Prefix=self._get_delimeted_key(), Delimiter="/"
+        ):
+            yield from self._iter_page(page)
+
+    def _iter_page(self, page) -> Generator[fs.DirEntry, None, None]:
+        dirs = [entry["Prefix"] for entry in page.get("CommonPrefixes", [])]
+        files = [entry["Key"] for entry in page.get("Contents", [])]
+        for dir_ in dirs:
+            yield fs.build_folder_entry(_build_url(str(self.bucket), dir_))
+
+        for file_ in files:
+            yield fs.build_file_entry(_build_url(str(self.bucket), file_))
+
+
+def _build_url(bucket: str, prefix: str) -> urls.URL:
+    if prefix:
+        prefix = prefix.rstrip("/")
+
+    return urls.URL(f"s3://{bucket}/{prefix}")
