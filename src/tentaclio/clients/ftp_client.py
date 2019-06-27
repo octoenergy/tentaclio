@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["FTPClient", "SFTPClient"]
 
 
-class FTPClient(base_client.StreamClient):
+class FTPClient(base_client.BaseClient["FTPClient"]):
     """Generic FTP client."""
 
     allowed_schemes = ["ftp"]
@@ -79,7 +79,7 @@ class FTPClient(base_client.StreamClient):
             return False
 
 
-class SFTPClient(base_client.StreamClient):
+class SFTPClient(base_client.BaseClient["SFTPClient"]):
     """SFTP stream client."""
 
     allowed_schemes = ["sftp"]

@@ -1,11 +1,11 @@
 import io
 
 from tentaclio import URL, Reader, Writer
-from tentaclio.clients.base_client import StreamClient
+from tentaclio.clients import base_client
 from tentaclio.handlers.stream_handler import StreamURLHandler
 
 
-class FakeClient(StreamClient):
+class FakeClient(base_client.BaseClient["FakeClient"]):
     # clients only understand bytes
     def __init__(self, url: URL, message: bytearray = None):
         self._writer = io.BytesIO()

@@ -12,7 +12,7 @@ from . import base_client, decorators, exceptions
 __all__ = ["S3Client"]
 
 
-class S3Client(base_client.StreamClient):
+class S3Client(base_client.BaseClient["S3Client"]):
     """S3 client, backed by boto3.
 
     Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html

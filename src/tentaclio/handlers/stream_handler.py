@@ -2,13 +2,14 @@
 import io
 from typing import Callable
 
-from tentaclio.clients import base_client
+from tentaclio.clients import Streamer
+from typing_extensions import ContextManager
 from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
 from tentaclio.urls import URL
 
 
-StreamClientFactory = Callable[..., base_client.StreamClient]
+StreamerFactory = Callable[..., ContextManager[Streamer]]
 
 
 def _is_bytes_mode(mode: str) -> bool:
@@ -20,9 +21,9 @@ def _is_bytes_mode(mode: str) -> bool:
 class StreamURLHandler:
     """Handler for opening writers and readers ."""
 
-    client: StreamClientFactory
+    client: StreamerFactory
 
-    def __init__(self, client_factory: StreamClientFactory):
+    def __init__(self, client_factory: StreamerFactory):
         """Create a handler using  a stream client factory to instantiate the underlying client."""
         self.client_factory = client_factory
 
@@ -31,7 +32,7 @@ class StreamURLHandler:
         client = self.client_factory(url, **extras)
 
         if _is_bytes_mode(mode):
-            return base_stream.StreamClientReader(client, io.BytesIO())
+            return base_stream.StreamerReader(client, io.BytesIO())
         return base_stream.StringToBytesClientReader(client)
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
@@ -39,5 +40,5 @@ class StreamURLHandler:
         client = self.client_factory(url, **extras)
 
         if _is_bytes_mode(mode):
-            return base_stream.StreamClientWriter(client, io.BytesIO())
+            return base_stream.StreamerWriter(client, io.BytesIO())
         return base_stream.StringToBytesClientWriter(client)
