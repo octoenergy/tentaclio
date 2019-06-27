@@ -1,6 +1,5 @@
 import io
 
-import moto
 import pytest
 
 from tentaclio.clients import exceptions, s3_client
@@ -8,14 +7,8 @@ from tentaclio.clients import exceptions, s3_client
 
 @pytest.fixture()
 def mocked_conn(mocker):
-    with mocker.patch.object(s3_client.S3Client, "_connect", return_value=mocker.Mock()):
-        yield
-
-
-@pytest.fixture()
-def fixture_conn():
-    with moto.mock_s3():
-        yield
+    with mocker.patch.object(s3_client.S3Client, "_connect", return_value=mocker.Mock()) as m:
+        yield m
 
 
 class TestS3Client:

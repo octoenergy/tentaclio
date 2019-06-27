@@ -18,7 +18,9 @@ DEFAULT_TIMEOUT = 10.0
 DEFAULT_HEADERS = {"Accept": "application/json"}
 
 
-class HTTPClient(base_client.StreamClient):
+class HTTPClient(
+    base_client.BaseClient["HTTPClient"]
+):
     """HTTP stream client.
 
     This client is useful when dealing inputs that may change from local files to http,

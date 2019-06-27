@@ -1,6 +1,6 @@
 """Base defines a common contract for connecting, closing, managing context for clients."""
 import abc
-from typing import Generic, Iterable, TypeVar, Union
+from typing import ContextManager, Iterable, TypeVar, Union, cast
 
 from tentaclio import protocols, urls
 
@@ -8,7 +8,7 @@ from tentaclio import protocols, urls
 T = TypeVar("T")
 
 
-class BaseClient(Generic[T], metaclass=abc.ABCMeta):
+class BaseClient(ContextManager[T], metaclass=abc.ABCMeta):
     """Abstract base class for clients, wrapping a connection.
 
     Offers context managing, connecting and closing functionalities.
@@ -32,13 +32,10 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
 
     # Context manager:
 
-    @abc.abstractmethod
     def __enter__(self) -> T:
-        """Enter the context by opening the connection.
-
-        The actual resource opening has to happen in the subclass.
-        """
-        ...
+        """Connect to the resource when entering the context."""
+        self.conn = self.connect()
+        return cast(T, self)
 
     def __exit__(self, *args) -> None:
         """Close the connection when leaving the context."""
@@ -61,49 +58,3 @@ class BaseClient(Generic[T], metaclass=abc.ABCMeta):
         if not self.closed:
             self.conn.close()
             self.closed = True
-
-
-class StreamClient(BaseClient["StreamClient"]):
-    """Interface for stream-based connections."""
-
-    # Context manager:
-
-    def __enter__(self) -> "StreamClient":
-        """Connect to the resource when entering the context."""
-        self.conn = self.connect()
-        return self
-
-    # Stream methods:
-
-    @abc.abstractmethod
-    def get(self, writer: protocols.ByteWriter, **params) -> None:
-        """Read the contents from the stream and write them the the ByteWriter."""
-        ...
-
-    @abc.abstractmethod
-    def put(self, reader: protocols.ByteReader, **params) -> None:
-        """Write the contents of the reader into the client stream."""
-        ...
-
-
-class QueryClient(BaseClient["QueryClient"]):
-    """Interface for query-based connections."""
-
-    # Context manager:
-
-    def __enter__(self) -> "QueryClient":
-        """Connect to the resource when entering the context."""
-        self.conn = self.connect()
-        return self
-
-    # Query methods:
-
-    @abc.abstractmethod
-    def execute(self, sql_query: str, **params) -> None:
-        """Execute a query against the underlying client."""
-        ...
-
-    @abc.abstractmethod
-    def query(self, sql_query: str, **params) -> Iterable:
-        """Perform the query and return an iterable of the results."""
-        ...

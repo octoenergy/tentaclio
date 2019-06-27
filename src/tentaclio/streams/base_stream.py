@@ -19,11 +19,13 @@ buffer to the underlying client.
 import io
 from typing import IO, Any
 
-from tentaclio.clients import base_client
+from typing_extensions import ContextManager
+
+from tentaclio.clients import Streamer
 
 
 class StreamBaseIO:
-    """Base class for IO streams that interact with StreamClients.
+    """Base class for IO streams that interact with Streamers.
 
     The extra methods included are to ensure interoperability with loosely defined,
     third party libraries such as `pyarrow`.
@@ -60,14 +62,14 @@ class StreamBaseIO:
         return self.buffer.tell(*args, **kargs)
 
 
-class StreamClientWriter(StreamBaseIO):
+class StreamerWriter(StreamBaseIO):
     """Offer stream like access to underlying client.
 
     Offer a IO stream interface to clients while maintaining the
     connection atomic.
     """
 
-    def __init__(self, client: base_client.StreamClient, buffer: IO):
+    def __init__(self, client: ContextManager[Streamer], buffer: IO):
         """Create a new writer based on a stream client and a buffer."""
         super().__init__(buffer)
         self.client = client
@@ -88,7 +90,7 @@ class StreamClientWriter(StreamBaseIO):
             self.client.put(self.buffer)
 
 
-class StreamClientReader(StreamBaseIO):
+class StreamerReader(StreamBaseIO):
     """Offer stream like access to underlying client.
 
     Offer a IO stream interface to clients while maintaining the
@@ -97,7 +99,7 @@ class StreamClientReader(StreamBaseIO):
 
     buffer: IO
 
-    def __init__(self, client: base_client.StreamClient, buffer: IO):
+    def __init__(self, client: ContextManager[Streamer], buffer: IO):
         """Create a reader that will read from the given client to the passed buffer."""
         super().__init__(buffer)
         self.client = client
@@ -123,7 +125,7 @@ class StreamClientReader(StreamBaseIO):
         self.buffer.close()
 
 
-class StringToBytesClientReader(StreamClientReader):
+class StringToBytesClientReader(StreamerReader):
     """String based stream reader that uses a byte buffer under the hood.
 
     This is used to allow clients (s3,ftp...) just use bytes while the code
@@ -133,7 +135,7 @@ class StringToBytesClientReader(StreamClientReader):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: base_client.StreamClient):
+    def __init__(self, client: ContextManager[Streamer]):
         """Create a byte based reader that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
@@ -145,7 +147,7 @@ class StringToBytesClientReader(StreamClientReader):
         self.buffer.seek(0)
 
 
-class StringToBytesClientWriter(StreamClientWriter):
+class StringToBytesClientWriter(StreamerWriter):
     """String based stream reader that uses a byte buffer under the hood.
 
     This is used to allow clients (s3,ftp...) just use bytes while the code
@@ -155,7 +157,7 @@ class StringToBytesClientWriter(StreamClientWriter):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: base_client.StreamClient):
+    def __init__(self, client: ContextManager[Streamer]):
         """Create a byte based write that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
@@ -164,5 +166,5 @@ class StringToBytesClientWriter(StreamClientWriter):
         """Flush and close the writer."""
         self.buffer.seek(0)
         # interacts with the client in terms of bytes
-        with self.client:
-            self.client.put(self.inner_buffer)
+        with self.client as client:
+            client.put(self.inner_buffer)

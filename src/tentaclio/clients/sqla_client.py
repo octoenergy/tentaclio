@@ -23,7 +23,7 @@ __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
 SessionGenerator = Generator[None, session.Session, None]
 
 
-class SQLAlchemyClient(base_client.QueryClient):
+class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     """SQLAlchemy based client."""
 
     # The allowed drivers depend on the dependencies installed.
