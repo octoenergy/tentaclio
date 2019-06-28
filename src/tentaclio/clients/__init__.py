@@ -11,4 +11,4 @@ from .postgres_client import *  # noqa
 from .s3_client import *  # noqa
 from .sqla_client import *  # noqa
 from .athena_client import *  # noqa
-from .protocols import * # noqa
+from .base_client import * # noqa

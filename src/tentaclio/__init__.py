@@ -18,6 +18,7 @@ from .fs.api import *  # noqa
 from .protocols import *  # noqa
 from .registries import STREAM_HANDLER_REGISTRY
 from .urls import *  # noqa
+from .clients import * # noqa
 
 
 # Stream handlers
@@ -48,3 +49,5 @@ STREAM_HANDLER_REGISTRY.register("https", HTTPHandler())
 
 SCANNER_REGISTRY.register("", LocalFileScanner())
 SCANNER_REGISTRY.register("file", LocalFileScanner())
+
+SCANNER_REGISTRY.register("s3", ClientDirScanner(S3Client))
