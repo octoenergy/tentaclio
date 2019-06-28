@@ -13,17 +13,10 @@ import pytest
 from tentaclio import URL, Reader, Writer, clients
 
 
-S3_TEST_URL = os.getenv("TENTACLIO__CONN__S3_TEST")
 POSTGRES_TEST_URL = os.getenv("TENTACLIO__CONN__POSTGRES_TEST")
 
 
 # URL fixtures
-
-
-@pytest.fixture(scope="session")
-def s3_url():
-    assert S3_TEST_URL is not None, "Missing s3 URL in environment variables"
-    return S3_TEST_URL
 
 
 @pytest.fixture(scope="session")
