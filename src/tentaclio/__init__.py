@@ -10,40 +10,34 @@ The main benefits are:
     * Credentials management that allows a distributed credentials storage.
 """
 
-from tentaclio.handlers import *  # noqa
-
 from .api import *  # noqa
 from .clients import *  # noqa
 from .fs import *  # noqa
 from .fs.api import *  # noqa
 from .protocols import *  # noqa
-from .registries import STREAM_HANDLER_REGISTRY
+from .streams import *  # noqa
 from .urls import *  # noqa
 
 
 # Stream handlers
 
 # Local files
-STREAM_HANDLER_REGISTRY.register("", LocalFileHandler())
-STREAM_HANDLER_REGISTRY.register("file", LocalFileHandler())
+STREAM_HANDLER_REGISTRY.register("", StreamURLHandler(LocalFSClient))
+STREAM_HANDLER_REGISTRY.register("file", StreamURLHandler(LocalFSClient))
 
 # s3 buckets
-STREAM_HANDLER_REGISTRY.register("s3", S3URLHandler())
+STREAM_HANDLER_REGISTRY.register("s3", StreamURLHandler(S3Client))
 
 # ftp / sftp handlers
-STREAM_HANDLER_REGISTRY.register("ftp", FTPHandler())
-STREAM_HANDLER_REGISTRY.register("sftp", SFTPHandler())
+STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
+STREAM_HANDLER_REGISTRY.register("sftp", StreamURLHandler(SFTPClient))
 
 # postgres handler
 STREAM_HANDLER_REGISTRY.register("postgresql", PostgresURLHandler())
 
-# Assorted SQLAlchemy handlers that doide stream readers/writers
-STREAM_HANDLER_REGISTRY.register("awsathena+rest", NullHandler())
-STREAM_HANDLER_REGISTRY.register("sqlite", NullHandler())
-
 # http / https handlers
-STREAM_HANDLER_REGISTRY.register("http", HTTPHandler())
-STREAM_HANDLER_REGISTRY.register("https", HTTPHandler())
+STREAM_HANDLER_REGISTRY.register("http", StreamURLHandler(HTTPClient))
+STREAM_HANDLER_REGISTRY.register("https", StreamURLHandler(HTTPClient))
 
 # Directory Scanners
 

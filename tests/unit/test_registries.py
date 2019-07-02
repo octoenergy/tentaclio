@@ -1,6 +1,6 @@
 import pytest
 
-from tentaclio.registries.registry import URLHandlerRegistry
+from tentaclio.registry import URLHandlerRegistry
 
 
 class TestRegistry(object):
