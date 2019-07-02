@@ -28,22 +28,6 @@ class Streamer(Protocol):
         ...
 
 
-class QueryClient(Protocol):
-    """Interface for query-based connections."""
-
-    # Query methods:
-
-    @abc.abstractmethod
-    def execute(self, sql_query: str, **params) -> None:
-        """Execute a query against the underlying client."""
-        ...
-
-    @abc.abstractmethod
-    def query(self, sql_query: str, **params) -> Iterable:
-        """Perform the query and return an iterable of the results."""
-        ...
-
-
 class BaseClient(ContextManager[T], metaclass=abc.ABCMeta):
     """Abstract base class for clients, wrapping a connection.
 

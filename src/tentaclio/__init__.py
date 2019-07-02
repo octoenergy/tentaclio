@@ -12,6 +12,8 @@ The main benefits are:
 
 from .api import *  # noqa
 from .clients import *  # noqa
+from .databases import *  # noqa
+from .databases.api import *  # noqa
 from .fs import *  # noqa
 from .fs.api import *  # noqa
 from .protocols import *  # noqa
@@ -45,3 +47,7 @@ SCANNER_REGISTRY.register("", ClientDirScanner(LocalFSClient))
 SCANNER_REGISTRY.register("file", ClientDirScanner(LocalFSClient))
 
 SCANNER_REGISTRY.register("s3", ClientDirScanner(S3Client))
+
+# Db registry
+DB_REGISTRY.register("postgresql", PostgresClient)
+DB_REGISTRY.register("awsathena+rest", AthenaClient)
