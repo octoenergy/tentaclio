@@ -1,6 +1,6 @@
 import pytest
 
-from tentaclio import api
+from tentaclio.streams import api
 
 
 W_MODES = ["w", "wt", "wb"]
