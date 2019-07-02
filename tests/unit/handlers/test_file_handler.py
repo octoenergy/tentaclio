@@ -42,16 +42,12 @@ def test_file_read_write(mode, expected, temp_filename):
     assert contents == expected
 
 
-@pytest.mark.parametrize(["mode"], [("r"), ("b")])
-def test_expand_user(mode, mocker):
+def test_expand_user(mocker):
     file_name = "~"
-    mocked_open = mocker.patch("builtins.open")
-    opened_path = io.StringIO()
+    mocked_open = mocker.patch("tentaclio.clients.local_fs_client.open")
 
-    mocked_open.side_effect = lambda path, mode: opened_path.write(path)
+    mocked_open.return_value = io.BytesIO()
 
-    # just to check the value used in open, and not having
-    # to create a full context manager
-    api.open(file_name, mode=mode).__enter__()
+    api.open(file_name)
+    mocked_open.assert_called_with(os.path.expanduser(file_name), "rb")
 
-    assert opened_path.getvalue() == os.path.expanduser(file_name)
