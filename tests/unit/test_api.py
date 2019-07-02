@@ -35,7 +35,3 @@ def test_reader_modes(mode, mocker):
     mocked_open_reader.assert_called_once()
 
 
-def test_database(mocker):
-    mocked_client = mocker.patch("tentaclio.clients.SQLAlchemyClient")
-    api.db("postgresql://hostname/database")
-    mocked_client.assert_called_once()

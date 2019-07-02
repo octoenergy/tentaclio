@@ -1,4 +1,4 @@
-"""S3 Stream client."""
+"""Local filesystem client."""
 import os
 from typing import Iterable, Union
 

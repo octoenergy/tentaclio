@@ -1,11 +1,11 @@
 """Main entry points to tentaclio-io."""
 from typing import ContextManager
 
-from tentaclio import clients, credentials, protocols
+from tentaclio import credentials, protocols
 from tentaclio.streams import STREAM_HANDLER_REGISTRY
 
 
-__all__ = ["open", "db"]
+__all__ = ["open"]
 
 VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 
@@ -32,12 +32,6 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyRe
         return _open_writer(url=url, mode=mode, **kwargs)
     else:
         return _open_reader(url=url, mode=mode, **kwargs)
-
-
-def db(url: str, **kwargs) -> clients.SQLAlchemyClient:
-    """Create an authenticated sqlachemy client."""
-    authenticated = credentials.authenticate(url)
-    return clients.SQLAlchemyClient(authenticated, **kwargs)
 
 
 # Helpers
