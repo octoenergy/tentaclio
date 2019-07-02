@@ -8,7 +8,6 @@ from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
 from tentaclio.urls import URL
 
-
 StreamerFactory = Callable[..., ContextManager[Streamer]]
 
 
