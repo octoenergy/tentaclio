@@ -1,14 +1,21 @@
 """Base handler."""
 import io
+import logging
 from typing import Callable
 
-from tentaclio.clients import Streamer
 from typing_extensions import ContextManager
+
+from tentaclio.clients import Streamer
 from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
 from tentaclio.urls import URL
 
+
+logger = logging.getLogger(__name__)
+
 StreamerFactory = Callable[..., ContextManager[Streamer]]
+
+__all__ = ["StreamURLHandler"]
 
 
 def _is_bytes_mode(mode: str) -> bool:

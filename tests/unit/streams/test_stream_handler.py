@@ -2,7 +2,7 @@ import io
 
 from tentaclio import URL, Reader, Writer
 from tentaclio.clients import base_client
-from tentaclio.handlers.stream_handler import StreamURLHandler
+from tentaclio.streams import StreamURLHandler
 
 
 class FakeClient(base_client.BaseClient["FakeClient"]):

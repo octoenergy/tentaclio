@@ -2,7 +2,7 @@
 from typing import ContextManager
 
 from tentaclio import clients, credentials, protocols
-from tentaclio.registries import STREAM_HANDLER_REGISTRY
+from tentaclio.streams import STREAM_HANDLER_REGISTRY
 
 
 __all__ = ["open", "db"]

@@ -4,9 +4,8 @@ from typing import ClassVar, ContextManager, Optional
 from typing_extensions import Protocol
 
 from tentaclio import protocols
+from tentaclio.registry import URLHandlerRegistry
 from tentaclio.urls import URL
-
-from .registry import URLHandlerRegistry
 
 
 __all__ = ["STREAM_HANDLER_REGISTRY"]

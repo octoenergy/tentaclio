@@ -3,7 +3,7 @@ from typing import ClassVar, Iterable
 
 from typing_extensions import Protocol
 
-from tentaclio.registries.registry import URLHandlerRegistry
+from tentaclio.registry import URLHandlerRegistry
 from tentaclio.urls import URL
 
 
