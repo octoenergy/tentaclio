@@ -1,17 +1,7 @@
 import pickle
 
-import pytest
 
 import tentaclio
-
-
-TEST_BUCKET = "tentaclio-bucket"
-
-
-@pytest.fixture
-def fixture_client(s3_client):
-    s3_client.conn.create_bucket(Bucket=TEST_BUCKET)
-    yield s3_client
 
 
 def test_pickle(fixture_client):
