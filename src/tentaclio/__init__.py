@@ -18,6 +18,7 @@ from .fs import *  # noqa
 from .fs.api import *  # noqa
 from .protocols import *  # noqa
 from .streams import *  # noqa
+from .streams.api import *  # noqa
 from .urls import *  # noqa
 
 
