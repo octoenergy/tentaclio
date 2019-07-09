@@ -1,7 +1,10 @@
+import collections
 import io
+import stat
 
 import pytest
 
+from tentaclio import URL
 from tentaclio.clients import exceptions, ftp_client
 
 
@@ -126,3 +129,25 @@ class TestSFTPClient:
     def test_set_default_port(self, url, port, mocked_sftp_conn):
         client = ftp_client.SFTPClient(url)
         assert client.port == port
+
+    def test_scandir_file(self, mocked_sftp_conn):
+        FakeAttr = collections.namedtuple("FakeAttr", ["filename", "st_mode"])
+        client = ftp_client.SFTPClient("sftp://localhost:9999/mydir")
+        with client:
+            client.conn.listdir_attr.return_value = [FakeAttr("my_file.txt", stat.S_IFREG)]
+
+        entries = list(client.scandir())
+        print("entries", entries)
+        assert entries[0].url == URL("sftp://localhost:9999/mydir/my_file.txt")
+        assert entries[0].is_file
+
+    def test_scandir_folder(self, mocked_sftp_conn):
+        FakeAttr = collections.namedtuple("FakeAttr", ["filename", "st_mode"])
+        client = ftp_client.SFTPClient("sftp://localhost:9999/mydir")
+        with client:
+            client.conn.listdir_attr.return_value = [FakeAttr("other_folder", stat.S_IFDIR)]
+
+        entries = list(client.scandir())
+        print("entries", entries)
+        assert entries[0].url == URL("sftp://localhost:9999/mydir/other_folder")
+        assert entries[0].is_dir

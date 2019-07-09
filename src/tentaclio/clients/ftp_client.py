@@ -2,11 +2,12 @@
 import ftplib
 import io
 import logging
-from typing import Optional, Union
+import stat
+from typing import Iterable, Optional, Union
 
 import pysftp
 
-from tentaclio import protocols, urls
+from tentaclio import fs, protocols, urls
 
 from . import base_client, decorators, exceptions
 
@@ -146,5 +147,19 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
         # self.conn.putfo(remote_path, file_obj.read())
         # but open works
         with self.conn.open(remote_path, mode="wb") as f:
-            print("f", f)
             f.write(reader.read())
+
+    def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
+        """Scan the connection url to create dir entries."""
+        base_url = f"sftp://{self.url.hostname}:{self.port}{self.url.path}/"
+        entries = []
+        for attrs in self.conn.listdir_attr(self.url.path):
+            url = urls.URL(base_url + attrs.filename)
+            if stat.S_ISDIR(attrs.st_mode):
+                entries.append(fs.build_folder_entry(url))
+
+            elif stat.S_ISREG(attrs.st_mode):
+                entries.append(fs.build_file_entry(url))
+            else:
+                continue  # ignore other type of entries
+        return entries
