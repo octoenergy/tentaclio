@@ -50,6 +50,7 @@ SCANNER_REGISTRY.register("file", ClientDirScanner(LocalFSClient))
 SCANNER_REGISTRY.register("s3", ClientDirScanner(S3Client))
 
 SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
+SCANNER_REGISTRY.register("ftp", ClientDirScanner(FTPClient))
 
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)

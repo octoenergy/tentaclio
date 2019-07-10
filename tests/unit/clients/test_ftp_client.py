@@ -77,6 +77,26 @@ class TestFTPClient:
 
         assert result.getvalue() == expected
 
+    def test_scandir_file(self, mocked_ftp_conn):
+        fake_entries = [("my_file.txt", {"type": "file"})]
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.return_value = fake_entries
+
+        entries = list(client.scandir())
+        assert entries[0].url == URL("ftp://localhost:9999/mydir/my_file.txt")
+        assert entries[0].is_file
+
+    def test_scandir_folder(self, mocked_ftp_conn):
+        fake_entries = [("another_dir", {"type": "dir"})]
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.return_value = fake_entries
+
+        entries = list(client.scandir())
+        assert entries[0].url == URL("ftp://localhost:9999/mydir/another_dir")
+        assert entries[0].is_dir
+
 
 class TestSFTPClient:
     @pytest.mark.parametrize("url", ["file:///test.file", "ftp://:@localhost", "s3://:@s3"])
