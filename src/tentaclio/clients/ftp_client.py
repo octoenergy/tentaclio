@@ -88,28 +88,38 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """Scan the connection url to create dir entries."""
         base_url = f"ftp://{self.url.hostname}:{self.port}{self.url.path}/"
-        entries = []
         try:
-            for mlsd_entry in self.conn.mlsd(self.url.path, facts=["type"]):
-                # https://docs.python.org/3/library/ftplib.html#ftplib.FTP.mlsd
-                file_name = mlsd_entry[0]
-                entry_type = mlsd_entry[1]["type"]
-
-                url = urls.URL(base_url + file_name)
-                if entry_type == "dir":
-                    entries.append(fs.build_folder_entry(url))
-                else:
-                    entries.append(fs.build_file_entry(url))
+            entries = self._mlsd(base_url)
         except ftplib.error_perm:
-            # Server doesn't support mlsd
-            lines = self.ftp_dir()
-            file_names = self._parse_ftp_dir(lines)
-            for file_name in file_names:
-                url = urls.URL(base_url + file_name)
-                entries.append((fs.build_file_entry(url)))
+            entries = self._ftp_dir(base_url)
         return entries
 
-    def ftp_dir(self):
+    def _mlsd(self, base_url: str)-> [str]:
+        """ Retrieve dir entries via mlsd. """
+        entries = []
+        for mlsd_entry in self.conn.mlsd(self.url.path, facts=["type"]):
+            # https://docs.python.org/3/library/ftplib.html#ftplib.FTP.mlsd
+            file_name = mlsd_entry[0]
+            entry_type = mlsd_entry[1]["type"]
+
+            url = urls.URL(base_url + file_name)
+            if entry_type == "dir":
+                entries.append(fs.build_folder_entry(url))
+            else:
+                entries.append(fs.build_file_entry(url))
+        return entries
+
+    def _ftp_dir(self, base_url: str):
+        """ Retrieve dir entries via ftp_dir for when the server doesn't support mlsd. """
+        entries = []
+        lines = self._list_ftp_dir()
+        file_names = self._parse_ftp_dir(lines)
+        for file_name in file_names:
+            url = urls.URL(base_url + file_name)
+            entries.append((fs.build_file_entry(url)))
+        return entries
+
+    def _list_ftp_dir(self):
         lines = []
 
         def _callback(new_line):
