@@ -1,4 +1,5 @@
 import collections
+import ftplib
 import io
 import stat
 
@@ -86,6 +87,16 @@ class TestFTPClient:
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/my_file.txt")
         assert entries[0].is_file
+
+    @pytest.mark.parametrize("fake_file_names", [['SA0006923', 'CR00095552']])
+    def test_scandir_ftp_dir(self, mocked_ftp_conn, fake_file_names):
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.side_effect = ftplib.error_perm
+            client.conn.dir.return_value = fake_file_names
+        entries = list(client.scandir())
+        print(entries)
+        assert entries[0] == fake_file_names[0]
 
     def test_scandir_folder(self, mocked_ftp_conn):
         fake_entries = [("another_dir", {"type": "dir"})]
