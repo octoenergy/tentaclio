@@ -41,6 +41,13 @@ with tentaclio.open("/home/constantine/data.csv") as reader, tentaclio.open(
 ) as writer:
     writer.write(reader.read())
 ```
+## List resources
+```python
+import tentaclio
+
+for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+    print("Entry", entry)
+```
 
 ## Authenticated resources.
 ```python
@@ -159,6 +166,18 @@ with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer) 
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
+
+### File system like operations to resources
+#### Listing resources
+Some URL schemes allow listing resources in a pythonnic way:
+```python
+import tentaclio
+
+for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+    print("Entry", entry)
+```
+
+Whereas `listdir` might be convinient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octoenergy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
 
 
 ### Database access  
