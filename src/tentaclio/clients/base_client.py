@@ -1,6 +1,6 @@
 """Base defines a common contract for connecting, closing, managing context for clients."""
 import abc
-from typing import ContextManager, Iterable, TypeVar, Union, cast
+from typing import Container, ContextManager, TypeVar, Union, cast
 
 from typing_extensions import Protocol
 
@@ -36,7 +36,7 @@ class BaseClient(ContextManager[T], metaclass=abc.ABCMeta):
 
     url: urls.URL
     conn: protocols.Closable
-    allowed_schemes: Iterable[str] = []
+    allowed_schemes: Container[str] = []
     closed: bool = True
 
     def __init__(self, url: Union[urls.URL, str]) -> None:
