@@ -4,7 +4,7 @@ This client is used for convinience when using different sql
 providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
 """
 import contextlib
-from typing import Generator, Optional, Union
+from typing import Container, Generator, Optional, Union
 
 import pandas as pd
 from sqlalchemy.engine import Connection, create_engine, result
@@ -23,11 +23,25 @@ __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
 SessionGenerator = Generator[None, session.Session, None]
 
 
+class _TrueContainer(Container[str]):
+    """String container that always returns true.
+
+    As we don't have control over the protocols that sqlalchemy is able to
+    accept. We shouldn't try to limit which urls can be used here or not.
+    So this container will play well with the super class checks to allow
+    schemes for different clients.
+    """
+
+    def __contains__(self, obj: object) -> bool:
+        """Return true."""
+        return True
+
+
 class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     """SQLAlchemy based client."""
 
     # The allowed drivers depend on the dependencies installed.
-    allowed_schemes = ["mssql", "postgresql", "sqlite", "awsathena+rest"]
+    allowed_schemes: Container[str] = _TrueContainer()
     # Default connect_args
     connect_args_default: dict = {}
 
