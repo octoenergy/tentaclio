@@ -6,6 +6,8 @@ from typing_extensions import Protocol
 from tentaclio.registry import URLHandlerRegistry
 from tentaclio.urls import URL
 
+from .copiers import DefaultCopier
+
 
 __all__ = ["COPIER_REGISTRY"]
 
@@ -24,7 +26,14 @@ class Copier(Protocol):
 class CopierRegistry(URLHandlerRegistry[Copier]):
     """Registry for scanners."""
 
-    ...
+    def get_handler(self, scheme: str) -> Copier:
+        """Get the handler for the given scheme.
+
+        if the scheme is not set return the default copier.
+        """
+        if scheme not in self.registry:
+            return DefaultCopier()
+        return self.registry[scheme]
 
 
 class _CopierRegistryHolder:

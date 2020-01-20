@@ -3,10 +3,11 @@ from typing import Iterable, List, Tuple
 
 from tentaclio import credentials
 
+from .copier import COPIER_REGISTRY
 from .scanner import SCANNER_REGISTRY, DirEntry
 
 
-__all__ = ["scandir", "listdir"]
+__all__ = ["scandir", "listdir", "copy"]
 
 
 def scandir(url: str) -> Iterable[DirEntry]:
@@ -37,6 +38,19 @@ def listdir(url: str) -> Iterable[str]:
     """
     entries = scandir(url)
     return (str(entry.url) for entry in entries)
+
+
+def copy(source: str, dest: str):
+    """Copy the contents of the origin URL into the dest url.
+
+    Depending on the type of resource this can be much more performant than
+    >>> with tio.open(source) as reader, tio.open(dest) as writer:
+            writer.write(reader.read())
+    """
+    source_auth = credentials.authenticate(source)
+    dest_auth = credentials.authenticate(dest)
+    copier = COPIER_REGISTRY.get_handler(source_auth.scheme + "+" + dest_auth.scheme)
+    copier.copy(source_auth, dest_auth)
 
 
 def walk(top: str) -> Iterable[Tuple[str, str, str]]:

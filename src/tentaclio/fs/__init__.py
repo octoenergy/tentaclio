@@ -3,3 +3,4 @@
 from .scanner import *  # noqa
 from .scanners import * # noqa
 from .copier import * # noqa
+from .copiers import * # noqa
