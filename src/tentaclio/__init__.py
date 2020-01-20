@@ -53,3 +53,5 @@ SCANNER_REGISTRY.register("ftp", ClientDirScanner(FTPClient))
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
 DB_REGISTRY.register("awsathena+rest", AthenaClient)
+
+COPIER_REGISTRY.register("s3+s3", S3Client("s3://"))

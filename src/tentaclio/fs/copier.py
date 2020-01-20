@@ -24,7 +24,13 @@ class Copier(Protocol):
 
 
 class CopierRegistry(URLHandlerRegistry[Copier]):
-    """Registry for scanners."""
+    """Registry for scanners.
+
+    The scheme expected by this registry is a compound one having
+    the origin as first element and the destination as second element.
+    i.e. s3+s3, file+s3, ...
+
+    """
 
     def get_handler(self, scheme: str) -> Copier:
         """Get the handler for the given scheme.
