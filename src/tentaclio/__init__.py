@@ -10,7 +10,6 @@ The main benefits are:
     * Credentials management that allows a distributed credentials storage.
 """
 
-from .api import *  # noqa
 from .clients import *  # noqa
 from .databases import *  # noqa
 from .databases.api import *  # noqa
@@ -18,7 +17,6 @@ from .fs import *  # noqa
 from .fs.api import *  # noqa
 from .protocols import *  # noqa
 from .streams import *  # noqa
-from .streams.api import *  # noqa
 from .urls import *  # noqa
 
 
