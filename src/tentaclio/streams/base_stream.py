@@ -16,12 +16,29 @@ is used and only exposes the bytes versions to the S3Client.
 This is down by using TextIOWrapper when text is needed by the client code and exposes the inner
 buffer to the underlying client.
 """
+import abc
 import io
 from typing import IO, Any
 
-from typing_extensions import ContextManager
+from typing_extensions import ContextManager, Protocol
 
-from tentaclio.clients import Streamer
+from tentaclio import protocols
+
+
+class Streamer(Protocol):
+    """Interface for stream-based connections."""
+
+    # Stream methods:
+
+    @abc.abstractmethod
+    def get(self, writer: protocols.ByteWriter, **params) -> None:
+        """Read the contents from the stream and write them the the ByteWriter."""
+        ...
+
+    @abc.abstractmethod
+    def put(self, reader: protocols.ByteReader, **params) -> None:
+        """Write the contents of the reader into the client stream."""
+        ...
 
 
 class StreamBaseIO:

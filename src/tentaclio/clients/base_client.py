@@ -2,30 +2,10 @@
 import abc
 from typing import Container, ContextManager, TypeVar, Union, cast
 
-from typing_extensions import Protocol
-
 from tentaclio import protocols, urls
 
 
 T = TypeVar("T")
-
-__all__ = ["Streamer"]
-
-
-class Streamer(Protocol):
-    """Interface for stream-based connections."""
-
-    # Stream methods:
-
-    @abc.abstractmethod
-    def get(self, writer: protocols.ByteWriter, **params) -> None:
-        """Read the contents from the stream and write them the the ByteWriter."""
-        ...
-
-    @abc.abstractmethod
-    def put(self, reader: protocols.ByteReader, **params) -> None:
-        """Write the contents of the reader into the client stream."""
-        ...
 
 
 class BaseClient(ContextManager[T], metaclass=abc.ABCMeta):
