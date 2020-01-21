@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.1-alpha.4] - 2020-01-21
+### Added
+ - Support deleting resources (S3 and local file system ).
+ - Support for copying any arbitrary pair of resources.
+ - Support for copying S3 files using aws boto directly.
+### Changed  
+ - Removed a duplication of the main api.
 ## [0.0.1-alpha.3] - 2019-07-24
 ### Added
  - Support for listing resources (S3, local file system, sftp, and ftp schemes).
