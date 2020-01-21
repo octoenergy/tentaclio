@@ -8,7 +8,7 @@ from .remover import REMOVER_REGISTRY
 from .scanner import SCANNER_REGISTRY, DirEntry
 
 
-__all__ = ["scandir", "listdir", "copy", "rm"]
+__all__ = ["scandir", "listdir", "copy", "remove"]
 
 
 def scandir(url: str) -> Iterable[DirEntry]:
@@ -54,7 +54,7 @@ def copy(source: str, dest: str):
     copier.copy(source_auth, dest_auth)
 
 
-def rm(url: str) -> bool:
+def remove(url: str) -> bool:
     """Delete the resource identified by the url."""
     authenticated = credentials.authenticate(url)
     return REMOVER_REGISTRY.get_handler(authenticated.scheme).remove(authenticated)

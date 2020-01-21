@@ -50,7 +50,7 @@ def test_delete(fixture_client, test_bucket):
     source = f"s3://{test_bucket}/source.txt"
     with tio.open(source, mode="w") as f:
         f.write("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.")
-    tio.rm(source)
+    tio.remove(source)
     with pytest.raises(S3Error, match="Unable to fetch the remote file"):
         with tio.open(source) as f:
             ...
