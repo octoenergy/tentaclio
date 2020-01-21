@@ -23,7 +23,7 @@ Main considerations in the design:
 import tentaclio
 contents = "👋 🐙"
 
-with tentaclio.open("ftp://localhost:2021/upload/file.txt", mode="w") as writer: 
+with tentaclio.open("ftp://localhost:2021/upload/file.txt", mode="w") as writer:
     writer.write(contents)
 
 # Using boto3 authentication under the hood.
@@ -36,10 +36,13 @@ with tentaclio.open(bucket) as reader:
 ```python
 import tentaclio
 
-with tentaclio.open("/home/constantine/data.csv") as reader, tentaclio.open(
-    "sftp://constantine:tentacl3@sftp.octoenergy.com/uploads/data.csv", mode="w") as writer: 
-) as writer:
-    writer.write(reader.read())
+tentaclio.copy("/home/constantine/data.csv", "sftp://constantine:tentacl3@sftp.octoenergy.com/uploads/data.csv")
+```
+## Delete resources 
+```python
+import tentaclio
+
+tentaclio.remove("s3://my-bucket/octopus/the-9th-tentacle.txt")
 ```
 ## List resources
 ```python
@@ -51,51 +54,51 @@ for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
 
 ## Authenticated resources.
 ```python
-import os                                                                            
-                                                                                     
-import tentaclio                                                                     
-                                                                                     
-print("env ftp credentials", os.getenv("OCTOIO__CONN__OCTOENERGY_FTP"))              
-# This prints `sftp://constantine:tentacl3@sftp.octoenergy.com/`                     
-                                                                                     
-# Credentials get automatically injected.                                            
-                                                                                     
-with tentaclio.open("sftp://sftp.octoenergy.com/uploads/data.csv") as reader:        
-    print(reader.read())                                                             
+import os
+
+import tentaclio
+
+print("env ftp credentials", os.getenv("OCTOIO__CONN__OCTOENERGY_FTP"))
+# This prints `sftp://constantine:tentacl3@sftp.octoenergy.com/`
+
+# Credentials get automatically injected.
+
+with tentaclio.open("sftp://sftp.octoenergy.com/uploads/data.csv") as reader:
+    print(reader.read())
 ```
 
 ## Database connections.
 ```python
-import os                                                            
-                                                                     
-import tentaclio                                                     
-                                                                     
-print("env TENTACLIO__CONN__DB", os.getenv("TENTACLIO__CONN__DB"))   
-                                                                     
-# This prints `postgresql://octopus:tentacle@localhost:5444/example` 
-                                                                     
-# hostname is a wildcard, the credentials get injected.              
-with tentaclio.db("postgresql://hostname/example") as pg:            
-    results = pg.query("select * from my_table")                     
+import os
+
+import tentaclio
+
+print("env TENTACLIO__CONN__DB", os.getenv("TENTACLIO__CONN__DB"))
+
+# This prints `postgresql://octopus:tentacle@localhost:5444/example`
+
+# hostname is a wildcard, the credentials get injected.
+with tentaclio.db("postgresql://hostname/example") as pg:
+    results = pg.query("select * from my_table")
 ```
 
 ## Pandas interaction.
 ```python
-import pandas as pd  # 🐼🐼                                                       
-import tentaclio  # 🐙                                                            
-                                                                                  
-df = pd.DataFrame([[1, 2, 3], [10, 20, 30]], columns=["col_1", "col_2", "col_3"]) 
-                                                                                  
-bucket = "s3://my-bucket/data/pandas.csv"                                         
-                                                                                  
-with tentaclio.open(bucket, mode="w") as writer:  # supports more pandas readers  
-    df.to_csv(writer, index=False)                                                
-                                                                                  
-with tentaclio.open(bucket) as reader:                                            
-    new_df = pd.read_csv(reader)                                                  
+import pandas as pd  # 🐼🐼
+import tentaclio  # 🐙
+
+df = pd.DataFrame([[1, 2, 3], [10, 20, 30]], columns=["col_1", "col_2", "col_3"])
+
+bucket = "s3://my-bucket/data/pandas.csv"
+
+with tentaclio.open(bucket, mode="w") as writer:  # supports more pandas readers
+    df.to_csv(writer, index=False)
+
+with tentaclio.open(bucket) as reader:
+    new_df = pd.read_csv(reader)
 
 ```
- 
+
 # Installation
 
 You can get tentaclio using pip
@@ -108,7 +111,7 @@ or pipenv
 pipenv install tentaclio
 ```
 
-## Developing. 
+## Developing.
 
 Clone this repo and install [pipenv](https://pipenv.readthedocs.io/en/latest/):
 
@@ -125,7 +128,7 @@ This is how to use `tentaclio` for your daily data ingestion and storing needs.
 In order to open streams to load or store data the universal function is:
 
 ```python
-import tentaclio 
+import tentaclio
 
 with tentaclio.open("/path/to/my/file") as reader:
     contents = reader.read()
@@ -155,15 +158,15 @@ You can use these readers and writers with pandas functions like:
 
 ```python
 import pandas as pd
-import tentaclio 
+import tentaclio
 
 with tentaclio.open("/path/to/my/file") as reader:
-    df = pd.read_csv(reader) 
+    df = pd.read_csv(reader)
 
 [...]
 
 with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
-    df.to_parquet(writer) 
+    df.to_parquet(writer)
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
 
@@ -180,14 +183,14 @@ for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
 Whereas `listdir` might be convinient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octoenergy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
 
 
-### Database access  
+### Database access
 
-In order to open db connections you can use `tentaclio.db` and have instant access to postgres, sqlite, athena and mssql.  
+In order to open db connections you can use `tentaclio.db` and have instant access to postgres, sqlite, athena and mssql.
 
 ```python
 import tentaclio
 
-[...] 
+[...]
 
 query = "select 1";
 with tentaclio.db(POSTGRES_TEST_URL) as client:
@@ -201,8 +204,9 @@ The supported db schemes are:
 * `sqlite://`
 * `awsathena+rest://`
 * `mssql://`
+* Any other scheme supported by sqlalchemy.
 
-### Automatic credentials injection 
+### Automatic credentials injection
 
 1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@ftp.octoenergy.com`).
 
@@ -211,7 +215,7 @@ The supported db schemes are:
 with tentaclio.open("sftp://ftp.octoenergy.com/file.csv") as reader:
     reader.read()
 ```
-The credentials get injected into the url. 
+The credentials get injected into the url.
 
 3. Open a db client:
 ```python
@@ -238,10 +242,9 @@ secrets:
     db_2: postgresql://user2:pass2@otherhost.com/database_2
     ftp_server: ftp://fuser:fpass@ftp.myhost.com
 ```
-And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality. 
+And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality.
 
 
 ## Quick note on protocols structural subtyping.
-    
-In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).
 
+In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).
