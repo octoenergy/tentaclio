@@ -154,6 +154,21 @@ class S3Client(base_client.BaseClient["S3Client"]):
     def _is_root(self):
         return not self.bucket
 
+    # Copy methods
+
+    def copy(self, source: urls.URL, dest: urls.URL):
+        """Copy source into dest directly in S3."""
+        source_client = S3Client(source)
+        dest_client = S3Client(dest)
+        with source_client:
+            source_client.conn.copy(
+                CopySource={
+                    "Bucket": source_client.bucket,
+                    "Key": source_client.key_name,
+                },
+                Bucket=dest_client.bucket, Key=dest_client.key_name
+            )
+
 
 class _KeyLister(Iterable[fs.DirEntry]):
     """List S3 keys.

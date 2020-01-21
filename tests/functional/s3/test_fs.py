@@ -27,3 +27,17 @@ def test_scandir(fixture_client, test_bucket):
         key = base + f"{folder}"
         assert key in entries_by_url
         assert entries_by_url[key].is_dir
+
+
+def test_copy(fixture_client, test_bucket):
+    source = f"s3://{test_bucket}/source.txt"
+    dest = f"s3://{test_bucket}/dest.txt"
+    with tio.open(source, mode="w") as f:
+        f.write("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.")
+
+    tio.copy(source, dest)
+
+    with tio.open(dest) as f:
+        result = f.read()
+
+    assert result == "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."

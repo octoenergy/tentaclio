@@ -10,7 +10,6 @@ The main benefits are:
     * Credentials management that allows a distributed credentials storage.
 """
 
-from .api import *  # noqa
 from .clients import *  # noqa
 from .databases import *  # noqa
 from .databases.api import *  # noqa
@@ -18,7 +17,6 @@ from .fs import *  # noqa
 from .fs.api import *  # noqa
 from .protocols import *  # noqa
 from .streams import *  # noqa
-from .streams.api import *  # noqa
 from .urls import *  # noqa
 
 
@@ -55,3 +53,5 @@ SCANNER_REGISTRY.register("ftp", ClientDirScanner(FTPClient))
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
 DB_REGISTRY.register("awsathena+rest", AthenaClient)
+
+COPIER_REGISTRY.register("s3+s3", S3Client("s3://"))
