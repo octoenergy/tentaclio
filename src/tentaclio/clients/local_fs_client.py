@@ -51,10 +51,9 @@ class LocalFSClient(base_client.BaseClient["LocalFSClient"]):
 
     # remove
 
-    def remove(self) -> bool:
+    def remove(self):
         """Remove the file from the local file system."""
         os.remove(self.path)
-        return True
 
 
 def _from_os_dir_entry(original: os.DirEntry) -> fs.DirEntry:

@@ -24,7 +24,7 @@ class Remover(Protocol):
         """Exit the the context manager."""
         ...
 
-    def remove(self) -> bool:
+    def remove(self):
         """Remove the underlying resource."""
         ...
 
@@ -36,10 +36,10 @@ class ClientRemover:
         """Create the client remover."""
         self.client_factory = client_factory
 
-    def remove(self, url: URL) -> bool:
+    def remove(self, url: URL):
         """Build the client remover."""
         with self.client_factory(url) as client:
-            return client.remove()
+            client.remove()
 
 
 class RemoverRegistry(URLHandlerRegistry[ClientRemover]):

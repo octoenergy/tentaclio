@@ -26,5 +26,5 @@ def test_client_remover():
         remover = FakeRemover(url)
         return remover
 
-    assert ClientRemover(_fn).remove(URL("fake://url"))
+    ClientRemover(_fn).remove(URL("fake://url"))
     assert remover.removed

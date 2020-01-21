@@ -54,10 +54,10 @@ def copy(source: str, dest: str):
     copier.copy(source_auth, dest_auth)
 
 
-def remove(url: str) -> bool:
+def remove(url: str):
     """Delete the resource identified by the url."""
     authenticated = credentials.authenticate(url)
-    return REMOVER_REGISTRY.get_handler(authenticated.scheme).remove(authenticated)
+    REMOVER_REGISTRY.get_handler(authenticated.scheme).remove(authenticated)
 
 
 def walk(top: str) -> Iterable[Tuple[str, str, str]]:

@@ -167,11 +167,9 @@ class S3Client(base_client.BaseClient["S3Client"]):
                 Key=dest_client.key_name,
             )
 
-    def remove(self) -> bool:
+    def remove(self):
         """Remove the key from the aws bucket."""
         self.conn.delete_object(Bucket=self.bucket, Key=self.key_name)
-
-        return True
 
 
 class _KeyLister(Iterable[fs.DirEntry]):
