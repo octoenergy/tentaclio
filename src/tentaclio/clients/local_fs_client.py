@@ -49,6 +49,12 @@ class LocalFSClient(base_client.BaseClient["LocalFSClient"]):
         os_dir_entries = os.scandir(self.path)
         return map(_from_os_dir_entry, os_dir_entries)
 
+    # remove
+
+    def remove(self):
+        """Remove the file from the local file system."""
+        os.remove(self.path)
+
 
 def _from_os_dir_entry(original: os.DirEntry) -> fs.DirEntry:
     return fs.DirEntry(

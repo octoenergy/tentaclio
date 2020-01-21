@@ -1,4 +1,7 @@
+import pytest
+
 import tentaclio as tio
+from tentaclio.clients.exceptions import S3Error
 
 
 def test_scandir(fixture_client, test_bucket):
@@ -41,3 +44,13 @@ def test_copy(fixture_client, test_bucket):
         result = f.read()
 
     assert result == "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn."
+
+
+def test_delete(fixture_client, test_bucket):
+    source = f"s3://{test_bucket}/source.txt"
+    with tio.open(source, mode="w") as f:
+        f.write("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.")
+    tio.remove(source)
+    with pytest.raises(S3Error, match="Unable to fetch the remote file"):
+        with tio.open(source) as f:
+            ...
