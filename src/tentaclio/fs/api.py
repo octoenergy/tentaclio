@@ -57,7 +57,7 @@ def copy(source: str, dest: str):
 def rm(url: str) -> bool:
     """Delete the resource identified by the url."""
     authenticated = credentials.authenticate(url)
-    return REMOVER_REGISTRY.get_handler(url).remove(authenticated)
+    return REMOVER_REGISTRY.get_handler(authenticated.scheme).remove(authenticated)
 
 
 def walk(top: str) -> Iterable[Tuple[str, str, str]]:

@@ -162,12 +162,16 @@ class S3Client(base_client.BaseClient["S3Client"]):
         dest_client = S3Client(dest)
         with source_client:
             source_client.conn.copy(
-                CopySource={
-                    "Bucket": source_client.bucket,
-                    "Key": source_client.key_name,
-                },
-                Bucket=dest_client.bucket, Key=dest_client.key_name
+                CopySource={"Bucket": source_client.bucket, "Key": source_client.key_name},
+                Bucket=dest_client.bucket,
+                Key=dest_client.key_name,
             )
+
+    def remove(self) -> bool:
+        """Remove the key from the aws bucket."""
+        self.conn.delete_object(Bucket=self.bucket, Key=self.key_name)
+
+        return True
 
 
 class _KeyLister(Iterable[fs.DirEntry]):
