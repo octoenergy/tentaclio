@@ -4,10 +4,11 @@ from typing import Iterable, List, Tuple
 from tentaclio import credentials
 
 from .copier import COPIER_REGISTRY
+from .remover import REMOVER_REGISTRY
 from .scanner import SCANNER_REGISTRY, DirEntry
 
 
-__all__ = ["scandir", "listdir", "copy"]
+__all__ = ["scandir", "listdir", "copy", "rm"]
 
 
 def scandir(url: str) -> Iterable[DirEntry]:
@@ -51,6 +52,12 @@ def copy(source: str, dest: str):
     dest_auth = credentials.authenticate(dest)
     copier = COPIER_REGISTRY.get_handler(source_auth.scheme + "+" + dest_auth.scheme)
     copier.copy(source_auth, dest_auth)
+
+
+def rm(url: str) -> bool:
+    """Delete the resource identified by the url."""
+    authenticated = credentials.authenticate(url)
+    return REMOVER_REGISTRY.get_handler(url).remove(authenticated)
 
 
 def walk(top: str) -> Iterable[Tuple[str, str, str]]:
