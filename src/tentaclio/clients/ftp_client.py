@@ -102,6 +102,11 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
 
         return entries
 
+    @decorators.check_conn
+    def remove(self):
+        """Remove the file from the ftp."""
+        self.conn.delete(self.url.path)
+
 
 class SFTPClient(base_client.BaseClient["SFTPClient"]):
     """SFTP stream client."""
@@ -186,3 +191,8 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
             else:
                 continue  # ignore other type of entries
         return entries
+
+    @decorators.check_conn
+    def remove(self):
+        """Remove the file from the ftp."""
+        self.conn.remove(self.url.path)
