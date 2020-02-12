@@ -167,6 +167,7 @@ class S3Client(base_client.BaseClient["S3Client"]):
                 Key=dest_client.key_name,
             )
 
+    @decorators.check_conn
     def remove(self):
         """Remove the key from the aws bucket."""
         self.conn.delete_object(Bucket=self.bucket, Key=self.key_name)

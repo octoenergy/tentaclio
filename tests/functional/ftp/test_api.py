@@ -1,3 +1,5 @@
+import pytest
+
 import tentaclio
 from tentaclio.credentials import authenticate
 
@@ -38,3 +40,13 @@ def test_list_folders():
     ls = list(tentaclio.listdir("ftp://hostname/upload/folder1"))
     assert any("upload/folder1/data.txt" in entry for entry in ls)
     assert any("upload/folder1/folder2" in entry for entry in ls)
+
+
+def test_delete():
+    source = f"ftp://hostname/source.txt"
+    with tentaclio.open(source, mode="w") as f:
+        f.write("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.")
+    tentaclio.remove(source)
+    with pytest.raises(tentaclio.clients.exceptions.FTPError):
+        with tentaclio.open(source) as f:
+            ...
