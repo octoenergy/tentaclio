@@ -1,4 +1,5 @@
 import collections
+import ftplib
 import io
 import stat
 
@@ -95,6 +96,47 @@ class TestFTPClient:
 
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/another_dir")
+        assert entries[0].is_dir
+
+    def test_scandir_mlst_not_supported(self, mocked_ftp_conn):
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+
+        client.scandir()
+        # assert we do a simple dir in the client
+        client.conn.dir.assert_called()
+
+    def test_scandir_mlst_propagate_error(self, mocked_ftp_conn):
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.side_effect = Exception("any other exception")
+
+        with pytest.raises(Exception, match="any other exception"):
+            client.scandir()
+
+    def test_scandir_dir_file(self, mocked_ftp_conn):
+        fake_entry = "-rwxrwxrwx   1 owner    group               0 Feb 17 17:54 important_file"
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+            # mock ftplib.dir behaviour
+            client.conn.dir = lambda url, parser: parser(fake_entry)
+
+        entries = list(client.scandir())
+        assert entries[0].url == URL("ftp://localhost:9999/mydir/important_file")
+        assert not entries[0].is_dir
+
+    def test_scandir_dir_folder(self, mocked_ftp_conn):
+        fake_entry = "drwxrwxrwx   1 owner    group               0 Feb 17 17:54 nested"
+        client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
+        with client:
+            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+            # mock ftplib.dir behaviour
+            client.conn.dir = lambda url, parser: parser(fake_entry)
+
+        entries = list(client.scandir())
+        assert entries[0].url == URL("ftp://localhost:9999/mydir/nested")
         assert entries[0].is_dir
 
 

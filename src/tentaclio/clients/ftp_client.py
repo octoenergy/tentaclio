@@ -85,9 +85,7 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
             logger.error("ftplib error: " + str(e))
             return False
 
-    def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
-        """Scan the connection url to create dir entries."""
-        base_url = f"ftp://{self.url.hostname}:{self.port}{self.url.path}/"
+    def _scan_mlds(self, base_url):
         entries = []
         for mlsd_entry in self.conn.mlsd(self.url.path, facts=["type"]):
             # https://docs.python.org/3/library/ftplib.html#ftplib.FTP.mlsd
@@ -101,6 +99,42 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
                 entries.append(fs.build_file_entry(url))
 
         return entries
+
+    def _scan_dir(self, base_url):
+        """Fallback if no mlst is implemented in the server.
+
+        Do not really hope this will work everywhere.
+        """
+        entries = []
+
+        def parser(line):
+            nonlocal entries
+            parts = line.split()
+            file_name = parts[-1]
+            url = urls.URL(base_url + file_name)
+            if parts[0][0] == "d":
+                # first line would look drwxrwx---
+                # if it's  dir
+                entries.append(fs.build_folder_entry(url))
+            else:
+                entries.append(fs.build_file_entry(url))
+
+        self.conn.dir(self.url.path.lstrip("/"), parser)
+
+        return entries
+
+    def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
+        """Scan the connection url to create dir entries."""
+        base_url = f"ftp://{self.url.hostname}:{self.port}{self.url.path.rstrip('/')}/"
+        try:
+            return self._scan_mlds(base_url)
+        except ftplib.error_perm as e:
+            if "501 'MLST type;'" in str(e):
+                # if mlst is not implemented in the server
+                # try to use dir and parse the output
+                return self._scan_dir(base_url)
+            else:
+                raise e
 
     @decorators.check_conn
     def remove(self):
