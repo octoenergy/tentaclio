@@ -23,6 +23,26 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
     allowed_schemes = ["postgresql"]
 
     # Postgres Copy Expert methods:
+    @decorators.check_conn
+    def get_df_unsafe(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
+        """Run a raw SQL query and return a data framem using COPY.
+
+        Params:
+            sql_query: query to execute
+            params: not supported; must be None
+            **kwargs: additional kwargs to pass to `pandas.read_csv`
+        """
+        if params:
+            raise NotImplementedError(
+                "Support for `params` is not implemented; please provide a pre-formatted query."
+            )
+        copy_sql = f"COPY ({sql_query.rstrip(';')}) TO STDOUT WITH CSV HEADER"
+        buffer = io.StringIO()
+        raw_conn = self._get_raw_conn()
+        raw_conn.cursor().copy_expert(copy_sql, buffer)
+        buffer.seek(0)
+        df = pd.read_csv(buffer, **kwargs)
+        return df
 
     @decorators.check_conn
     def dump_df(self, df: pd.DataFrame, dest_table: str) -> None:
