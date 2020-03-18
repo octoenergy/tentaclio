@@ -52,10 +52,10 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self._isfile(remote_path):
-            raise exceptions.FTPError("Unable to fetch the remote file")
-
-        self.conn.retrbinary(f"RETR {remote_path}", writer.write)
+        try:
+            self.conn.retrbinary(f"RETR {remote_path}", writer.write)
+        except Exception as e:
+            raise exceptions.FTPError("Error from ftp server:" + str(e))
 
     @decorators.check_conn
     def put(self, reader: protocols.ByteReader, file_path: Optional[str] = None) -> None:
@@ -71,19 +71,6 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
         self.conn.storbinary(f"STOR {remote_path}", buff)
 
     # Helpers:
-
-    def _isfile(self, file_path: str) -> bool:
-        """Check if the path exists in the remote server."""
-        # TODO Shall we just wait for the server to complain?
-        try:
-            # Query info
-            # https://tools.ietf.org/html/rfc3659#section-7
-            cmd = "MLST " + file_path
-            self.conn.sendcmd(cmd)
-            return True
-        except ftplib.error_perm as e:
-            logger.error("ftplib error: " + str(e))
-            return False
 
     def _scan_mlds(self, base_url):
         entries = []
@@ -134,7 +121,7 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
                 # try to use dir and parse the output
                 return self._scan_dir(base_url)
             else:
-                raise e
+                raise exceptions.FTPError("Error from ftp server:" + str(e))
 
     @decorators.check_conn
     def remove(self):
