@@ -47,3 +47,9 @@ class TestPostgresClient:
         retrieved_df = fixture_client.get_df(f"SELECT * FROM {TEST_TABLE_NAME};")
 
         assert retrieved_df.equals(fixture_df)
+
+    def test_dumping_and_getting_df_unsafe(self, fixture_client, fixture_df):
+        fixture_client.dump_df(fixture_df, TEST_TABLE_NAME)
+        retrieved_df = fixture_client.get_df_unsafe(f"SELECT * FROM {TEST_TABLE_NAME};")
+
+        assert retrieved_df.equals(fixture_df)

@@ -36,12 +36,12 @@ def fixture_df():
 
 def test_authenticated_api_calls(fixture_client, fixture_df):
     with tentaclio.open(
-        f"postgresql://hostname/tentaclio-db::{TEST_TABLE_NAME}", mode="w"
+        f"postgresql://hostname{fixture_client.url.path}::{TEST_TABLE_NAME}", mode="w"
     ) as writer:
         fixture_df.to_csv(writer, index=False)
 
     with clients.PostgresClient(
-        credentials.authenticate("postgresql://hostname/tentaclio-db")
+        credentials.authenticate(f"postgresql://hostname{fixture_client.url.path}")
     ) as client:
         retrieved_df = client.get_df(f"select * from {TEST_TABLE_NAME}")
 
