@@ -46,7 +46,7 @@ REQUIREMENTS = [
     "pysftp>=0.2.0,<0.3",
     # Utils
     "typing-extensions",
-    "pandas",
+    "pandas<1.0.2",
     "click",
     "pyyaml",
 ]
