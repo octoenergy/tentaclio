@@ -116,19 +116,19 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     # Query methods:
 
     @decorators.check_conn
-    def query(self, sql_query: str, **params) -> result.ResultProxy:
+    def query(self, sql_query: str, params: dict = None, **kwargs) -> result.ResultProxy:
         """Execute a read-only SQL query, and return results.
 
         This will not commit any changes to the database.
         """
-        return self.conn.execute(sql_query, params=params)
+        return self.conn.execute(sql_query, params=params, **kwargs)
 
     @decorators.check_conn
-    def execute(self, sql_query: str, **params) -> None:
+    def execute(self, sql_query: str, params: dict = None, **kwargs) -> None:
         """Execute a raw SQL query command."""
         trans = self.conn.begin()
         try:
-            self.conn.execute(sql_query, params=params)
+            self.conn.execute(sql_query, params=params, **kwargs)
         except Exception:
             trans.rollback()
             raise
