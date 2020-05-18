@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
 # Init secrets file
+secrets_file="$HOME/.tentaclio.yml"
 echo "🐙 Creating tentaclio's secrets file if not present..."
-touch ~/.tentaclio.yml
+touch $secrets_file
+if ! [[ -s $secrets_file ]]; then
+    cat > $secrets_file <<- EOF
+secrets:
+    consumer_db: postgresql://USER:PASSWORD@DATABASE-HOST-NAME/consumer
+EOF
+fi
 
 # Add secrets file to profile file.
 if [ -z "$shell" ]; then
