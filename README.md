@@ -244,6 +244,9 @@ secrets:
 ```
 And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality.
 
+Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and 
+automatically configure your environment.
+
 
 ## Quick note on protocols structural subtyping.
 
