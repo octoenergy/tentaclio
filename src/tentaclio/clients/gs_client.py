@@ -84,6 +84,28 @@ class GSClient(base_client.BaseClient["GSClient"]):
 
         self._get(writer, gs_bucket, gs_key)
 
+    @decorators.check_conn
+    def put(
+        self,
+        reader: protocols.ByteReader,
+        bucket_name: Optional[str] = None,
+        key_name: Optional[str] = None
+    ) -> None:
+        """Up the contents to gs.
+
+        Arguments:
+            :bucket_name: If not provided in the url at construction time.
+            :key_name: If not provided in the url at construction time.
+
+        Raises:
+            GSError: If a bucket or a key is not found in the given URL or args then
+            Google Cloud Exceptions: if the client raises them.
+
+        """
+        gs_bucket, gs_key = self._fetch_bucket_and_key(bucket_name, key_name)
+
+        self._put(reader, gs_bucket, gs_key)
+
     # Helpers:
 
     def _fetch_bucket_and_key(
@@ -110,3 +132,10 @@ class GSClient(base_client.BaseClient["GSClient"]):
         """Download file on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.download_to_file(writer)
+
+    def _put(
+        self, reader: protocols.ByteReader, bucket_name: str, key_name: str
+    ) -> None:
+        """Upload on the client."""
+        blob = self._get_blob(bucket_name, key_name)
+        blob.upload_from_file(reader)
