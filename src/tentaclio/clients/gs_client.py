@@ -1,11 +1,11 @@
 """GS Stream client."""
-from typing import Optional, Union
+from typing import Optional, Union, Tuple, cast
 
 from google.cloud import storage
 
-from tentaclio import urls
+from tentaclio import urls, protocols
 
-from . import base_client
+from . import base_client, decorators, exceptions
 
 
 __all__ = ["GSClient"]
@@ -59,3 +59,54 @@ class GSClient(base_client.BaseClient["GSClient"]):
         if self.closed:
             raise ValueError("Trying to close a closed client")
         self.closed = True
+
+    # Stream methods:
+
+    @decorators.check_conn
+    def get(
+        self,
+        writer: protocols.ByteWriter,
+        bucket_name: Optional[str] = None,
+        key_name: Optional[str] = None
+    ) -> None:
+        """Download the contents from gs and write them in the provided writer.
+
+        Arguments:
+            :bucket_name: If not provided in the url at construction time.
+            :key_name: If not provided in the url at construction time.
+
+        Raises:
+            GSError: If a bucket or a key is not found in the given URL or args then
+            Google Cloud Exceptions: if the client raises them.
+
+        """
+        gs_bucket, gs_key = self._fetch_bucket_and_key(bucket_name, key_name)
+
+        self._get(writer, gs_bucket, gs_key)
+
+    # Helpers:
+
+    def _fetch_bucket_and_key(
+        self, bucket: Optional[str] = None, key: Optional[str] = None
+    ) -> Tuple[str, str]:
+        bucket_name = bucket or self.bucket
+        if bucket_name is None:
+            raise exceptions.GSError("Missing remote bucket")
+
+        key_name = key or self.key_name
+        if key_name == "":
+            raise exceptions.GSError("Missing remote key")
+
+        return bucket_name, cast(str, key_name)
+
+    def _get_bucket(self, bucket_name: str) -> storage.Bucket:
+        """Get the bucket client."""
+        return self.conn.bucket(bucket_name)
+
+    def _get(
+        self, writer: protocols.ByteWriter, bucket_name: str, key_name: str
+    ) -> None:
+        """Download on the client so we can mock it."""
+        bucket = self._get_bucket(bucket_name)
+        blob = bucket.blob(key_name)
+        blob.download_to_file(writer)
