@@ -11,10 +11,10 @@ def test_pickle(fixture_client):
     encountered.
     """
 
-    with tentaclio.open(f"s3://hostname/data.pickle", mode="wb") as f:
+    with tentaclio.open("s3://hostname/data.pickle", mode="wb") as f:
         pickle.dump(expected, f)
 
-    with tentaclio.open(f"s3://hostname/data.pickle", mode="rb") as f:
+    with tentaclio.open("s3://hostname/data.pickle", mode="rb") as f:
         retrieved = pickle.load(f)
 
     assert expected == retrieved
