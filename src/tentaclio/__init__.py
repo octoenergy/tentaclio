@@ -29,6 +29,9 @@ STREAM_HANDLER_REGISTRY.register("file", StreamURLHandler(LocalFSClient))
 # s3 buckets
 STREAM_HANDLER_REGISTRY.register("s3", StreamURLHandler(S3Client))
 
+# gs handlers
+STREAM_HANDLER_REGISTRY.register("gs", StreamURLHandler(GSClient))
+
 # ftp / sftp handlers
 STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
 STREAM_HANDLER_REGISTRY.register("sftp", StreamURLHandler(SFTPClient))

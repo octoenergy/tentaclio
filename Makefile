@@ -36,6 +36,11 @@ unit:
 functional-s3:
 	pipenv run pytest tests/functional/s3
 
+functional-gs:
+	# You will need to have the authentication set up to run these test
+	# 🚨🚨🚨WARNING🚨🚨🚨 -  This will create a bucket and file as configured in tests/functional/gs/conftest.py
+	pipenv run pytest tests/functional/gs
+
 functional-ftp:
 	pipenv run pytest tests/functional/ftp
 
