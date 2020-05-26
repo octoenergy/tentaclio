@@ -32,7 +32,7 @@ def test_list_folders():
 
 
 def test_delete():
-    source = f"sftp://hostname/upload/source.txt"
+    source = "sftp://hostname/upload/source.txt"
     with tentaclio.open(source, mode="w") as f:
         f.write("Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn.")
     tentaclio.remove(source)

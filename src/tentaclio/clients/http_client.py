@@ -52,7 +52,7 @@ class HTTPClient(
         self.protocol = self.url.scheme
 
         if self.url.hostname is None:
-            raise exceptions.HTTPError(f"Missing URL hostname")
+            raise exceptions.HTTPError("Missing URL hostname")
         self.hostname = self.url.hostname
 
         self.port = self.url.port
