@@ -29,6 +29,10 @@ STREAM_HANDLER_REGISTRY.register("file", StreamURLHandler(LocalFSClient))
 # s3 buckets
 STREAM_HANDLER_REGISTRY.register("s3", StreamURLHandler(S3Client))
 
+# gs handlers
+STREAM_HANDLER_REGISTRY.register("gs", StreamURLHandler(GSClient))
+STREAM_HANDLER_REGISTRY.register("gcs", StreamURLHandler(GSClient))
+
 # ftp / sftp handlers
 STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
 STREAM_HANDLER_REGISTRY.register("sftp", StreamURLHandler(SFTPClient))
@@ -59,5 +63,7 @@ COPIER_REGISTRY.register("s3+s3", S3Client("s3://"))
 REMOVER_REGISTRY.register("", ClientRemover(LocalFSClient))
 REMOVER_REGISTRY.register("file", ClientRemover(LocalFSClient))
 REMOVER_REGISTRY.register("s3", ClientRemover(S3Client))
+REMOVER_REGISTRY.register("gs", ClientRemover(GSClient))
+REMOVER_REGISTRY.register("gcs", ClientRemover(GSClient))
 REMOVER_REGISTRY.register("ftp", ClientRemover(FTPClient))
 REMOVER_REGISTRY.register("sftp", ClientRemover(SFTPClient))
