@@ -93,3 +93,70 @@ def test_helper_get(m_connect, url, bucket, key):
         client._get(stream, bucket_name=bucket, key_name=key)
 
     m_connect.return_value.bucket.assert_called_once_with(bucket)
+
+
+@mock.patch("tentaclio.clients.GSClient._put")
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
+    "url,bucket,key", [
+        ("gs://:@gs", None, None),
+        ("gs://:@gs", "bucket", None),
+        ("gs://:@bucket", None, None)
+    ],
+)
+def test_put_invalid_path(m_connect, m_put, url, bucket, key):
+    """Test put for with invalid paths."""
+    with gs_client.GSClient(url) as client:
+        with pytest.raises(exceptions.GSError):
+            client.put(io.StringIO(), bucket_name=bucket, key_name=key)
+
+    m_put.assert_not_called()
+
+
+@mock.patch("tentaclio.clients.GSClient._put")
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
+    "url,bucket,key", [
+        ("gs://:@bucket/not_found", "bucket", "not_found")
+    ],
+)
+def test_put_not_found(m_connect, m_put, url, bucket, key):
+    """That when the connection raises a NotFound an GSError is thrown."""
+    m_put.side_effect = google_exceptions.NotFound("not found")
+    stream = io.StringIO()
+    with gs_client.GSClient(url) as client:
+        with pytest.raises(exceptions.GSError):
+            client.put(stream, bucket_name=bucket, key_name=key)
+
+    m_put.assert_called_once_with(stream, bucket, key)
+
+
+@mock.patch("tentaclio.clients.GSClient._put")
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
+    "url,bucket,key", [
+        ("gs://bucket/prefix", "bucket", "prefix"),
+    ]
+)
+def test_put(m_connect, m_put, url, bucket, key):
+    """Test put valid."""
+    stream = io.StringIO()
+    with gs_client.GSClient(url) as client:
+        client.put(stream, bucket_name=bucket, key_name=key)
+
+    m_put.assert_called_once_with(stream, bucket, key)
+
+
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
+    "url,bucket,key", [
+        ("gs://bucket/prefix", "bucket", "prefix"),
+    ]
+)
+def test_helper_put(m_connect, url, bucket, key):
+    """Test put valid."""
+    stream = io.StringIO()
+    with gs_client.GSClient(url) as client:
+        client._put(stream, bucket_name=bucket, key_name=key)
+
+    m_connect.return_value.bucket.assert_called_once_with(bucket)

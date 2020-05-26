@@ -73,6 +73,23 @@ class GSClient(base_client.BaseClient["GSClient"]):
         except google_exceptions.NotFound:
             raise exceptions.GSError("Unable to fetch the remote file")
 
+    @decorators.check_conn
+    def put(
+        self, reader: protocols.ByteReader, bucket_name: str = None, key_name: str = None
+    ) -> None:
+        """Up the contents to gs.
+
+        Arguments:
+            :bucket_name: If not provided in the url at construction time.
+            :key_name: If not provided in the url at construction time.
+        """
+        gs_bucket, gs_key = self._fetch_bucket_and_key(bucket_name, key_name)
+
+        try:
+            self._put(reader, gs_bucket, gs_key)
+        except google_exceptions.NotFound:
+            raise exceptions.GSError("Unable to fetch the remote file")
+
     # Helpers:
 
     def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
@@ -97,3 +114,10 @@ class GSClient(base_client.BaseClient["GSClient"]):
         """Download file on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.download_to_file(writer)
+
+    def _put(
+        self, reader: protocols.ByteReader, bucket_name: str, key_name: str
+    ) -> None:
+        """Upload on the client."""
+        blob = self._get_blob(bucket_name, key_name)
+        blob.upload_from_file(reader)
