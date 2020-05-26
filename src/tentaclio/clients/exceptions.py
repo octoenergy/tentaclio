@@ -13,5 +13,9 @@ class S3Error(ClientError):
     """Exception encountered over a S3 client connection."""
 
 
+class GSError(ClientError):
+    """Exception encountered over a GS client connection."""
+
+
 class HTTPError(ClientError):
     """Exception encountered over a HTTP client connection."""
