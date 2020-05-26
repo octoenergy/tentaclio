@@ -99,14 +99,14 @@ class GSClient(base_client.BaseClient["GSClient"]):
 
         return bucket_name, cast(str, key_name)
 
-    def _get_bucket(self, bucket_name: str) -> storage.Bucket:
+    def _get_blob(self, bucket_name: str, key_name: str) -> storage.Bucket:
         """Get the bucket client."""
-        return self.conn.bucket(bucket_name)
+        bucket = self.conn.bucket(bucket_name)
+        return bucket.blob(key_name)
 
     def _get(
         self, writer: protocols.ByteWriter, bucket_name: str, key_name: str
     ) -> None:
-        """Download on the client so we can mock it."""
-        bucket = self._get_bucket(bucket_name)
-        blob = bucket.blob(key_name)
+        """Download file on the client."""
+        blob = self._get_blob(bucket_name, key_name)
         blob.download_to_file(writer)
