@@ -11,6 +11,7 @@ You will need to have you gcloud set up. See docs for more information:
     https://googleapis.dev/python/google-api-core/latest/auth.html
 """
 import os
+from urllib import parse
 
 import pytest
 
@@ -43,16 +44,18 @@ def gs_client(gs_url):
 
 
 @pytest.fixture
-def test_bucket():
+def test_bucket(gs_url):
     """Return the test bucket."""
-    return TEST_BUCKET
+    u = parse.urlparse(gs_url)
+    assert u.netloc is not None, "Missing bucket in url."
+    return u.netloc
 
 
 @pytest.fixture
 def fixture_client(gs_client, test_bucket):
     """Create a test bucket for the functional test."""
-    bucket = gs_client.conn.bucket(TEST_BUCKET)
+    bucket = gs_client.conn.bucket(test_bucket)
     if not bucket.exists():
-        gs_client.conn.create_bucket(TEST_BUCKET, predefined_acl="project-private")
+        gs_client.conn.create_bucket(test_bucket, predefined_acl="project-private")
     yield gs_client
 
