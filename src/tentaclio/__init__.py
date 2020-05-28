@@ -31,6 +31,7 @@ STREAM_HANDLER_REGISTRY.register("s3", StreamURLHandler(S3Client))
 
 # gs handlers
 STREAM_HANDLER_REGISTRY.register("gs", StreamURLHandler(GSClient))
+STREAM_HANDLER_REGISTRY.register("gcs", StreamURLHandler(GSClient))
 
 # ftp / sftp handlers
 STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
