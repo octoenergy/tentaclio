@@ -127,3 +127,9 @@ class GSClient(base_client.BaseClient["GSClient"]):
         """Upload on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.upload_from_file(reader)
+
+    @decorators.check_conn
+    def remove(self):
+        """Remove the key from the aws bucket."""
+        blob = self.conn.get_blob(self.bucket, self.key_name)
+        blob.delete()
