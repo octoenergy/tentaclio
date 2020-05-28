@@ -99,7 +99,9 @@ class GSClient(base_client.BaseClient["GSClient"]):
 
     # Helpers:
 
-    def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
+    def _fetch_bucket_and_key(
+        self, bucket: Optional[str] = None, key: Optional[str] = None
+    ) -> Tuple[str, str]:
         bucket_name = bucket or self.bucket
         if bucket_name is None:
             raise exceptions.GSError("Missing remote bucket")
