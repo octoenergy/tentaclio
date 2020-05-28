@@ -36,7 +36,6 @@ REQUIREMENTS = [
     "boto3>=1.9.0,<1.10",
     # GS
     "google-cloud-storage<1.29",
-    "google-api-core<1.18",
     # Http
     "requests",
     # Postgres

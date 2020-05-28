@@ -1,7 +1,6 @@
 """GS Stream client."""
 from typing import Optional, Union, Tuple, cast
 
-from google.auth import credentials, default
 from google.cloud import storage, exceptions as google_exceptions
 
 from tentaclio import urls, protocols
@@ -21,16 +20,11 @@ class GSClient(base_client.BaseClient["GSClient"]):
     allowed_schemes = ["gs"]
 
     conn: storage.Client
-    project: Optional[str] = None
-    creds: Optional[credentials.Credentials] = None
     bucket: Optional[str]
     key_name: Optional[str]
 
     def __init__(
-        self,
-        url: Union[urls.URL, str],
-        project: Optional[str] = None,
-        creds: Optional[credentials.Credentials] = None
+        self, url: Union[urls.URL, str]
     ) -> None:
         """Create a new GS client.
 
@@ -38,17 +32,9 @@ class GSClient(base_client.BaseClient["GSClient"]):
         gs://bucket/key.
         Authenticated with environment variables:
         https://googleapis.dev/python/google-api-core/latest/auth.html
-
-        Arguments:
-            :url: URL of dataset
-            :project: project for the storage client. If not set the default for the environment
-                will be used. See storage client docs.
-            :creds: credentials for the storage client. If not set the default for the environment
-                will be used. See storage client docs.
         """
         super().__init__(url)
 
-        self._init_creds(project, creds)
         self.bucket = self.url.hostname or None
         self.key_name = self.url.path[1:] if self.url.path != "" else ""
 
@@ -56,7 +42,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
             self.bucket = None
 
     def _connect(self) -> storage.Client:
-        return storage.Client(credentials=self.creds, project=self.project)
+        return storage.Client()
 
     def close(self) -> None:
         """Close the connection.
@@ -105,29 +91,6 @@ class GSClient(base_client.BaseClient["GSClient"]):
             raise exceptions.GSError("Unable to fetch the remote file")
 
     # Helpers:
-
-    def _get_default_creds(self) -> Tuple[credentials.Credentials, Optional[str]]:
-        """Get the default creds.
-
-        Wrapper for the default function so it can be mocked.
-        Unable to mock the default function thus added a wrapper.
-        """
-        return default()
-
-    def _init_creds(
-        self,
-        project: Optional[str] = None,
-        creds: Optional[credentials.Credentials] = None
-    ) -> None:
-        default_creds, default_project = self._get_default_creds()
-        self.creds = creds or default_creds
-        self.project = project or default_project
-
-        if self.project is None:
-            raise exceptions.GSError("Must have a project set to use gs.")
-
-        if self.creds is None:
-            raise exceptions.GSError("Must have credentials to use gs.")
 
     def _fetch_bucket_and_key(self, bucket: Optional[str], key: Optional[str]) -> Tuple[str, str]:
         bucket_name = bucket or self.bucket
