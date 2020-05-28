@@ -120,6 +120,33 @@ def test_method(m_connect, method, url, bucket, key):
 
 @mock.patch("tentaclio.clients.GSClient._connect")
 @pytest.mark.parametrize(
+    "method,url,bucket,key", [
+        ("get", "gs://bucket/prefix", "bucket", "prefix"),
+        ("put", "gs://bucket/prefix", "bucket", "prefix"),
+        ("remove", "gs://bucket/prefix", "bucket", "prefix")
+    ]
+)
+def test_method_url_only(m_connect, method, url, bucket, key):
+    """Test method with valid call with url only."""
+    patch_string = patch_string_from_method(method)
+
+    with mock.patch(patch_string) as mocked_method:
+        stream = io.StringIO()
+        with gs_client.GSClient(url) as client:
+            calling_method = getattr(client, method)
+            if method == "remove":
+                calling_method()
+            else:
+                calling_method(stream)
+
+        if method == "remove":
+            mocked_method.assert_called_once_with(bucket, key)
+        else:
+            mocked_method.assert_called_once_with(stream, bucket, key)
+
+
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
     "url,bucket,key", [
         ("gs://bucket/prefix", "bucket", "prefix"),
     ]
