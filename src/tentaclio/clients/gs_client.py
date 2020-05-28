@@ -30,7 +30,13 @@ class GSClient(base_client.BaseClient["GSClient"]):
 
         The client is created based on a URL of the form
         gs://bucket/key.
-        Authenticated with environment variables:
+
+        Authentication and client configuration is recommended with environment variables.
+        Quoted from docs:
+            "Setting the GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_CLOUD_PROJECT environment
+            variables will override the automatically configured credentials."
+
+        See documentation for more information.
         https://googleapis.dev/python/google-api-core/latest/auth.html
         """
         super().__init__(url)
