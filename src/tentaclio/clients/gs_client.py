@@ -98,6 +98,22 @@ class GSClient(base_client.BaseClient["GSClient"]):
 
         self._put(reader, gs_bucket, gs_key)
 
+    # Non-streaming public methods
+    @decorators.check_conn
+    def remove(self, bucket_name: Optional[str] = None, key_name: Optional[str] = None) -> None:
+        """Remove the object from gs bucket.
+
+        Arguments:
+            :bucket_name: If not provided in the url at construction time.
+            :key_name: If not provided in the url at construction time.
+
+        Raises:
+            GSError: If a bucket or a key is not found in the given URL or args then
+            Google Cloud Exceptions: if the client raises them.
+        """
+        gs_bucket, gs_key_name = self._fetch_bucket_and_key(bucket_name, key_name)
+        self._remove(gs_bucket, gs_key_name)
+
     # Helpers:
 
     def _fetch_bucket_and_key(
@@ -132,8 +148,9 @@ class GSClient(base_client.BaseClient["GSClient"]):
         blob = self._get_blob(bucket_name, key_name)
         blob.upload_from_file(reader)
 
-    @decorators.check_conn
-    def remove(self):
-        """Remove the key from the aws bucket."""
-        blob = self.conn.get_blob(self.bucket, self.key_name)
+    def _remove(
+        self, bucket_name: str, key_name: str
+    ) -> None:
+        """Upload on the client."""
+        blob = self._get_blob(bucket_name, key_name)
         blob.delete()

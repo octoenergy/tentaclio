@@ -1,5 +1,9 @@
 """Test the api."""
+import pytest
+
 import tentaclio
+
+from google.cloud import exceptions as google_exceptions
 
 
 def test_authenticated_api_calls(gs_url, fixture_client):
@@ -13,3 +17,9 @@ def test_authenticated_api_calls(gs_url, fixture_client):
         result = f.read()
 
     assert result == data
+
+    tentaclio.remove(gs_url)
+
+    with pytest.raises(google_exceptions.NotFound):
+        with tentaclio.open(gs_url, mode="rb") as f:
+            result = f.read()
