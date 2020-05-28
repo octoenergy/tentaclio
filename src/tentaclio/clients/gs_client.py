@@ -89,13 +89,14 @@ class GSClient(base_client.BaseClient["GSClient"]):
         Arguments:
             :bucket_name: If not provided in the url at construction time.
             :key_name: If not provided in the url at construction time.
+
+        Raises:
+            GSError: If a bucket or a key is not found in the given URL or args then
+            Google Cloud Exceptions: if the client raises them.
         """
         gs_bucket, gs_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
-        try:
-            self._put(reader, gs_bucket, gs_key)
-        except google_exceptions.NotFound:
-            raise exceptions.GSError("No bucket found.")
+        self._put(reader, gs_bucket, gs_key)
 
     # Helpers:
 

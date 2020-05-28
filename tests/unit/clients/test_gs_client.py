@@ -73,14 +73,14 @@ def test_invalid_path(m_connect, method, url, bucket, key):
     ],
 )
 def test_not_found(m_connect, method, url, bucket, key):
-    """That when the connection raises a NotFound an GSError is thrown."""
+    """That when the connection raises a NotFound it is raised."""
     patch_string = patch_string_from_method(method)
 
     with mock.patch(patch_string) as mocked_method:
         mocked_method.side_effect = google_exceptions.NotFound("not found")
         stream = io.StringIO()
         with gs_client.GSClient(url) as client:
-            with pytest.raises(exceptions.GSError):
+            with pytest.raises(google_exceptions.NotFound):
                 calling_method = getattr(client, method)
                 calling_method(stream, bucket_name=bucket, key_name=key)
         mocked_method.assert_called_once_with(stream, bucket, key)
