@@ -1,7 +1,7 @@
 """GS Stream client."""
 from typing import Optional, Union, Tuple, cast
 
-from google.cloud import storage, exceptions as google_exceptions
+from google.cloud import storage
 
 from tentaclio import urls, protocols
 
@@ -71,13 +71,14 @@ class GSClient(base_client.BaseClient["GSClient"]):
         Arguments:
             :bucket_name: If not provided in the url at construction time.
             :key_name: If not provided in the url at construction time.
+
+        Raises:
+            GSError: If a bucket or a key is not found in the given URL or args then
+            Google Cloud Exceptions: if the client raises them.
         """
         gs_bucket, gs_key = self._fetch_bucket_and_key(bucket_name, key_name)
 
-        try:
-            self._get(writer, gs_bucket, gs_key)
-        except google_exceptions.NotFound:
-            raise exceptions.GSError("Unable to fetch the remote file")
+        self._get(writer, gs_bucket, gs_key)
 
     @decorators.check_conn
     def put(
