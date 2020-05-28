@@ -28,56 +28,81 @@ def test_parsing_gs_url(m_connect, url, hostname, path):
     assert client.bucket == hostname
 
 
-@mock.patch("tentaclio.clients.GSClient._get")
+def patch_string_from_method(method: str) -> str:
+    """Get the string that indicates the method to be patched for a calling method."""
+    switch_dict = {
+        "get": "tentaclio.clients.GSClient._get",
+        "put": "tentaclio.clients.GSClient._put"
+    }
+
+    if method in switch_dict:
+        return switch_dict[method]
+
+    raise Exception(f"No patch string for calling method: {method}")
+
+
 @mock.patch("tentaclio.clients.GSClient._connect")
 @pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://:@gs", None, None),
-        ("gs://:@gs", "bucket", None),
-        ("gs://:@bucket", None, None)
+    "method,url,bucket,key", [
+        ("get", "gs://:@gs", None, None),
+        ("get", "gs://:@gs", "bucket", None),
+        ("get", "gs://:@bucket", None, None),
+        ("put", "gs://:@gs", None, None),
+        ("put", "gs://:@gs", "bucket", None),
+        ("put", "gs://:@bucket", None, None)
     ],
 )
-def test_get_invalid_path(m_connect, m_get, url, bucket, key):
-    """Test get for with invalid paths."""
-    with gs_client.GSClient(url) as client:
-        with pytest.raises(exceptions.GSError):
-            client.get(io.StringIO(), bucket_name=bucket, key_name=key)
+def test_invalid_path(m_connect, method, url, bucket, key):
+    """Test a method with invalid paths."""
+    patch_string = patch_string_from_method(method)
 
-    m_get.assert_not_called()
+    with mock.patch(patch_string) as mocked_method:
+        with gs_client.GSClient(url) as client:
+            with pytest.raises(exceptions.GSError):
+                calling_method = getattr(client, method)
+                calling_method(io.StringIO(), bucket_name=bucket, key_name=key)
+
+        mocked_method.assert_not_called()
 
 
-@mock.patch("tentaclio.clients.GSClient._get")
 @mock.patch("tentaclio.clients.GSClient._connect")
 @pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://:@bucket/not_found", "bucket", "not_found")
+    "method,url,bucket,key", [
+        ("get", "gs://:@bucket/not_found", "bucket", "not_found"),
+        ("put", "gs://:@bucket/not_found", "bucket", "not_found")
     ],
 )
-def test_get_not_found(m_connect, m_get, url, bucket, key):
+def test_not_found(m_connect, method, url, bucket, key):
     """That when the connection raises a NotFound an GSError is thrown."""
-    m_get.side_effect = google_exceptions.NotFound("not found")
-    stream = io.StringIO()
-    with gs_client.GSClient(url) as client:
-        with pytest.raises(exceptions.GSError):
-            client.get(stream, bucket_name=bucket, key_name=key)
+    patch_string = patch_string_from_method(method)
 
-    m_get.assert_called_once_with(stream, bucket, key)
+    with mock.patch(patch_string) as mocked_method:
+        mocked_method.side_effect = google_exceptions.NotFound("not found")
+        stream = io.StringIO()
+        with gs_client.GSClient(url) as client:
+            with pytest.raises(exceptions.GSError):
+                calling_method = getattr(client, method)
+                calling_method(stream, bucket_name=bucket, key_name=key)
+        mocked_method.assert_called_once_with(stream, bucket, key)
 
 
-@mock.patch("tentaclio.clients.GSClient._get")
 @mock.patch("tentaclio.clients.GSClient._connect")
 @pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://bucket/prefix", "bucket", "prefix"),
+    "method,url,bucket,key", [
+        ("get", "gs://bucket/prefix", "bucket", "prefix"),
+        ("put", "gs://bucket/prefix", "bucket", "prefix")
     ]
 )
-def test_get(m_connect, m_get, url, bucket, key):
-    """Test get valid."""
-    stream = io.StringIO()
-    with gs_client.GSClient(url) as client:
-        client.get(stream, bucket_name=bucket, key_name=key)
+def test_method(m_connect, method, url, bucket, key):
+    """Test method with valid call."""
+    patch_string = patch_string_from_method(method)
 
-    m_get.assert_called_once_with(stream, bucket, key)
+    with mock.patch(patch_string) as mocked_method:
+        stream = io.StringIO()
+        with gs_client.GSClient(url) as client:
+            calling_method = getattr(client, method)
+            calling_method(stream, bucket_name=bucket, key_name=key)
+        mocked_method.assert_called_once_with(stream, bucket, key)
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
@@ -87,64 +112,13 @@ def test_get(m_connect, m_get, url, bucket, key):
     ]
 )
 def test_helper_get(m_connect, url, bucket, key):
-    """Test helper get is correctly called."""
+    """Test helper _get is correctly called."""
     stream = io.StringIO()
     with gs_client.GSClient(url) as client:
         client._get(stream, bucket_name=bucket, key_name=key)
 
-    m_connect.return_value.bucket.assert_called_once_with(bucket)
-
-
-@mock.patch("tentaclio.clients.GSClient._put")
-@mock.patch("tentaclio.clients.GSClient._connect")
-@pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://:@gs", None, None),
-        ("gs://:@gs", "bucket", None),
-        ("gs://:@bucket", None, None)
-    ],
-)
-def test_put_invalid_path(m_connect, m_put, url, bucket, key):
-    """Test put for with invalid paths."""
-    with gs_client.GSClient(url) as client:
-        with pytest.raises(exceptions.GSError):
-            client.put(io.StringIO(), bucket_name=bucket, key_name=key)
-
-    m_put.assert_not_called()
-
-
-@mock.patch("tentaclio.clients.GSClient._put")
-@mock.patch("tentaclio.clients.GSClient._connect")
-@pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://:@bucket/not_found", "bucket", "not_found")
-    ],
-)
-def test_put_not_found(m_connect, m_put, url, bucket, key):
-    """That when the connection raises a NotFound an GSError is thrown."""
-    m_put.side_effect = google_exceptions.NotFound("not found")
-    stream = io.StringIO()
-    with gs_client.GSClient(url) as client:
-        with pytest.raises(exceptions.GSError):
-            client.put(stream, bucket_name=bucket, key_name=key)
-
-    m_put.assert_called_once_with(stream, bucket, key)
-
-
-@mock.patch("tentaclio.clients.GSClient._put")
-@mock.patch("tentaclio.clients.GSClient._connect")
-@pytest.mark.parametrize(
-    "url,bucket,key", [
-        ("gs://bucket/prefix", "bucket", "prefix"),
-    ]
-)
-def test_put(m_connect, m_put, url, bucket, key):
-    """Test put valid."""
-    stream = io.StringIO()
-    with gs_client.GSClient(url) as client:
-        client.put(stream, bucket_name=bucket, key_name=key)
-
-    m_put.assert_called_once_with(stream, bucket, key)
+    connection = m_connect.return_value
+    connection.bucket.assert_called_once_with(bucket)
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
@@ -154,9 +128,10 @@ def test_put(m_connect, m_put, url, bucket, key):
     ]
 )
 def test_helper_put(m_connect, url, bucket, key):
-    """Test put valid."""
+    """Test helper _put is correctly called."""
     stream = io.StringIO()
     with gs_client.GSClient(url) as client:
         client._put(stream, bucket_name=bucket, key_name=key)
 
-    m_connect.return_value.bucket.assert_called_once_with(bucket)
+    connection = m_connect.return_value
+    connection.bucket.assert_called_once_with(bucket)
