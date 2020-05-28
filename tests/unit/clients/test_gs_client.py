@@ -119,6 +119,8 @@ def test_helper_get(m_connect, url, bucket, key):
 
     connection = m_connect.return_value
     connection.bucket.assert_called_once_with(bucket)
+    connection.bucket.return_value.blob.assert_called_once_with(key)
+    connection.bucket.return_value.blob.return_value.download_to_file.assert_called_once()
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
