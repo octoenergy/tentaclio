@@ -3,7 +3,6 @@
 To use run the test use command:
 ```
 env TENTACLIO__CONN__GS_TEST=gs://tentaclio-bucket/test.txt \
-    env TENTACLIO__CONN__GS_TEST_PROJECT=<project that the bucket is in> \
     make functional-gs
 ```
 
@@ -17,10 +16,7 @@ import pytest
 
 from tentaclio import clients
 
-TEST_BUCKET = "tentaclio-bucket"
-
 GS_TEST_URL = os.getenv("TENTACLIO__CONN__GS_TEST")
-GS_TEST_PROJECT = os.getenv("TENTACLIO__CONN__GS_TEST_PROJECT")
 
 
 @pytest.fixture(scope="session")
@@ -31,15 +27,9 @@ def gs_url():
 
 
 @pytest.fixture(scope="session")
-def gs_project():
-    """Get GS project for testing."""
-    return GS_TEST_PROJECT
-
-
-@pytest.fixture(scope="session")
 def gs_client(gs_url):
     """Initialise GS client."""
-    with clients.GSClient(gs_url, project=GS_TEST_PROJECT) as client:
+    with clients.GSClient(gs_url) as client:
         yield client
 
 
