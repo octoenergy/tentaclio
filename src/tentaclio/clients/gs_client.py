@@ -17,7 +17,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
     Ref: https://googleapis.dev/python/storage/latest/index.html
     """
 
-    allowed_schemes = ["gs"]
+    allowed_schemes = ["gs", "gcs"]
 
     conn: storage.Client
     bucket: Optional[str]
