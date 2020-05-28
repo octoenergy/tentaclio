@@ -88,7 +88,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
         try:
             self._put(reader, gs_bucket, gs_key)
         except google_exceptions.NotFound:
-            raise exceptions.GSError("Unable to fetch the remote file")
+            raise exceptions.GSError("No bucket found.")
 
     # Helpers:
 
