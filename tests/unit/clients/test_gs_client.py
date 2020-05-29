@@ -53,13 +53,12 @@ def test_invalid_path(m_connect, method, url, bucket, key):
     patch_string = patch_string_from_method(method)
 
     with mock.patch(patch_string) as mocked_method:
-        with gs_client.GSClient(url) as client:
-            with pytest.raises(exceptions.GSError):
-                calling_method = getattr(client, method)
-                if method == "remove":
-                    calling_method(bucket_name=bucket, key_name=key)
-                else:
-                    calling_method(io.StringIO(), bucket_name=bucket, key_name=key)
+        with gs_client.GSClient(url) as client, pytest.raises(exceptions.GSError):
+            calling_method = getattr(client, method)
+            if method == "remove":
+                calling_method(bucket_name=bucket, key_name=key)
+            else:
+                calling_method(io.StringIO(), bucket_name=bucket, key_name=key)
 
         mocked_method.assert_not_called()
 
@@ -79,13 +78,12 @@ def test_not_found(m_connect, method, url, bucket, key):
     with mock.patch(patch_string) as mocked_method:
         mocked_method.side_effect = google_exceptions.NotFound("not found")
         stream = io.StringIO()
-        with gs_client.GSClient(url) as client:
-            with pytest.raises(google_exceptions.NotFound):
-                calling_method = getattr(client, method)
-                if method == "remove":
-                    calling_method(bucket_name=bucket, key_name=key)
-                else:
-                    calling_method(stream, bucket_name=bucket, key_name=key)
+        with gs_client.GSClient(url) as client, pytest.raises(google_exceptions.NotFound):
+            calling_method = getattr(client, method)
+            if method == "remove":
+                calling_method(bucket_name=bucket, key_name=key)
+            else:
+                calling_method(stream, bucket_name=bucket, key_name=key)
 
         if method == "remove":
             mocked_method.assert_called_once_with(bucket, key)
