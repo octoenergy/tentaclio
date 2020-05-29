@@ -32,7 +32,8 @@ def patch_string_from_method(method: str) -> str:
     """Get the string that indicates the method to be patched for a calling method."""
     switch_dict = {
         "get": "tentaclio.clients.GSClient._get",
-        "put": "tentaclio.clients.GSClient._put"
+        "put": "tentaclio.clients.GSClient._put",
+        "remove": "tentaclio.clients.GSClient._remove"
     }
 
     if method in switch_dict:
@@ -42,7 +43,7 @@ def patch_string_from_method(method: str) -> str:
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
-@pytest.mark.parametrize("method", ["get", "put"])
+@pytest.mark.parametrize("method", ["get", "put", "remove"])
 @pytest.mark.parametrize(
     "url,bucket,key",
     [("gs://:@gs", None, None), ("gs://:@gs", "bucket", None), ("gs://:@bucket", None, None)],
@@ -54,7 +55,10 @@ def test_invalid_path(m_connect, method, url, bucket, key):
     with mock.patch(patch_string) as mocked_method:
         with gs_client.GSClient(url) as client, pytest.raises(exceptions.GSError):
             calling_method = getattr(client, method)
-            calling_method(io.StringIO(), bucket_name=bucket, key_name=key)
+            if method == "remove":
+                calling_method(bucket_name=bucket, key_name=key)
+            else:
+                calling_method(io.StringIO(), bucket_name=bucket, key_name=key)
 
         mocked_method.assert_not_called()
 
@@ -63,7 +67,8 @@ def test_invalid_path(m_connect, method, url, bucket, key):
 @pytest.mark.parametrize(
     "method,url,bucket,key", [
         ("get", "gs://:@bucket/not_found", "bucket", "not_found"),
-        ("put", "gs://:@bucket/not_found", "bucket", "not_found")
+        ("put", "gs://:@bucket/not_found", "bucket", "not_found"),
+        ("remove", "gs://:@bucket/not_found", "bucket", "not_found")
     ],
 )
 def test_not_found(m_connect, method, url, bucket, key):
@@ -75,15 +80,23 @@ def test_not_found(m_connect, method, url, bucket, key):
         stream = io.StringIO()
         with gs_client.GSClient(url) as client, pytest.raises(google_exceptions.NotFound):
             calling_method = getattr(client, method)
-            calling_method(stream, bucket_name=bucket, key_name=key)
-        mocked_method.assert_called_once_with(stream, bucket, key)
+            if method == "remove":
+                calling_method(bucket_name=bucket, key_name=key)
+            else:
+                calling_method(stream, bucket_name=bucket, key_name=key)
+
+        if method == "remove":
+            mocked_method.assert_called_once_with(bucket, key)
+        else:
+            mocked_method.assert_called_once_with(stream, bucket, key)
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
 @pytest.mark.parametrize(
     "method,url,bucket,key", [
         ("get", "gs://bucket/prefix", "bucket", "prefix"),
-        ("put", "gs://bucket/prefix", "bucket", "prefix")
+        ("put", "gs://bucket/prefix", "bucket", "prefix"),
+        ("remove", "gs://bucket/prefix", "bucket", "prefix")
     ]
 )
 def test_method(m_connect, method, url, bucket, key):
@@ -94,8 +107,15 @@ def test_method(m_connect, method, url, bucket, key):
         stream = io.StringIO()
         with gs_client.GSClient(url) as client:
             calling_method = getattr(client, method)
-            calling_method(stream, bucket_name=bucket, key_name=key)
-        mocked_method.assert_called_once_with(stream, bucket, key)
+            if method == "remove":
+                calling_method(bucket_name=bucket, key_name=key)
+            else:
+                calling_method(stream, bucket_name=bucket, key_name=key)
+
+        if method == "remove":
+            mocked_method.assert_called_once_with(bucket, key)
+        else:
+            mocked_method.assert_called_once_with(stream, bucket, key)
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
@@ -132,3 +152,20 @@ def test_helper_put(m_connect, url, bucket, key):
     connection.bucket.assert_called_once_with(bucket)
     connection.bucket.return_value.blob.assert_called_once_with(key)
     connection.bucket.return_value.blob.return_value.upload_from_file.assert_called_once()
+
+
+@mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize(
+    "url,bucket,key", [
+        ("gs://bucket/prefix", "bucket", "prefix"),
+    ]
+)
+def test_helper_remove(m_connect, url, bucket, key):
+    """Test helper _remove is correctly called."""
+    with gs_client.GSClient(url) as client:
+        client._remove(bucket_name=bucket, key_name=key)
+
+    connection = m_connect.return_value
+    connection.bucket.assert_called_once_with(bucket)
+    connection.bucket.return_value.blob.assert_called_once_with(key)
+    connection.bucket.return_value.blob.return_value.delete.assert_called_once()
