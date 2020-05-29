@@ -43,18 +43,10 @@ def patch_string_from_method(method: str) -> str:
 
 
 @mock.patch("tentaclio.clients.GSClient._connect")
+@pytest.mark.parametrize("method", ["get", "put", "remove"])
 @pytest.mark.parametrize(
-    "method,url,bucket,key", [
-        ("get", "gs://:@gs", None, None),
-        ("get", "gs://:@gs", "bucket", None),
-        ("get", "gs://:@bucket", None, None),
-        ("put", "gs://:@gs", None, None),
-        ("put", "gs://:@gs", "bucket", None),
-        ("put", "gs://:@bucket", None, None),
-        ("remove", "gs://:@gs", None, None),
-        ("remove", "gs://:@gs", "bucket", None),
-        ("remove", "gs://:@bucket", None, None)
-    ],
+    "url,bucket,key",
+    [("gs//:@gs", None, None), ("gs://:@gs", "bucket", None), ("gs://:@bucket", None, None)],
 )
 def test_invalid_path(m_connect, method, url, bucket, key):
     """Test a method with invalid paths."""
