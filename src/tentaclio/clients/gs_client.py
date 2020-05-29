@@ -151,6 +151,6 @@ class GSClient(base_client.BaseClient["GSClient"]):
     def _remove(
         self, bucket_name: str, key_name: str
     ) -> None:
-        """Upload on the client."""
+        """Delete on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.delete()
