@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.1-alpha.10"
+VERSION = "0.0.1"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -74,7 +74,7 @@ setup_args = dict(
     # Dependencies
     install_requires=REQUIREMENTS,
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
