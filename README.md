@@ -145,6 +145,8 @@ The supported url protocols are:
 * `/local/file`
 * `file:///local/file`
 * `s3://bucket/file`
+* `gs://bucket/file`
+* `gsc://bucket/file`
 * `ftp://path/to/file`
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
