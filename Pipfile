@@ -6,9 +6,6 @@ name = "pypi"
 [requires]
 python_version = "3.6.6"
 
-[packages]
-# Lib-dependencies already defined within `setup.py`
-
 [dev-packages]
 # Symlink to project root
 tentaclio = {editable = true,path = "."}
@@ -18,13 +15,12 @@ flake8 = "*"
 mypy = "==0.701"
 # pydocstyle lock due to errors that occur when version is bumped
 pydocstyle = "<3.1"
-
 # Testing
 moto = "*"
 pytest = "*"
 pytest-cov = "*"
 # locking due to problem with unit test when bumped
 pytest-mock = "<1.11"
-
 # Releasing
 twine = "*"
+secretstorage = "*"
