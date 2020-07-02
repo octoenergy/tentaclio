@@ -5,6 +5,7 @@ which is more performant than using sql alchemy functions.
 """
 
 import io
+import os
 from typing import Sequence
 
 import pandas as pd
@@ -18,9 +19,24 @@ __all__ = ["PostgresClient"]
 
 
 class PostgresClient(sqla_client.SQLAlchemyClient):
-    """Postgres client, backed by a SQLAlchemy connection."""
+    """Postgres client, backed by a SQLAlchemy connection.
+
+    While connecting will check TENTACLIO__PG_APPLICATION_NAME to set
+    the applicationName in the connection string.
+    """
+
+    TENTACLIO__PG_APPLICATION_NAME = "TENTACLIO__PG_APPLICATION_NAME"
 
     allowed_schemes = ["postgresql"]
+
+    def _extract_url_params(self):
+        super()._extract_url_params()
+        applicationName = os.getenv(self.TENTACLIO__PG_APPLICATION_NAME, "")
+        if applicationName != "":
+            if self.url_query is None:
+                self.url_query = {}
+            # overrides the value that might be set in the tentaclio file
+            self.url_query["applicationName"] = applicationName
 
     # Postgres Copy Expert methods:
     @decorators.check_conn
