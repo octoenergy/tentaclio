@@ -208,6 +208,10 @@ The supported db schemes are:
 * `mssql://`
 * Any other scheme supported by sqlalchemy.
 
+#### Extras for databases
+For postgres you can set the variable `TENTACLIO__PG_APPLICATION_NAME` and the value will be injected 
+when connecting to the database.
+
 ### Automatic credentials injection
 
 1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@ftp.octoenergy.com`).
