@@ -31,12 +31,12 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
 
     def _extract_url_params(self):
         super()._extract_url_params()
-        applicationName = os.getenv(self.TENTACLIO__PG_APPLICATION_NAME, "")
-        if applicationName != "":
+        application_name = os.getenv(self.TENTACLIO__PG_APPLICATION_NAME, "")
+        if application_name != "":
             if self.url_query is None:
                 self.url_query = {}
             # overrides the value that might be set in the tentaclio file
-            self.url_query["applicationName"] = applicationName
+            self.url_query["applicationName"] = application_name
 
     # Postgres Copy Expert methods:
     @decorators.check_conn
