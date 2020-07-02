@@ -66,7 +66,10 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
         self.execution_options = execution_options or {}
         self.connect_args = connect_args or self.connect_args_default
         super().__init__(url)
+        self._extract_url_params()
 
+    def _extract_url_params(self) -> None:
+        """Extract the database parameters from the url."""
         # the database doesn't start with /
         database = self.url.path[1:]
 
