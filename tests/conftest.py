@@ -50,6 +50,19 @@ def db_client(postgres_url):
         yield client
 
 
+@pytest.fixture(scope="session")
+def application_name():
+    return "test_application_name"
+
+
+@pytest.fixture(scope="function")
+def db_client_application_name(postgres_url, application_name, monkeypatch):
+    """Create and tear down the session-wide SQLAlchemy Db connection"""
+    monkeypatch.setenv("TENTACLIO__PG_APPLICATION_NAME", application_name)
+    with clients.PostgresClient(postgres_url) as client:
+        yield client
+
+
 # Handler fixtures
 
 

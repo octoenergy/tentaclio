@@ -8,8 +8,7 @@ TEST_COLUMNS = ["column_int", "column_str", "column_float"]
 TEST_VALUES = [1, "test_1", 123.456]
 
 
-@pytest.fixture
-def fixture_client(db_client):
+def _client(db_client):
     test_meta = sqla.MetaData()
     sqla.Table(
         # Meta
@@ -26,6 +25,16 @@ def fixture_client(db_client):
 
 
 @pytest.fixture
+def fixture_client(db_client):
+    yield from _client(db_client)
+
+
+@pytest.fixture
+def fixture_client_app_name(db_client_application_name):
+    yield from _client(db_client_application_name)
+
+
+@pytest.fixture
 def fixture_df():
     df = pd.DataFrame(data=[TEST_VALUES], columns=TEST_COLUMNS)
     return df
@@ -39,6 +48,17 @@ class TestPostgresClient:
 
         fixture_client.execute(sql_insert)
         result = fixture_client.query(sql_query)
+
+        assert list(result.fetchone()) == TEST_VALUES
+
+    def test_executing_and_querying_sql_app_name(self, fixture_client_app_name):
+        """Sanity check for when setting the application name. """
+        sql_insert = f"""INSERT INTO {TEST_TABLE_NAME} VALUES
+                         ({TEST_VALUES[0]}, '{TEST_VALUES[1]}', {TEST_VALUES[2]});"""
+        sql_query = f"SELECT * FROM {TEST_TABLE_NAME};"
+
+        fixture_client_app_name.execute(sql_insert)
+        result = fixture_client_app_name.query(sql_query)
 
         assert list(result.fetchone()) == TEST_VALUES
 

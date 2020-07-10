@@ -39,7 +39,7 @@ class TestPostgresClient:
         assert client.url_query == query
 
     @pytest.mark.parametrize(
-        "env_value, expected", (("test", {"applicationName": "test"}), ("", None),)
+        "env_value, expected", (("test", {"application_name": "test"}), ("", None),)
     )
     def test_add_application_name_from_env(self, mocker, env_value, expected):
         mocked_os = mocker.patch("tentaclio.clients.postgres_client.os")

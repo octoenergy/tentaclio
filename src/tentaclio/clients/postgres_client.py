@@ -36,7 +36,7 @@ class PostgresClient(sqla_client.SQLAlchemyClient):
             if self.url_query is None:
                 self.url_query = {}
             # overrides the value that might be set in the tentaclio file
-            self.url_query["applicationName"] = application_name
+            self.url_query["application_name"] = application_name
 
     # Postgres Copy Expert methods:
     @decorators.check_conn
