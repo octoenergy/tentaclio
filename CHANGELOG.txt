@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2020-07-15
+### Fix 
+ - Fix problems with base stream as it needed to make itself as seekable 
+ in order to play nicely with zip files
+### Changed
+ - Now the required dev version is python 3.7
+
+
 ## [0.0.3] - 2020-07-02
 ### Fix 
  - Fix issue with the application name string for postgres 

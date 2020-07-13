@@ -50,3 +50,9 @@ class TestStreamerReader:
         reader.close()
 
         assert reader.buffer.closed
+
+    def test_seekable(self, mocker):
+        client = mocker.MagicMock()
+
+        reader = base_stream.StreamerReader(client, io.BytesIO())
+        assert reader.seekable()

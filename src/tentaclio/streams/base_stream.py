@@ -18,7 +18,7 @@ buffer to the underlying client.
 """
 import abc
 import io
-from typing import IO, Any
+from typing import IO, Any, Optional
 
 from typing_extensions import ContextManager, Protocol
 
@@ -74,9 +74,17 @@ class StreamBaseIO:
         """Change the stream position to the given byte offset."""
         return self.buffer.seek(*args, **kargs)
 
-    def tell(self, *args, **kargs):
+    def tell(self) -> int:
         """Return the current stream position."""
-        return self.buffer.tell(*args, **kargs)
+        return self.buffer.tell()
+
+    def truncate(self, size: Optional[int] = None):
+        """Resize the stream to the given size in bytes."""
+        return self.buffer.truncate(size)
+
+    def seekable(self) -> bool:
+        """Mark this stream as seekable."""
+        return True
 
 
 class StreamerWriter(StreamBaseIO):
