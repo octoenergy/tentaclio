@@ -4,7 +4,11 @@ import tempfile
 import pytest
 
 from tentaclio.clients import GoogleDriveFSClient
-from tentaclio.clients.google_drive_client import _load_credentials
+from tentaclio.clients.google_drive_client import (
+    _GoogleFileDescriptor,
+    _ListFilesRequest,
+    _load_credentials
+)
 
 
 @pytest.fixture
@@ -66,3 +70,84 @@ class TestGoogleDriveFSClient:
     def test_parse_path_empty(self):
         with pytest.raises(ValueError):
             GoogleDriveFSClient("googledrive://")
+
+
+class TestGoogleFileDescriptor:
+    def test_is_dir(self):
+        args = dict(
+            name="file",
+            id_="123",
+            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+            parents=[],
+            url="googledrive://root/",
+        )
+        descriptor = _GoogleFileDescriptor(**args)
+        assert descriptor.is_dir
+        assert not descriptor.is_file
+
+    def test_is_not_dir(self):
+        args = dict(
+            name="file",
+            id_="123",
+            mime_type="application/other",
+            parents=[],
+            url="googledrive://root/",
+        )
+        descriptor = _GoogleFileDescriptor(**args)
+        assert not descriptor.is_dir
+        assert descriptor.is_file
+
+
+class TestListFilesRequest:
+    @pytest.fixture
+    def file_props(self):
+        return {
+            "id": "123",
+            "name": "file",
+            "parents": ["0"],
+            "mimeType": "application/thingy",
+        }
+
+    def test_build_descriptor(self, mocker, file_props):
+        lister = _ListFilesRequest(mocker.Mock)
+        descriptor = next(lister._build_descriptors([file_props], None))
+        assert descriptor.id_ == file_props["id"]
+        assert descriptor.name == file_props["name"]
+        assert descriptor.parents == file_props["parents"]
+        assert descriptor.mime_type == file_props["mimeType"]
+
+    def test_build_descriptor_with_url(self, mocker, file_props):
+        lister = _ListFilesRequest(mocker.Mock)
+        descriptor = next(lister._build_descriptors([file_props], "googledrive://my drive"))
+        assert descriptor.id_ == file_props["id"]
+        assert descriptor.name == file_props["name"]
+        assert descriptor.parents == file_props["parents"]
+        assert descriptor.mime_type == file_props["mimeType"]
+        assert str(descriptor.url) == "googledrive://my drive/file"
+
+    def test_list_no_pagination(self, mocker, file_props):
+        service = mocker.MagicMock()
+        response = {
+            "files": [file_props],
+        }
+        service.files.return_value.list.return_value.execute.return_value = response
+        lister = _ListFilesRequest(service)
+        results = list(lister.list())
+        assert len(results) == 1
+        assert results[0].id_ == file_props["id"]
+
+    def test_list_pagination(self, mocker, file_props):
+        service = mocker.MagicMock()
+        file_props_2 = file_props.copy()
+        file_props_2["id"] = "124"
+        responses = [
+            {"files": [file_props], "nextPageToken": "please"},
+            {"files": [file_props_2]},
+        ]
+
+        service.files.return_value.list.return_value.execute.side_effect = responses
+        lister = _ListFilesRequest(service)
+        results = list(lister.list())
+        assert len(results) == 2
+        assert results[0].id_ == file_props["id"]
+        assert results[1].id_ == file_props_2["id"]
