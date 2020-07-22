@@ -17,7 +17,7 @@ with open(REPO_ROOT / "README.md", encoding="utf-8") as f:
 
 
 class VerifyVersionCommand(install):
-    """Custom command to verify that the git tag matches our version"""
+    """Custom command to verify that the git tag matches our version."""
 
     description = "verify that the git tag matches our version"
 
@@ -46,6 +46,10 @@ REQUIREMENTS = [
     "PyAthena",
     # SFTP
     "pysftp>=0.2.0,<0.3",
+    # Google drive
+    "google-api-python-client",
+    "google-auth-httplib2",
+    "google-auth-oauthlib",
     # Utils
     "typing-extensions",
     "pandas<1.0.2",
