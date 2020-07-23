@@ -46,7 +46,7 @@ def _load_credentials(token_file: str) -> Credentials:
 class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     """Allow filesystem-like access to google drive."""
 
-    DEFAULT_DRIVE = "root"
+    DEFAULT_DRIVE = "My Drive"
 
     allowed_schemes = ["gdrive", "googledrive"]
 
@@ -102,13 +102,56 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     @decorators.check_conn
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """List contents of a folder from google drive."""
-        return []
+        # get the descriptor for the leaf folder
+        leaf_descriptor = list(
+            _path_parts_to_descriptors(self._service, self.drive, self.path_parts)
+        )[-1]
+
+        if not leaf_descriptor.is_dir:
+            raise IOError(f"{self.url} is not a folder")
+
+        lister = _ListFilesRequest(self._service, q=f"'{leaf_descriptor.id_}' in parents")
+        return lister.list(url_base=str(self.url).rstrip("/") + "/")
 
     # remove
 
     def remove(self):
         """Remove the file from google drive."""
         pass
+
+
+def _path_parts_to_descriptors(service: Any, drive: str, path_parts: Iterable[str]):
+    """Convert the path parts into google drive ids."""
+    # FIXME better driver support
+    file_descriptors = [
+        _GoogleFileDescriptor(
+            id_=drive,
+            name="root",
+            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+            url=urls.URL("gdrive://root"),
+            parents=[],
+        )
+    ]
+    parent = None
+    for pathPart in path_parts:
+        file_descriptor = _get_file_descriptor(service, pathPart, parent)
+        parent = file_descriptor.id_
+        file_descriptors.append(file_descriptor)
+
+    return file_descriptors
+
+
+def _get_file_descriptor(service: Any, name: str, parent: Optional[str] = None):
+    """Get the file id given the file name and it's parent."""
+    args = {"q": f" name = '{name}'"}
+    if parent is not None:
+        args["q"] += f" and '{parent}' in parents"
+
+    results = list(_ListFilesRequest(service, **args).list())
+
+    if len(results) == 0:
+        raise RuntimeError(f"Could not find file {name} with parent {parent}")
+    return results[0]
 
 
 class _GoogleDriveRequest:
