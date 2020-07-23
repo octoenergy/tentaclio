@@ -1,7 +1,8 @@
 """Local filesystem client."""
 import json
 import os
-from typing import Any, Iterable, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,7 +10,7 @@ from googleapiclient.discovery import build
 
 from tentaclio import fs, protocols, urls
 
-from . import base_client
+from . import base_client, decorators
 
 
 __all__ = ["GoogleDriveFSClient"]
@@ -45,7 +46,7 @@ def _load_credentials(token_file: str) -> Credentials:
 class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     """Allow filesystem-like access to google drive."""
 
-    DEFAULT_DRIVE = "root"
+    DEFAULT_DRIVE = "My Drive"
 
     allowed_schemes = ["gdrive", "googledrive"]
 
@@ -98,12 +99,122 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     # scandir related methods
 
+    @decorators.check_conn
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """List contents of a folder from google drive."""
-        return []
+        # get the descriptor for the leaf folder
+        leaf_descriptor = list(
+            _path_parts_to_descriptors(self._service, self.drive, self.path_parts)
+        )[-1]
+
+        if not leaf_descriptor.is_dir:
+            raise IOError(f"{self.url} is not a folder")
+
+        lister = _ListFilesRequest(self._service, q=f"'{leaf_descriptor.id_}' in parents")
+        return lister.list(url_base=str(self.url).rstrip("/") + "/")
 
     # remove
 
     def remove(self):
         """Remove the file from google drive."""
         pass
+
+
+def _path_parts_to_descriptors(service: Any, drive: str, path_parts: Iterable[str]):
+    """Convert the path parts into google drive ids."""
+    # FIXME better driver support
+    file_descriptors = [
+        _GoogleFileDescriptor(
+            id_=drive,
+            name="root",
+            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+            url=urls.URL("gdrive://root"),
+            parents=[],
+        )
+    ]
+    parent = None
+    for pathPart in path_parts:
+        file_descriptor = _get_file_descriptor(service, pathPart, parent)
+        parent = file_descriptor.id_
+        file_descriptors.append(file_descriptor)
+
+    return file_descriptors
+
+
+def _get_file_descriptor(service: Any, name: str, parent: Optional[str] = None):
+    """Get the file id given the file name and it's parent."""
+    args = {"q": f" name = '{name}'"}
+    if parent is not None:
+        args["q"] += f" and '{parent}' in parents"
+
+    results = list(_ListFilesRequest(service, **args).list())
+
+    if len(results) == 0:
+        raise RuntimeError(f"Could not find file {name} with parent {parent}")
+    return results[0]
+
+
+class _GoogleDriveRequest:
+    """Abstract requests to google drive."""
+
+    args: Dict[str, Any] = {}
+    service: Any
+
+    def __init__(self, service: Any, args: Dict[str, Any]):
+        self.args = args
+        self.service = service
+        # Get team drives too
+        self.args["supportsTeamDrives"] = True
+        self.args["includeTeamDriveItems"] = True
+
+
+@dataclass
+class _GoogleFileDescriptor(fs.DirEntry):
+    FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
+
+    id_: str
+    name: str
+    mime_type: str
+    parents: List[str]
+    url: urls.URL
+
+    @property
+    def is_dir(self):
+        return self.mime_type == self.FOLDER_MIME_TYPE
+
+    @property
+    def is_file(self):
+        return not self.is_dir
+
+
+class _ListFilesRequest(_GoogleDriveRequest):
+    def __init__(self, service: Any, **kwargs):
+        super().__init__(service, kwargs)
+        # some standard arguments to send to the service
+        self.args["pageSize"] = 100
+        self.args["fields"] = "files(id, name, mimeType, parents)"
+
+    def list(self, url_base: Optional[str] = None) -> Iterable[_GoogleFileDescriptor]:
+        done = False
+        while not done:
+            results = self.service.files().list(**self.args).execute()
+
+            yield from self._build_descriptors(results.get("files", []), url_base)
+            # check if we need to keep on getting pages
+            self.args["pageToken"] = results.get("nextPageToken", None)
+            done = self.args["pageToken"] is None
+
+    def _build_descriptors(
+        self, files: List[Any], url_base: Optional[str]
+    ) -> Iterable[_GoogleFileDescriptor]:
+        for f in files:
+            args = {
+                "id_": f.get("id"),
+                "name": f.get("name"),
+                "mime_type": f.get("mimeType"),
+                "parents": f.get("parents"),
+                "url": None,
+            }
+            if url_base is not None:
+                args["url"] = urls.URL(url_base + "/" + args["name"])
+            yield _GoogleFileDescriptor(**args)

@@ -31,7 +31,7 @@ lint:
 	pipenv run mypy tests
 
 unit:
-	pipenv run pytest tests/unit
+	unset TENTACLIO__PG_APPLICATION_NAME; pipenv run pytest tests/unit
 
 functional-s3:
 	pipenv run pytest tests/functional/s3
