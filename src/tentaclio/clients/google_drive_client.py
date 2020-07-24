@@ -216,5 +216,5 @@ class _ListFilesRequest(_GoogleDriveRequest):
                 "url": None,
             }
             if url_base is not None:
-                args["url"] = urls.URL(url_base + "/" + args["name"])
+                args["url"] = urls.URL(url_base + args["name"])
             yield _GoogleFileDescriptor(**args)

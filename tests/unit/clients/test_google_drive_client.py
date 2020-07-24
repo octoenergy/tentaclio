@@ -185,7 +185,7 @@ class TestListFilesRequest:
 
     def test_build_descriptor_with_url(self, mocker, file_props):
         lister = _ListFilesRequest(mocker.Mock)
-        descriptor = next(lister._build_descriptors([file_props], "googledrive://my drive"))
+        descriptor = next(lister._build_descriptors([file_props], "googledrive://my drive/"))
         assert descriptor.id_ == file_props["id"]
         assert descriptor.name == file_props["name"]
         assert descriptor.parents == file_props["parents"]
