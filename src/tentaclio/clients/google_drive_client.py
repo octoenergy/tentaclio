@@ -1,8 +1,9 @@
 """Local filesystem client."""
+import abc
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -19,6 +20,9 @@ __all__ = ["GoogleDriveFSClient"]
 TOKEN_FILE = os.getenv(
     "TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", os.environ["HOME"] + os.sep + ".google_drive_token.json",
 )
+
+# Generic type
+T = TypeVar("T")
 
 
 def _load_credentials(token_file: str) -> Credentials:
@@ -110,8 +114,14 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         if not leaf_descriptor.is_dir:
             raise IOError(f"{self.url} is not a folder")
 
-        lister = _ListFilesRequest(self._service, q=f"'{leaf_descriptor.id_}' in parents")
-        return lister.list(url_base=str(self.url).rstrip("/") + "/")
+        url_base = str(self.url).rstrip("/") + "/"
+        lister = _ListFilesRequest(
+            self._service, url_base=url_base, q=f"'{leaf_descriptor.id_}' in parents"
+        )
+        return lister.list()
+
+    def _get_drives(self) -> Iterable["_GoogleDriveDescriptor"]:
+        return _ListDrivesRequest(self._service).list()
 
     # remove
 
@@ -163,9 +173,6 @@ class _GoogleDriveRequest:
     def __init__(self, service: Any, args: Dict[str, Any]):
         self.args = args
         self.service = service
-        # Get team drives too
-        self.args["supportsTeamDrives"] = True
-        self.args["includeTeamDriveItems"] = True
 
 
 @dataclass
@@ -187,26 +194,49 @@ class _GoogleFileDescriptor(fs.DirEntry):
         return not self.is_dir
 
 
-class _ListFilesRequest(_GoogleDriveRequest):
+class _Lister(
+    _GoogleDriveRequest, abc.ABC, Generic[T],
+):
     def __init__(self, service: Any, **kwargs):
         super().__init__(service, kwargs)
         # some standard arguments to send to the service
         self.args["pageSize"] = 100
-        self.args["fields"] = "files(id, name, mimeType, parents)"
 
-    def list(self, url_base: Optional[str] = None) -> Iterable[_GoogleFileDescriptor]:
+    def list(self) -> Iterable[T]:
         done = False
         while not done:
-            results = self.service.files().list(**self.args).execute()
+            results = self._execute()
 
-            yield from self._build_descriptors(results.get("files", []), url_base)
+            yield from self._yielder(results)
             # check if we need to keep on getting pages
             self.args["pageToken"] = results.get("nextPageToken", None)
             done = self.args["pageToken"] is None
 
-    def _build_descriptors(
-        self, files: List[Any], url_base: Optional[str]
-    ) -> Iterable[_GoogleFileDescriptor]:
+    @abc.abstractmethod
+    def _execute(self) -> Any:
+        pass
+
+    @abc.abstractmethod
+    def _yielder(self, results) -> Iterable[T]:
+        pass
+
+
+class _ListFilesRequest(_Lister[_GoogleFileDescriptor]):
+    def __init__(self, service: Any, url_base: Optional[str] = None, **kwargs):
+        super().__init__(service, **kwargs)
+        # Get team drives too
+        self.args["supportsTeamDrives"] = True
+        self.args["includeTeamDriveItems"] = True
+        self.args["fields"] = "files(id, name, mimeType, parents)"
+        self.url_base = url_base
+
+    def _execute(self) -> Any:
+        return self.service.files().list(**self.args).execute()
+
+    def _yielder(self, results) -> Iterable[_GoogleFileDescriptor]:
+        yield from self._build_descriptors(results.get("files", []))
+
+    def _build_descriptors(self, files: List[Any]) -> Iterable[_GoogleFileDescriptor]:
         for f in files:
             args = {
                 "id_": f.get("id"),
@@ -215,6 +245,29 @@ class _ListFilesRequest(_GoogleDriveRequest):
                 "parents": f.get("parents"),
                 "url": None,
             }
-            if url_base is not None:
-                args["url"] = urls.URL(url_base + args["name"])
+            if self.url_base is not None:
+                args["url"] = urls.URL(self.url_base + args["name"])
             yield _GoogleFileDescriptor(**args)
+
+
+@dataclass
+class _GoogleDriveDescriptor:
+    id_: str
+    name: str
+
+
+class _ListDrivesRequest(_Lister[_GoogleDriveDescriptor]):
+    def __init__(self, service: Any, **kwargs):
+        super().__init__(service, **kwargs)
+        self.args["fields"] = "drives(id, name)"
+
+    def _execute(self) -> Any:
+        return self.service.drives().list(**self.args).execute()
+
+    def _yielder(self, results) -> Iterable[_GoogleDriveDescriptor]:
+        for drive in results.get("drives", []):
+            args = {
+                "id_": drive.get("id"),
+                "name": drive.get("name"),
+            }
+            yield _GoogleDriveDescriptor(**args)

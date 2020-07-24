@@ -8,6 +8,7 @@ from tentaclio.clients import GoogleDriveFSClient
 from tentaclio.clients.google_drive_client import (
     _get_file_descriptor,
     _GoogleFileDescriptor,
+    _ListDrivesRequest,
     _ListFilesRequest,
     _load_credentials,
     _path_parts_to_descriptors
@@ -29,6 +30,14 @@ def file_props():
         "name": "file",
         "parents": ["0"],
         "mimeType": "application/thingy",
+    }
+
+
+@pytest.fixture
+def drive_props():
+    return {
+        "id": "123",
+        "name": "drive",
     }
 
 
@@ -132,7 +141,7 @@ class TestGoogleDriveFSClient:
         with pytest.raises(IOError, match=("not a folder")), client:
             client.scandir()
 
-    @pytest.mark.parametrize("url", ("gdrive://my drive/folder/", "gdrive://my drive/folder",))
+    @pytest.mark.parametrize("url", ("gdrive:///My Drive/folder/", "gdrive:///My Drive/folder",))
     def test_scandir_folder(self, mocker, folder_descriptor, url):
         get_descriptors = mocker.patch(
             "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
@@ -145,7 +154,9 @@ class TestGoogleDriveFSClient:
         client._service = mocker.MagicMock()
         with client:
             client.scandir()
-        lister.return_value.list.assert_called_once_with(url_base="gdrive://my drive/folder/")
+
+        kwargs = lister.mock_calls[0][2]
+        assert kwargs["url_base"] == "gdrive:/My Drive/folder/"
 
 
 class TestGoogleFileDescriptor:
@@ -177,15 +188,15 @@ class TestGoogleFileDescriptor:
 class TestListFilesRequest:
     def test_build_descriptor(self, mocker, file_props):
         lister = _ListFilesRequest(mocker.Mock)
-        descriptor = next(lister._build_descriptors([file_props], None))
+        descriptor = next(lister._build_descriptors([file_props]))
         assert descriptor.id_ == file_props["id"]
         assert descriptor.name == file_props["name"]
         assert descriptor.parents == file_props["parents"]
         assert descriptor.mime_type == file_props["mimeType"]
 
     def test_build_descriptor_with_url(self, mocker, file_props):
-        lister = _ListFilesRequest(mocker.Mock)
-        descriptor = next(lister._build_descriptors([file_props], "googledrive://my drive/"))
+        lister = _ListFilesRequest(mocker.Mock, url_base="googledrive://my drive/")
+        descriptor = next(lister._build_descriptors([file_props],))
         assert descriptor.id_ == file_props["id"]
         assert descriptor.name == file_props["name"]
         assert descriptor.parents == file_props["parents"]
@@ -213,6 +224,14 @@ class TestListFilesRequest:
         assert len(results) == 2
         assert results[0].id_ == file_props["id"]
         assert results[1].id_ == file_props_2["id"]
+
+
+class TestListDrivesRequest:
+    def test_yielder(self, mocker, drive_props):
+        lister = _ListDrivesRequest(mocker.Mock)
+        descriptor = next(lister._yielder({"drives": [drive_props]}))
+        assert descriptor.id_ == drive_props["id"]
+        assert descriptor.name == drive_props["name"]
 
 
 def test_get_file_descriptor_found_with_parent(mocker, mocked_service, file_props):
