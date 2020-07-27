@@ -1,6 +1,8 @@
-"""Local filesystem client."""
+"""Google drive client."""
 import abc
+import functools
 import json
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
@@ -14,6 +16,8 @@ from tentaclio import fs, protocols, urls
 from . import base_client, decorators
 
 
+logger = logging.getLogger(__name__)
+
 __all__ = ["GoogleDriveFSClient"]
 
 # Load the location of the token file from the environment
@@ -23,6 +27,8 @@ TOKEN_FILE = os.getenv(
 
 # Generic type
 T = TypeVar("T")
+
+# Credentials management
 
 
 def _load_credentials(token_file: str) -> Credentials:
@@ -47,15 +53,64 @@ def _load_credentials(token_file: str) -> Credentials:
     return creds
 
 
-class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
-    """Allow filesystem-like access to google drive."""
+# Google drive object descriptors
+@dataclass
+class _GoogleFileDescriptor(fs.DirEntry):
+    FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
 
-    DEFAULT_DRIVE = "My Drive"
+    id_: str
+    name: str
+    mime_type: str
+    parents: List[str]
+    url: urls.URL
+
+    @property
+    def is_dir(self):
+        return self.mime_type == self.FOLDER_MIME_TYPE
+
+    @property
+    def is_file(self):
+        return not self.is_dir
+
+
+@dataclass
+class _GoogleDriveDescriptor:
+    id_: str
+    name: str
+    root_descriptor: _GoogleFileDescriptor
+
+
+class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
+    """Allow filesystem-like access to google drive.
+
+    Google drive follows a drive oriented architecture more reminiscent of windows filesystems
+    than unix approaches. This makes a bit complicated to present the resources as a URLs.
+
+    From the user perspective accessing the resources works as the following
+    * urls MUST have an empty hostname `gdrive:///My Drive/` or `gdrive:/My Drive/`
+
+    * the first element of the path has to be the drive name i.e. `My Drive` for the default
+    drive or the drive name as it appears in the web ui for shared drives.
+    """
+
+    DEFAULT_DRIVE_NAME = "My Drive"
+    DEFAULT_DRIVE_ID = "root"
+    DEFAULT_DRIVE_DESCRIPTOR = _GoogleDriveDescriptor(
+        id_=DEFAULT_DRIVE_ID,
+        name=DEFAULT_DRIVE_NAME,
+        root_descriptor=_GoogleFileDescriptor(
+            id_=DEFAULT_DRIVE_ID,
+            name=DEFAULT_DRIVE_NAME,
+            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+            url=urls.URL("gdrive:///{self.DEFAULT_DRIVE}"),
+            parents=[],
+        ),
+    )
 
     allowed_schemes = ["gdrive", "googledrive"]
 
-    drive: str
-    parts: Tuple[str]
+    drive_name: str
+    path_parts: Tuple[str, ...]
 
     # Not an easy task to figure out the type of the
     # returned value from the library
@@ -65,16 +120,22 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """Create a new GoogleDriveFSClient."""
         super().__init__(url)
 
-        if len(self.url.path) == 0:
+        parts = list(filter(lambda part: len(part) > 0, self.url.path.split("/")))
+        if len(parts) == 0:
             raise ValueError(
-                f"Bad url: {self.url.path} .Google Drive needs at least "
-                "the drive part (i.e. gdrive://My Drive)"
+                f"Bad url: {self.url.path} :Google Drive needs at least "
+                "the drive part (i.e. gdrive:///My Drive/)"
             )
-        parts = self.url.path.split("/")
-        # FIXME for the moment the drive is pointing to the magic root
-        # drive (My Drive)
-        self.drive = self.DEFAULT_DRIVE
-        self.path_parts = tuple(filter(lambda part: len(part) > 0, parts[1:]))
+        self.drive_name = parts[0]
+        self.path_parts = tuple(parts[1:])
+
+    @property
+    def _drive(self):
+        drives = self._get_drives()
+        if self.drive_name not in drives:
+            names = [d for d in drives]
+            raise ValueError(f"Drive name (hostname) should be one of {names}")
+        return drives[self.drive_name]
 
     def _connect(self) -> "GoogleDriveFSClient":
         self._refresh_service()
@@ -108,7 +169,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """List contents of a folder from google drive."""
         # get the descriptor for the leaf folder
         leaf_descriptor = list(
-            _path_parts_to_descriptors(self._service, self.drive, self.path_parts)
+            _path_parts_to_descriptors(self._service, self._drive, self.path_parts)
         )[-1]
 
         if not leaf_descriptor.is_dir:
@@ -120,8 +181,11 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         )
         return lister.list()
 
-    def _get_drives(self) -> Iterable["_GoogleDriveDescriptor"]:
-        return _ListDrivesRequest(self._service).list()
+    @functools.lru_cache(maxsize=1)
+    def _get_drives(self) -> Dict[str, _GoogleDriveDescriptor]:
+        drives = {d.name: d for d in _ListDrivesRequest(self._service).list()}
+        drives[self.DEFAULT_DRIVE_NAME] = self.DEFAULT_DRIVE_DESCRIPTOR
+        return drives
 
     # remove
 
@@ -130,30 +194,24 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         pass
 
 
-def _path_parts_to_descriptors(service: Any, drive: str, path_parts: Iterable[str]):
-    """Convert the path parts into google drive ids."""
-    # FIXME better driver support
-    file_descriptors = [
-        _GoogleFileDescriptor(
-            id_=drive,
-            name="root",
-            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
-            url=urls.URL("gdrive://root"),
-            parents=[],
-        )
-    ]
+def _path_parts_to_descriptors(
+    service: Any, drive: _GoogleDriveDescriptor, path_parts: Iterable[str]
+) -> List[_GoogleFileDescriptor]:
+    """Convert the path parts into google drive descriptors."""
+    file_descriptors = [drive.root_descriptor]
     parent = None
     for pathPart in path_parts:
-        file_descriptor = _get_file_descriptor(service, pathPart, parent)
+        file_descriptor = _get_file_descriptor_by_name(service, pathPart, parent)
         parent = file_descriptor.id_
         file_descriptors.append(file_descriptor)
 
     return file_descriptors
 
 
-def _get_file_descriptor(service: Any, name: str, parent: Optional[str] = None):
+def _get_file_descriptor_by_name(service: Any, name: str, parent: Optional[str] = None):
     """Get the file id given the file name and it's parent."""
     args = {"q": f" name = '{name}'"}
+
     if parent is not None:
         args["q"] += f" and '{parent}' in parents"
 
@@ -175,25 +233,6 @@ class _GoogleDriveRequest:
         self.service = service
 
 
-@dataclass
-class _GoogleFileDescriptor(fs.DirEntry):
-    FOLDER_MIME_TYPE = "application/vnd.google-apps.folder"
-
-    id_: str
-    name: str
-    mime_type: str
-    parents: List[str]
-    url: urls.URL
-
-    @property
-    def is_dir(self):
-        return self.mime_type == self.FOLDER_MIME_TYPE
-
-    @property
-    def is_file(self):
-        return not self.is_dir
-
-
 class _Lister(
     _GoogleDriveRequest, abc.ABC, Generic[T],
 ):
@@ -203,6 +242,7 @@ class _Lister(
         self.args["pageSize"] = 100
 
     def list(self) -> Iterable[T]:
+        """List the resources controlling the pagination."""
         done = False
         while not done:
             results = self._execute()
@@ -250,10 +290,57 @@ class _ListFilesRequest(_Lister[_GoogleFileDescriptor]):
             yield _GoogleFileDescriptor(**args)
 
 
-@dataclass
-class _GoogleDriveDescriptor:
-    id_: str
-    name: str
+# Getting the drive root:
+# This is quite a hack as there is no direct way, documented or that I could
+# find, to get the root folder from a shared drive.
+# So the process consists on getting one random file from a drive
+# and navigate through the parents until hitting a file descriptor that has no parents.
+
+
+def _get_drive_root(service: Any, drive_id: str):
+    """Get the drive root by navigating up the tree from a random file."""
+    done = False
+    parent = _get_random_parent(service, drive_id)
+    file_args = {"fields": "id, name, mimeType, parents", "supportsAllDrives": True}
+    while not done:
+        file_args["fileId"] = parent
+        result = service.files().get(**file_args).execute()
+        if result is None:
+            raise IOError("Parent not found while resolving drive root for drive_id: {drive_id}")
+        if "parents" not in result:
+            args = {
+                "id_": result.get("id"),
+                "name": result.get("name"),
+                "mime_type": result.get("mimeType"),
+                "parents": result.get("parents"),
+                "url": None,
+            }
+            return _GoogleFileDescriptor(**args)
+        parent = result["parents"][0]
+
+
+def _get_random_parent(service: Any, drive_id: str):
+    """Get random parent from this drive."""
+    args: Dict[str, Any] = {
+        "driveId": drive_id,
+        "corpora": "drive",
+        "pageSize": "1",
+        "includeItemsFromAllDrives": True,
+    }
+    lister = _ListFilesRequest(service, **args)
+    children = list(lister.list())
+
+    if len(children) == 0:
+        raise IOError("No files found while inspecting drive")
+
+    # No parents we're in the root
+    if children[0].parents is None or len(children[0].parents) == 0:
+        return children[0].id_
+
+    return children[0].parents[0]
+
+
+# END OF HACK
 
 
 class _ListDrivesRequest(_Lister[_GoogleDriveDescriptor]):
@@ -269,5 +356,6 @@ class _ListDrivesRequest(_Lister[_GoogleDriveDescriptor]):
             args = {
                 "id_": drive.get("id"),
                 "name": drive.get("name"),
+                "root_descriptor": _get_drive_root(self.service, drive.get("id"),),
             }
             yield _GoogleDriveDescriptor(**args)

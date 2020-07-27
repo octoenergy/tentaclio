@@ -6,7 +6,9 @@ import pytest
 from tentaclio import urls
 from tentaclio.clients import GoogleDriveFSClient
 from tentaclio.clients.google_drive_client import (
-    _get_file_descriptor,
+    _get_drive_root,
+    _get_file_descriptor_by_name,
+    _get_random_parent,
     _GoogleFileDescriptor,
     _ListDrivesRequest,
     _ListFilesRequest,
@@ -111,10 +113,10 @@ class TestGoogleDriveFSClient:
     @pytest.mark.parametrize(
         ("url, drive, path_parts"),
         (
-            ("gdrive://My Drive/", "My Drive", ()),
-            ("gdrive://My Drive/path/to/dir/", "My Drive", ("path", "to", "dir")),
+            ("gdrive:///My Drive/", "My Drive", ()),
+            ("gdrive:///My Drive/path/to/dir/", "My Drive", ("path", "to", "dir")),
             (
-                "gdrive://My Drive/path/to/dir/file.txt",
+                "gdrive:///My Drive/path/to/dir/file.txt",
                 "My Drive",
                 ("path", "to", "dir", "file.txt"),
             ),
@@ -122,7 +124,7 @@ class TestGoogleDriveFSClient:
     )
     def test_parse_path(self, url, drive, path_parts):
         client = GoogleDriveFSClient(url)
-        assert client.drive == drive
+        assert client.drive_name == drive
         assert client.path_parts == path_parts
 
     def test_parse_path_empty(self):
@@ -135,7 +137,10 @@ class TestGoogleDriveFSClient:
         )
         get_descriptors.return_value = [file_descriptor]
 
-        client = GoogleDriveFSClient("gdrive://My Drive/file")
+        drive_lister = mocker.patch("tentaclio.clients.google_drive_client._ListDrivesRequest")
+        drive_lister.return_value.list.return_value = []
+
+        client = GoogleDriveFSClient("gdrive:///My Drive/file")
         client._service = mocker.MagicMock()
 
         with pytest.raises(IOError, match=("not a folder")), client:
@@ -147,6 +152,9 @@ class TestGoogleDriveFSClient:
             "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
         )
         get_descriptors.return_value = [folder_descriptor]
+
+        drive_lister = mocker.patch("tentaclio.clients.google_drive_client._ListDrivesRequest")
+        drive_lister.return_value.list.return_value = []
 
         lister = mocker.patch("tentaclio.clients.google_drive_client._ListFilesRequest")
 
@@ -166,7 +174,7 @@ class TestGoogleFileDescriptor:
             id_="123",
             mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
             parents=[],
-            url="googledrive://root/",
+            url="googledrive:///root/",
         )
         descriptor = _GoogleFileDescriptor(**args)
         assert descriptor.is_dir
@@ -178,7 +186,7 @@ class TestGoogleFileDescriptor:
             id_="123",
             mime_type="application/other",
             parents=[],
-            url="googledrive://root/",
+            url="googledrive:///root/",
         )
         descriptor = _GoogleFileDescriptor(**args)
         assert not descriptor.is_dir
@@ -227,37 +235,47 @@ class TestListFilesRequest:
 
 
 class TestListDrivesRequest:
-    def test_yielder(self, mocker, drive_props):
-        lister = _ListDrivesRequest(mocker.Mock)
+    def test_yielder(self, mocker, drive_props, file_descriptor):
+        mocked_get_drive_root = mocker.patch(
+            "tentaclio.clients.google_drive_client._get_drive_root"
+        )
+        mocked_get_drive_root.return_value = file_descriptor
+
+        service = mocker.MagicMock()
+        lister = _ListDrivesRequest(service)
+
         descriptor = next(lister._yielder({"drives": [drive_props]}))
         assert descriptor.id_ == drive_props["id"]
         assert descriptor.name == drive_props["name"]
+        assert descriptor.root_descriptor == file_descriptor
 
 
-def test_get_file_descriptor_found_with_parent(mocker, mocked_service, file_props):
-    f = _get_file_descriptor(mocked_service, "name", "parent")
+def test_get_file_descriptor_by_name_found_with_parent(mocker, mocked_service, file_props):
+    f = _get_file_descriptor_by_name(mocked_service, "name", "parent")
 
     assert f.id_ == file_props["id"]
     kwargs = mocked_service.files.return_value.list.mock_calls[0][2]
     assert "parent" in kwargs["q"]
 
 
-def test_get_file_descriptor_found_without_parent(mocker, mocked_service, file_props):
-    f = _get_file_descriptor(mocked_service, "name", None)
+def test_get_file_descriptor_by_name_found_without_parent(mocker, mocked_service, file_props):
+    f = _get_file_descriptor_by_name(mocked_service, "name", None)
 
     assert f.id_ == file_props["id"]
     kwargs = mocked_service.files.return_value.list.mock_calls[0][2]
     assert "parent" not in kwargs["q"]
 
 
-def test_get_file_descriptor_not_found(mocker, mocked_service, file_props):
+def test_get_file_descriptor_by_name_not_found(mocker, mocked_service, file_props):
     mocked_service.files.return_value.list.return_value.execute.return_value = {"files": []}
     with pytest.raises(RuntimeError, match="Could not find"):
-        _get_file_descriptor(mocked_service, "name", None)
+        _get_file_descriptor_by_name(mocked_service, "name", None)
 
 
 def test_path_parts_to_descriptors(mocker, mocked_service):
-    mocked_get_file_id = mocker.patch("tentaclio.clients.google_drive_client._get_file_descriptor")
+    mocked_get_file_id = mocker.patch(
+        "tentaclio.clients.google_drive_client._get_file_descriptor_by_name"
+    )
     mocked_get_file_id.side_effect = [
         _GoogleFileDescriptor(
             id_=2,
@@ -275,6 +293,56 @@ def test_path_parts_to_descriptors(mocker, mocked_service):
         ),
     ]
 
-    descriptors = _path_parts_to_descriptors(mocked_service, "root", ["folder", "inner"])
+    descriptors = _path_parts_to_descriptors(
+        mocked_service, GoogleDriveFSClient.DEFAULT_DRIVE_DESCRIPTOR, ["folder", "inner"]
+    )
     ids = [d.id_ for d in descriptors]
     assert ids == ["root", 2, 3]
+
+
+def test_get_random_parent_no_children(mocker):
+    service = mocker.MagicMock()
+    service.files.return_value.list.return_value.execute.return_value = {"files": []}
+    with pytest.raises(IOError, match="No files found"):
+        _get_random_parent(service, "drive")
+
+
+def test_get_random_parent_no_parents(mocker, file_props):
+    service = mocker.MagicMock()
+    del file_props["parents"]
+    service.files.return_value.list.return_value.execute.return_value = {"files": [file_props]}
+    parent = _get_random_parent(service, "drive")
+    assert parent == file_props["id"]
+
+
+def test_get_random_parent(mocker, file_props):
+    service = mocker.MagicMock()
+    service.files.return_value.list.return_value.execute.return_value = {"files": [file_props]}
+    parent = _get_random_parent(service, "drive")
+    assert parent == file_props["parents"][0]
+
+
+def test_get_drive_root_parent_not_found(mocker):
+    mock_random_parent = mocker.patch("tentaclio.clients.google_drive_client._get_random_parent")
+    mock_random_parent.return_value = "id"
+
+    service = mocker.MagicMock()
+    service.files.return_value.get.return_value.execute.return_value = None
+
+    with pytest.raises(IOError, match=("Parent not found")):
+        _get_drive_root(service, "drive")
+
+
+def test_get_drive_root(mocker, file_props, file_descriptor):
+    mock_random_parent = mocker.patch("tentaclio.clients.google_drive_client._get_random_parent")
+    mock_random_parent.return_value = "id"
+
+    service = mocker.MagicMock()
+
+    root_props = file_props.copy()
+    del root_props["parents"]
+    root_props["id"] = "root"
+    service.files.return_value.get.return_value.execute.side_effect = [file_props, root_props]
+
+    descriptor = _get_drive_root(service, "drive")
+    assert descriptor.id_ == "root"
