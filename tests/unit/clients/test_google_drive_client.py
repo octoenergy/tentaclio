@@ -1,3 +1,4 @@
+import copy
 import json
 import tempfile
 
@@ -132,39 +133,46 @@ class TestGoogleDriveFSClient:
             GoogleDriveFSClient("googledrive://")
 
     def test_scandir_file(self, mocker, file_descriptor):
-        get_descriptors = mocker.patch(
-            "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
-        )
-        get_descriptors.return_value = [file_descriptor]
-
-        drive_lister = mocker.patch("tentaclio.clients.google_drive_client._ListDrivesRequest")
-        drive_lister.return_value.list.return_value = []
 
         client = GoogleDriveFSClient("gdrive:///My Drive/file")
-        client._service = mocker.MagicMock()
+        client._get_leaf_descriptor = mocker.MagicMock()
+        client._get_leaf_descriptor.return_value = file_descriptor
 
         with pytest.raises(IOError, match=("not a folder")), client:
             client.scandir()
 
     @pytest.mark.parametrize("url", ("gdrive:///My Drive/folder/", "gdrive:///My Drive/folder",))
     def test_scandir_folder(self, mocker, folder_descriptor, url):
-        get_descriptors = mocker.patch(
-            "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
-        )
-        get_descriptors.return_value = [folder_descriptor]
-
-        drive_lister = mocker.patch("tentaclio.clients.google_drive_client._ListDrivesRequest")
-        drive_lister.return_value.list.return_value = []
-
         lister = mocker.patch("tentaclio.clients.google_drive_client._ListFilesRequest")
 
         client = GoogleDriveFSClient(url)
         client._service = mocker.MagicMock()
+        client._get_leaf_descriptor = mocker.MagicMock()
+        client._get_leaf_descriptor.return_value = folder_descriptor
+
         with client:
             client.scandir()
 
         kwargs = lister.mock_calls[0][2]
         assert kwargs["url_base"] == "gdrive:/My Drive/folder/"
+
+    def test_get_leaf_descriptor(self, mocker, file_descriptor):
+        file_descriptor_leaf = copy.copy(file_descriptor)
+        file_descriptor_leaf.id_ = "leaf"
+
+        get_descriptors = mocker.patch(
+            "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
+        )
+        get_descriptors.return_value = [folder_descriptor, file_descriptor_leaf]
+
+        client = GoogleDriveFSClient("gdrive:///My Drive/file")
+        client._service = mocker.MagicMock()
+        client._get_drives = mocker.MagicMock()
+        client._get_drives.return_value = {
+            "My Drive": GoogleDriveFSClient.DEFAULT_DRIVE_DESCRIPTOR
+        }
+        leaf = client._get_leaf_descriptor()
+        assert leaf.id_ == "leaf"
 
 
 class TestGoogleFileDescriptor:
