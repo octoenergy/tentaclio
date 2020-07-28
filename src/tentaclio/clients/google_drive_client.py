@@ -178,6 +178,17 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         )
         return lister.list()
 
+    # remove
+
+    def remove(self):
+        """Remove the file from google drive."""
+        leaf_descriptor = self._get_leaf_descriptor()
+        args = {
+            "fileId": leaf_descriptor.id_,
+            "supportsTeamDrives": True,
+        }
+        self._service.files().delete(**args).execute()
+
     @functools.lru_cache(maxsize=1)
     def _get_drives(self) -> Dict[str, _GoogleDriveDescriptor]:
         drives = {d.name: d for d in _ListDrivesRequest(self._service).list()}

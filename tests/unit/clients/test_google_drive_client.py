@@ -111,6 +111,14 @@ def test_load_refreshing(mocker, token_file):
 
 
 class TestGoogleDriveFSClient:
+    @pytest.fixture
+    def client(self, mocker, file_descriptor):
+        client = GoogleDriveFSClient("gdrive:///My Drive/file")
+        client._get_leaf_descriptor = mocker.MagicMock()
+        client._get_leaf_descriptor.return_value = file_descriptor
+        client._service = mocker.MagicMock()
+        return client
+
     @pytest.mark.parametrize(
         ("url, drive, path_parts"),
         (
@@ -132,11 +140,7 @@ class TestGoogleDriveFSClient:
         with pytest.raises(ValueError):
             GoogleDriveFSClient("googledrive://")
 
-    def test_scandir_file(self, mocker, file_descriptor):
-
-        client = GoogleDriveFSClient("gdrive:///My Drive/file")
-        client._get_leaf_descriptor = mocker.MagicMock()
-        client._get_leaf_descriptor.return_value = file_descriptor
+    def test_scandir_file(self, client):
 
         with pytest.raises(IOError, match=("not a folder")), client:
             client.scandir()
@@ -155,6 +159,13 @@ class TestGoogleDriveFSClient:
 
         kwargs = lister.mock_calls[0][2]
         assert kwargs["url_base"] == "gdrive:/My Drive/folder/"
+
+    def test_remove(self, client, file_descriptor):
+
+        client.remove()
+
+        kwargs = client._service.files.return_value.delete.mock_calls[0][2]
+        assert kwargs["fileId"] == file_descriptor.id_
 
     def test_get_leaf_descriptor(self, mocker, file_descriptor):
         file_descriptor_leaf = copy.copy(file_descriptor)
