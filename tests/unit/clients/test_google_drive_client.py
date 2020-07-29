@@ -1,4 +1,5 @@
 import copy
+import io
 import json
 import tempfile
 
@@ -7,6 +8,7 @@ import pytest
 from tentaclio import urls
 from tentaclio.clients import GoogleDriveFSClient
 from tentaclio.clients.google_drive_client import (
+    DescriptorNotFound,
     _get_drive_root,
     _get_file_descriptor_by_name,
     _get_random_parent,
@@ -167,6 +169,28 @@ class TestGoogleDriveFSClient:
         kwargs = client._service.files.return_value.delete.mock_calls[0][2]
         assert kwargs["fileId"] == file_descriptor.id_
 
+    def test_download_not_found(self, client):
+        client._get_leaf_descriptor.side_effect = [DescriptorNotFound("🤷")]
+        buff = io.BytesIO()
+        with pytest.raises(IOError, match="not found"), client:
+            client.get(buff)
+
+    def test_download(self, mocker, client):
+
+        data = b"some data"
+        buff = io.BytesIO()
+
+        def download():
+            buff.write(data)
+            return None, True
+
+        media_download = mocker.patch("tentaclio.clients.google_drive_client.MediaIoBaseDownload")
+        media_download.return_value.next_chunk.side_effect = download
+
+        client.get(buff)
+        buff.seek(0)
+        assert buff.getvalue() == data
+
     def test_get_leaf_descriptor(self, mocker, file_descriptor):
         file_descriptor_leaf = copy.copy(file_descriptor)
         file_descriptor_leaf.id_ = "leaf"
@@ -287,7 +311,7 @@ def test_get_file_descriptor_by_name_found_without_parent(mocker, mocked_service
 
 def test_get_file_descriptor_by_name_not_found(mocker, mocked_service, file_props):
     mocked_service.files.return_value.list.return_value.execute.return_value = {"files": []}
-    with pytest.raises(RuntimeError, match="Could not find"):
+    with pytest.raises(DescriptorNotFound, match="Could not find"):
         _get_file_descriptor_by_name(mocked_service, "name", None)
 
 

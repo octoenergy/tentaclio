@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
 
+from apiclient.http import MediaIoBaseDownload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -27,6 +28,14 @@ TOKEN_FILE = os.getenv(
 
 # Generic type
 T = TypeVar("T")
+
+
+# Exceptions
+
+
+class DescriptorNotFound(Exception):
+    ...
+
 
 # Credentials management
 
@@ -156,7 +165,11 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def get(self, writer: protocols.ByteWriter, **kwargs) -> None:
         """Get the contents of the google drive file."""
-        pass
+        try:
+            leaf_descriptor = self._get_leaf_descriptor()
+        except DescriptorNotFound as e:
+            raise IOError(f"{self.url} not found.", e)
+        _DownloadRequest(self._service, leaf_descriptor.id_, writer).execute()
 
     def put(self, reader: protocols.ByteReader, **kwargs) -> None:
         """Write the contents of the reader to the google drive file."""
@@ -224,7 +237,7 @@ def _get_file_descriptor_by_name(service: Any, name: str, parent: Optional[str] 
     results = list(_ListFilesRequest(service, **args).list())
 
     if len(results) == 0:
-        raise RuntimeError(f"Could not find file {name} with parent {parent}")
+        raise DescriptorNotFound(f"Could not find file {name} with parent {parent}")
     return results[0]
 
 
@@ -237,6 +250,23 @@ class _GoogleDriveRequest:
     def __init__(self, service: Any, args: Dict[str, Any]):
         self.args = args
         self.service = service
+
+
+class _DownloadRequest(_GoogleDriveRequest):
+    """Download data from google drive."""
+
+    def __init__(self, service: Any, file_id: str, writer: protocols.ByteWriter, **kwargs):
+        super().__init__(service, kwargs)
+        self.args["fileId"] = file_id
+        self.args["supportsTeamDrives"] = True
+        self.writer = writer
+
+    def execute(self):
+        request = self.service.files().get_media(**self.args)
+        downloader = MediaIoBaseDownload(self.writer, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
 
 
 class _Lister(
