@@ -162,12 +162,24 @@ class TestGoogleDriveFSClient:
         kwargs = lister.mock_calls[0][2]
         assert kwargs["url_base"] == "gdrive:/My Drive/folder/"
 
+    def test_scandir_not_found(self, client):
+
+        client._get_leaf_descriptor.side_effect = [DescriptorNotFound("🤷")]
+        with pytest.raises(IOError, match="not found"), client:
+            client.scandir()
+
     def test_remove(self, client, file_descriptor):
 
         client.remove()
 
         kwargs = client._service.files.return_value.delete.mock_calls[0][2]
         assert kwargs["fileId"] == file_descriptor.id_
+
+    def test_remove_not_found(self, client):
+
+        client._get_leaf_descriptor.side_effect = [DescriptorNotFound("🤷")]
+        with pytest.raises(IOError, match="not found"), client:
+            client.remove()
 
     def test_download_not_found(self, client):
         client._get_leaf_descriptor.side_effect = [DescriptorNotFound("🤷")]

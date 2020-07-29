@@ -180,7 +180,10 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     @decorators.check_conn
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """List contents of a folder from google drive."""
-        leaf_descriptor = self._get_leaf_descriptor()
+        try:
+            leaf_descriptor = self._get_leaf_descriptor()
+        except DescriptorNotFound as e:
+            raise IOError(f"{self.url} not found.", e)
 
         if not leaf_descriptor.is_dir:
             raise IOError(f"{self.url} is not a folder")
@@ -195,7 +198,11 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def remove(self):
         """Remove the file from google drive."""
-        leaf_descriptor = self._get_leaf_descriptor()
+        try:
+            leaf_descriptor = self._get_leaf_descriptor()
+        except DescriptorNotFound as e:
+            raise IOError(f"{self.url} not found.", e)
+
         args = {
             "fileId": leaf_descriptor.id_,
             "supportsTeamDrives": True,
