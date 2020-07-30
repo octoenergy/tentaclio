@@ -9,6 +9,7 @@ from tentaclio import urls
 from tentaclio.clients import GoogleDriveFSClient
 from tentaclio.clients.google_drive_client import (
     DescriptorNotFound,
+    _CreateRequest,
     _get_drive_root,
     _get_file_descriptor_by_name,
     _get_random_parent,
@@ -118,6 +119,7 @@ class TestGoogleDriveFSClient:
         client = GoogleDriveFSClient("gdrive:///My Drive/file")
         client._get_leaf_descriptor = mocker.MagicMock()
         client._get_leaf_descriptor.return_value = file_descriptor
+        client._get_path_descriptors = mocker.MagicMock()
         client._service = mocker.MagicMock()
         return client
 
@@ -203,6 +205,21 @@ class TestGoogleDriveFSClient:
         buff.seek(0)
         assert buff.getvalue() == data
 
+    def test_create_new_file_folder_not_found(self, mocker, client):
+        client._get_path_descriptors.side_effect = [DescriptorNotFound("🤷")]
+        with pytest.raises(IOError, match="path to file not found"), client:
+            client._create(mocker.MagicMock())
+
+    def test_create_new_file_parent_not_folder(self, mocker, client, file_descriptor):
+        client._get_path_descriptors.return_value = [file_descriptor]
+        with pytest.raises(IOError, match="parent path is not a folder"), client:
+            client._create(mocker.MagicMock())
+
+    def test_create_new_file(self, mocker, client, folder_descriptor):
+        client._get_path_descriptors.return_value = [folder_descriptor]
+        client._create(mocker.MagicMock())
+        client._service.files.return_value.create.assert_called_once()
+
     def test_get_leaf_descriptor(self, mocker, file_descriptor):
         file_descriptor_leaf = copy.copy(file_descriptor)
         file_descriptor_leaf.id_ = "leaf"
@@ -246,6 +263,18 @@ class TestGoogleFileDescriptor:
         descriptor = _GoogleFileDescriptor(**args)
         assert not descriptor.is_dir
         assert descriptor.is_file
+
+
+class TestCreateRequest:
+    def test_execute(self, mocker):
+        service = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        uploader = _CreateRequest(service, "name.txt", "parent_id", reader)
+        uploader.execute()
+        kwargs = service.files.return_value.create.mock_calls[0][2]
+        assert kwargs["body"]["name"] == "name.txt"
+        assert kwargs["body"]["parents"] == ["parent_id"]
+        assert kwargs["media_body"].mimetype() == "text/plain"
 
 
 class TestListFilesRequest:
