@@ -86,6 +86,10 @@ class StreamBaseIO:
         """Mark this stream as seekable."""
         return True
 
+    def flush(self):
+        """Flush stream, to be overriden if necessary."""
+        ...
+
 
 class StreamerWriter(StreamBaseIO):
     """Offer stream like access to underlying client.
