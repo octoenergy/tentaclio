@@ -44,6 +44,10 @@ STREAM_HANDLER_REGISTRY.register("postgresql", PostgresURLHandler())
 STREAM_HANDLER_REGISTRY.register("http", StreamURLHandler(HTTPClient))
 STREAM_HANDLER_REGISTRY.register("https", StreamURLHandler(HTTPClient))
 
+# google drive handlers
+STREAM_HANDLER_REGISTRY.register("googledrive", StreamURLHandler(GoogleDriveFSClient))
+STREAM_HANDLER_REGISTRY.register("gdrive", StreamURLHandler(GoogleDriveFSClient))
+
 # Directory Scanners
 
 SCANNER_REGISTRY.register("", ClientDirScanner(LocalFSClient))
@@ -51,8 +55,11 @@ SCANNER_REGISTRY.register("file", ClientDirScanner(LocalFSClient))
 
 SCANNER_REGISTRY.register("s3", ClientDirScanner(S3Client))
 
-SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
 SCANNER_REGISTRY.register("ftp", ClientDirScanner(FTPClient))
+SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
+
+SCANNER_REGISTRY.register("googledrive", ClientDirScanner(GoogleDriveFSClient))
+SCANNER_REGISTRY.register("gdrive", ClientDirScanner(GoogleDriveFSClient))
 
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
@@ -67,3 +74,6 @@ REMOVER_REGISTRY.register("gs", ClientRemover(GSClient))
 REMOVER_REGISTRY.register("gcs", ClientRemover(GSClient))
 REMOVER_REGISTRY.register("ftp", ClientRemover(FTPClient))
 REMOVER_REGISTRY.register("sftp", ClientRemover(SFTPClient))
+
+REMOVER_REGISTRY.register("googledrive", ClientRemover(GoogleDriveFSClient))
+REMOVER_REGISTRY.register("gdrive", ClientRemover(GoogleDriveFSClient))
