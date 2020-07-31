@@ -168,13 +168,18 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """Get the contents of the google drive file."""
         try:
             leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound as e:
-            raise IOError(f"{self.url} not found.", e)
+        except DescriptorNotFound:
+            raise IOError(f"{self.url} not found.")
         _DownloadRequest(self._service, leaf_descriptor.id_, writer).execute()
 
     def put(self, reader: protocols.ByteReader, **kwargs) -> None:
         """Write the contents of the reader to the google drive file."""
-        self._create(reader)
+        try:
+            file_descriptor = self._get_leaf_descriptor()
+            self._update(file_descriptor, reader)
+        except DescriptorNotFound:
+            # file doesn't exist, then create
+            self._create(reader)
 
     def _create(self, reader: protocols.ByteReader):
         """Create a new file."""
@@ -192,6 +197,16 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         )
         uploader.execute()
 
+    def _update(self, file_descriptor: _GoogleFileDescriptor, reader: protocols.ByteReader):
+        """Update file contents."""
+        uploader = _UpdateRequest(
+            service=self._service,
+            name=file_descriptor.name,
+            file_id=file_descriptor.id_,
+            reader=reader,
+        )
+        uploader.execute()
+
     # scandir related methods
 
     @decorators.check_conn
@@ -199,8 +214,8 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """List contents of a folder from google drive."""
         try:
             leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound as e:
-            raise IOError(f"{self.url} not found.", e)
+        except DescriptorNotFound:
+            raise IOError(f"{self.url} not found.")
 
         if not leaf_descriptor.is_dir:
             raise IOError(f"{self.url} is not a folder")
@@ -217,8 +232,8 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """Remove the file from google drive."""
         try:
             leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound as e:
-            raise IOError(f"{self.url} not found.", e)
+        except DescriptorNotFound:
+            raise IOError(f"{self.url} not found.")
 
         args = {
             "fileId": leaf_descriptor.id_,
@@ -236,7 +251,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         """Get the last descriptor from the path part of the url."""
         return self._get_path_descriptors()[-1]
 
-    def _get_path_descriptors(self, ignore_tail=True) -> List[_GoogleFileDescriptor]:
+    def _get_path_descriptors(self, ignore_tail=False) -> List[_GoogleFileDescriptor]:
         parts = self.path_parts
         if ignore_tail:
             parts = parts[:-1]
@@ -319,6 +334,24 @@ class _CreateRequest(_GoogleDriveRequest):
             self.reader, mimetype=mimetypes.guess_type(self.args["name"])[0]
         )
         self.service.files().create(body=self.args, media_body=media_body,).execute()
+
+
+class _UpdateRequest(_GoogleDriveRequest):
+    """Update data to google drive."""
+
+    def __init__(
+        self, service: Any, file_id: str, name: str, reader: protocols.ByteReader, **kwargs
+    ):
+        super().__init__(service, kwargs)
+        # self.args["parents"] = [parent_id]
+        self.args["supportsTeamDrives"] = True
+        self.args["fileId"] = file_id
+        self.name = name
+        self.reader = reader
+
+    def execute(self):
+        media_body = MediaIoBaseUpload(self.reader, mimetype=mimetypes.guess_type(self.name)[0])
+        self.service.files().update(media_body=media_body, **self.args).execute()
 
 
 class _Lister(

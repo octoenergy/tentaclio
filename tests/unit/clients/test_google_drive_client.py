@@ -17,7 +17,8 @@ from tentaclio.clients.google_drive_client import (
     _ListDrivesRequest,
     _ListFilesRequest,
     _load_credentials,
-    _path_parts_to_descriptors
+    _path_parts_to_descriptors,
+    _UpdateRequest
 )
 
 
@@ -220,6 +221,27 @@ class TestGoogleDriveFSClient:
         client._create(mocker.MagicMock())
         client._service.files.return_value.create.assert_called_once()
 
+    def test_update_file(self, mocker, client, file_descriptor):
+        client._update(file_descriptor, mocker.MagicMock())
+        client._service.files.return_value.update.assert_called_once()
+
+    def test_put_update(self, mocker, client):
+        # by default the client comes with a valid
+        # file descriptor
+        client._update = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        with client:
+            client.put(reader)
+        client._update.assert_called_once()
+
+    def test_put_create(self, mocker, client):
+        client._get_leaf_descriptor.side_effect = [DescriptorNotFound("🤷")]
+        client._create = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        with client:
+            client.put(reader)
+        client._create.assert_called_once()
+
     def test_get_leaf_descriptor(self, mocker, file_descriptor):
         file_descriptor_leaf = copy.copy(file_descriptor)
         file_descriptor_leaf.id_ = "leaf"
@@ -274,6 +296,17 @@ class TestCreateRequest:
         kwargs = service.files.return_value.create.mock_calls[0][2]
         assert kwargs["body"]["name"] == "name.txt"
         assert kwargs["body"]["parents"] == ["parent_id"]
+        assert kwargs["media_body"].mimetype() == "text/plain"
+
+
+class TestUpdateRequest:
+    def test_execute(self, mocker):
+        service = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        uploader = _UpdateRequest(service, "123", "name.txt", reader)
+        uploader.execute()
+        kwargs = service.files.return_value.update.mock_calls[0][2]
+        assert kwargs["fileId"] == "123"
         assert kwargs["media_body"].mimetype() == "text/plain"
 
 
