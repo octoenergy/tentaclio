@@ -38,7 +38,7 @@ import tentaclio
 
 tentaclio.copy("/home/constantine/data.csv", "sftp://constantine:tentacl3@sftp.octoenergy.com/uploads/data.csv")
 ```
-## Delete resources 
+## Delete resources
 ```python
 import tentaclio
 
@@ -147,6 +147,8 @@ The supported url protocols are:
 * `s3://bucket/file`
 * `gs://bucket/file`
 * `gsc://bucket/file`
+* `gdrive:/My Drive/file`
+* `googledrive:/My Drive/file`
 * `ftp://path/to/file`
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
@@ -209,7 +211,7 @@ The supported db schemes are:
 * Any other scheme supported by sqlalchemy.
 
 #### Extras for databases
-For postgres you can set the variable `TENTACLIO__PG_APPLICATION_NAME` and the value will be injected 
+For postgres you can set the variable `TENTACLIO__PG_APPLICATION_NAME` and the value will be injected
 when connecting to the database.
 
 ### Automatic credentials injection
@@ -250,8 +252,27 @@ secrets:
 ```
 And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality.
 
-Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and 
+Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
 automatically configure your environment.
+
+## Configuring access to google drive.
+Google drive support is _experimental_ and should be used at your own risk. Also, due to google drive itself it's rather slow.
+
+1. Get the credentials.
+First we need a credentials file in order to be able to generate tokens. The easiest way to do this is by going to [this example](https://developers.google.com/drive/api/v3/quickstart/python),
+click on enable drive api. Give the project a name of your choosing (eg `tentaclio`), set the OAuth
+client selector to "Desktop app", and download the generated JSON file.
+
+2. Generate token file 
+
+```
+pipenv install tentaclio && pipenv run python -m tentaclio google-token generate
+```
+This will open a browser with a google auth page, log in and accept the authorisation request.
+The token file has been saved in a default location. You can also configure this via the env variable `TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE`
+
+3. Get rid of credentials.json
+The `credentials.json` file is not longer need, feel free to delete it.
 
 
 ## Quick note on protocols structural subtyping.
