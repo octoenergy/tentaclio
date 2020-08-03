@@ -167,10 +167,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     @decorators.check_conn
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """List contents of a folder from google drive."""
-        # get the descriptor for the leaf folder
-        leaf_descriptor = list(
-            _path_parts_to_descriptors(self._service, self._drive, self.path_parts)
-        )[-1]
+        leaf_descriptor = self._get_leaf_descriptor()
 
         if not leaf_descriptor.is_dir:
             raise IOError(f"{self.url} is not a folder")
@@ -181,17 +178,26 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         )
         return lister.list()
 
+    # remove
+
+    def remove(self):
+        """Remove the file from google drive."""
+        leaf_descriptor = self._get_leaf_descriptor()
+        args = {
+            "fileId": leaf_descriptor.id_,
+            "supportsTeamDrives": True,
+        }
+        self._service.files().delete(**args).execute()
+
     @functools.lru_cache(maxsize=1)
     def _get_drives(self) -> Dict[str, _GoogleDriveDescriptor]:
         drives = {d.name: d for d in _ListDrivesRequest(self._service).list()}
         drives[self.DEFAULT_DRIVE_NAME] = self.DEFAULT_DRIVE_DESCRIPTOR
         return drives
 
-    # remove
-
-    def remove(self):
-        """Remove the file from google drive."""
-        pass
+    def _get_leaf_descriptor(self) -> _GoogleFileDescriptor:
+        """Get the last descriptor from the path part of the url."""
+        return list(_path_parts_to_descriptors(self._service, self._drive, self.path_parts))[-1]
 
 
 def _path_parts_to_descriptors(
