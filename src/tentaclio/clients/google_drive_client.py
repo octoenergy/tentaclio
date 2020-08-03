@@ -31,13 +31,6 @@ TOKEN_FILE = os.getenv(
 T = TypeVar("T")
 
 
-# Exceptions
-
-
-class DescriptorNotFound(Exception):
-    ...
-
-
 # Credentials management
 
 
@@ -166,10 +159,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def get(self, writer: protocols.ByteWriter, **kwargs) -> None:
         """Get the contents of the google drive file."""
-        try:
-            leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound:
-            raise IOError(f"{self.url} not found.")
+        leaf_descriptor = self._get_leaf_descriptor()
         _DownloadRequest(self._service, leaf_descriptor.id_, writer).execute()
 
     def put(self, reader: protocols.ByteReader, **kwargs) -> None:
@@ -177,16 +167,13 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         try:
             file_descriptor = self._get_leaf_descriptor()
             self._update(file_descriptor, reader)
-        except DescriptorNotFound:
+        except IOError:
             # file doesn't exist, then create
             self._create(reader)
 
     def _create(self, reader: protocols.ByteReader):
         """Create a new file."""
-        try:
-            descriptors = self._get_path_descriptors(ignore_tail=True)
-        except DescriptorNotFound as e:
-            raise IOError(f"{self.url} path to file not found.", e)
+        descriptors = self._get_path_descriptors(ignore_tail=True)
 
         parent = descriptors[-1]
         if not parent.is_dir:
@@ -212,10 +199,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
     @decorators.check_conn
     def scandir(self, **kwargs) -> Iterable[fs.DirEntry]:
         """List contents of a folder from google drive."""
-        try:
-            leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound:
-            raise IOError(f"{self.url} not found.")
+        leaf_descriptor = self._get_leaf_descriptor()
 
         if not leaf_descriptor.is_dir:
             raise IOError(f"{self.url} is not a folder")
@@ -230,11 +214,7 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def remove(self):
         """Remove the file from google drive."""
-        try:
-            leaf_descriptor = self._get_leaf_descriptor()
-        except DescriptorNotFound:
-            raise IOError(f"{self.url} not found.")
-
+        leaf_descriptor = self._get_leaf_descriptor()
         args = {
             "fileId": leaf_descriptor.id_,
             "supportsTeamDrives": True,
@@ -255,37 +235,36 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
         parts = self.path_parts
         if ignore_tail:
             parts = parts[:-1]
-        return list(
-            _path_parts_to_descriptors(self._service, self._drive, parts)
-        )
+        return list(self._path_parts_to_descriptors(self._drive, parts))
 
+    def _path_parts_to_descriptors(
+        self, drive: _GoogleDriveDescriptor, path_parts: Iterable[str]
+    ) -> List[_GoogleFileDescriptor]:
+        """Convert the path parts into google drive descriptors."""
+        file_descriptors = [drive.root_descriptor]
+        parent = None
+        for pathPart in path_parts:
+            file_descriptor = self._get_file_descriptor_by_name(pathPart, parent)
+            parent = file_descriptor.id_
+            file_descriptors.append(file_descriptor)
 
-def _path_parts_to_descriptors(
-    service: Any, drive: _GoogleDriveDescriptor, path_parts: Iterable[str]
-) -> List[_GoogleFileDescriptor]:
-    """Convert the path parts into google drive descriptors."""
-    file_descriptors = [drive.root_descriptor]
-    parent = None
-    for pathPart in path_parts:
-        file_descriptor = _get_file_descriptor_by_name(service, pathPart, parent)
-        parent = file_descriptor.id_
-        file_descriptors.append(file_descriptor)
+        return file_descriptors
 
-    return file_descriptors
+    def _get_file_descriptor_by_name(self, name: str, parent: Optional[str] = None):
+        """Get the file id given the file name and it's parent."""
+        args = {"q": f" name = '{name}'"}
 
+        if parent is not None:
+            args["q"] += f" and '{parent}' in parents"
 
-def _get_file_descriptor_by_name(service: Any, name: str, parent: Optional[str] = None):
-    """Get the file id given the file name and it's parent."""
-    args = {"q": f" name = '{name}'"}
+        results = list(_ListFilesRequest(self._service, **args).list())
 
-    if parent is not None:
-        args["q"] += f" and '{parent}' in parents"
-
-    results = list(_ListFilesRequest(service, **args).list())
-
-    if len(results) == 0:
-        raise DescriptorNotFound(f"Could not find file {name} with parent {parent}")
-    return results[0]
+        if len(results) == 0:
+            raise IOError(
+                f"Descriptor not found for {self.url} "
+                f"Could not find part {name} with parent id {parent}"
+            )
+        return results[0]
 
 
 class _GoogleDriveRequest:
