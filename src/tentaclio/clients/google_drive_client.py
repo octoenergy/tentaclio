@@ -3,10 +3,12 @@ import abc
 import functools
 import json
 import logging
+import mimetypes
 import os
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
 
+from apiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -27,6 +29,7 @@ TOKEN_FILE = os.getenv(
 
 # Generic type
 T = TypeVar("T")
+
 
 # Credentials management
 
@@ -156,11 +159,40 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def get(self, writer: protocols.ByteWriter, **kwargs) -> None:
         """Get the contents of the google drive file."""
-        pass
+        leaf_descriptor = self._get_leaf_descriptor()
+        _DownloadRequest(self._service, leaf_descriptor.id_, writer).execute()
 
     def put(self, reader: protocols.ByteReader, **kwargs) -> None:
         """Write the contents of the reader to the google drive file."""
-        pass
+        try:
+            file_descriptor = self._get_leaf_descriptor()
+            self._update(file_descriptor, reader)
+        except IOError:
+            # file doesn't exist, then create
+            self._create(reader)
+
+    def _create(self, reader: protocols.ByteReader):
+        """Create a new file."""
+        descriptors = self._get_path_descriptors(ignore_tail=True)
+
+        parent = descriptors[-1]
+        if not parent.is_dir:
+            raise IOError(f"{self.url} parent path is not a folder")
+
+        uploader = _CreateRequest(
+            service=self._service, name=self.path_parts[-1], parent_id=parent.id_, reader=reader
+        )
+        uploader.execute()
+
+    def _update(self, file_descriptor: _GoogleFileDescriptor, reader: protocols.ByteReader):
+        """Update file contents."""
+        uploader = _UpdateRequest(
+            service=self._service,
+            name=file_descriptor.name,
+            file_id=file_descriptor.id_,
+            reader=reader,
+        )
+        uploader.execute()
 
     # scandir related methods
 
@@ -197,35 +229,42 @@ class GoogleDriveFSClient(base_client.BaseClient["GoogleDriveFSClient"]):
 
     def _get_leaf_descriptor(self) -> _GoogleFileDescriptor:
         """Get the last descriptor from the path part of the url."""
-        return list(_path_parts_to_descriptors(self._service, self._drive, self.path_parts))[-1]
+        return self._get_path_descriptors()[-1]
 
+    def _get_path_descriptors(self, ignore_tail=False) -> List[_GoogleFileDescriptor]:
+        parts = self.path_parts
+        if ignore_tail:
+            parts = parts[:-1]
+        return list(self._path_parts_to_descriptors(self._drive, parts))
 
-def _path_parts_to_descriptors(
-    service: Any, drive: _GoogleDriveDescriptor, path_parts: Iterable[str]
-) -> List[_GoogleFileDescriptor]:
-    """Convert the path parts into google drive descriptors."""
-    file_descriptors = [drive.root_descriptor]
-    parent = None
-    for pathPart in path_parts:
-        file_descriptor = _get_file_descriptor_by_name(service, pathPart, parent)
-        parent = file_descriptor.id_
-        file_descriptors.append(file_descriptor)
+    def _path_parts_to_descriptors(
+        self, drive: _GoogleDriveDescriptor, path_parts: Iterable[str]
+    ) -> List[_GoogleFileDescriptor]:
+        """Convert the path parts into google drive descriptors."""
+        file_descriptors = [drive.root_descriptor]
+        parent = None
+        for pathPart in path_parts:
+            file_descriptor = self._get_file_descriptor_by_name(pathPart, parent)
+            parent = file_descriptor.id_
+            file_descriptors.append(file_descriptor)
 
-    return file_descriptors
+        return file_descriptors
 
+    def _get_file_descriptor_by_name(self, name: str, parent: Optional[str] = None):
+        """Get the file id given the file name and it's parent."""
+        args = {"q": f" name = '{name}'"}
 
-def _get_file_descriptor_by_name(service: Any, name: str, parent: Optional[str] = None):
-    """Get the file id given the file name and it's parent."""
-    args = {"q": f" name = '{name}'"}
+        if parent is not None:
+            args["q"] += f" and '{parent}' in parents"
 
-    if parent is not None:
-        args["q"] += f" and '{parent}' in parents"
+        results = list(_ListFilesRequest(self._service, **args).list())
 
-    results = list(_ListFilesRequest(service, **args).list())
-
-    if len(results) == 0:
-        raise RuntimeError(f"Could not find file {name} with parent {parent}")
-    return results[0]
+        if len(results) == 0:
+            raise IOError(
+                f"Descriptor not found for {self.url} "
+                f"Could not find part {name} with parent id {parent}"
+            )
+        return results[0]
 
 
 class _GoogleDriveRequest:
@@ -237,6 +276,61 @@ class _GoogleDriveRequest:
     def __init__(self, service: Any, args: Dict[str, Any]):
         self.args = args
         self.service = service
+
+
+class _DownloadRequest(_GoogleDriveRequest):
+    """Download data from google drive."""
+
+    def __init__(self, service: Any, file_id: str, writer: protocols.ByteWriter, **kwargs):
+        super().__init__(service, kwargs)
+        self.args["fileId"] = file_id
+        self.args["supportsTeamDrives"] = True
+        self.writer = writer
+
+    def execute(self):
+        request = self.service.files().get_media(**self.args)
+        downloader = MediaIoBaseDownload(self.writer, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+
+
+class _CreateRequest(_GoogleDriveRequest):
+    """Upload data to google drive."""
+
+    def __init__(
+        self, service: Any, name: str, parent_id: str, reader: protocols.ByteReader, **kwargs
+    ):
+        super().__init__(service, kwargs)
+        # self.args["parents"] = [parent_id]
+        self.args["supportsTeamDrives"] = True
+        self.args["name"] = name
+        self.args["parents"] = [parent_id]
+        self.reader = reader
+
+    def execute(self):
+        media_body = MediaIoBaseUpload(
+            self.reader, mimetype=mimetypes.guess_type(self.args["name"])[0]
+        )
+        self.service.files().create(body=self.args, media_body=media_body,).execute()
+
+
+class _UpdateRequest(_GoogleDriveRequest):
+    """Update data to google drive."""
+
+    def __init__(
+        self, service: Any, file_id: str, name: str, reader: protocols.ByteReader, **kwargs
+    ):
+        super().__init__(service, kwargs)
+        # self.args["parents"] = [parent_id]
+        self.args["supportsTeamDrives"] = True
+        self.args["fileId"] = file_id
+        self.name = name
+        self.reader = reader
+
+    def execute(self):
+        media_body = MediaIoBaseUpload(self.reader, mimetype=mimetypes.guess_type(self.name)[0])
+        self.service.files().update(media_body=media_body, **self.args).execute()
 
 
 class _Lister(

@@ -1,4 +1,5 @@
 import copy
+import io
 import json
 import tempfile
 
@@ -7,14 +8,14 @@ import pytest
 from tentaclio import urls
 from tentaclio.clients import GoogleDriveFSClient
 from tentaclio.clients.google_drive_client import (
+    _CreateRequest,
     _get_drive_root,
-    _get_file_descriptor_by_name,
     _get_random_parent,
     _GoogleFileDescriptor,
     _ListDrivesRequest,
     _ListFilesRequest,
     _load_credentials,
-    _path_parts_to_descriptors
+    _UpdateRequest
 )
 
 
@@ -116,6 +117,7 @@ class TestGoogleDriveFSClient:
         client = GoogleDriveFSClient("gdrive:///My Drive/file")
         client._get_leaf_descriptor = mocker.MagicMock()
         client._get_leaf_descriptor.return_value = file_descriptor
+        client._get_path_descriptors = mocker.MagicMock()
         client._service = mocker.MagicMock()
         return client
 
@@ -160,6 +162,12 @@ class TestGoogleDriveFSClient:
         kwargs = lister.mock_calls[0][2]
         assert kwargs["url_base"] == "gdrive:/My Drive/folder/"
 
+    def test_scandir_not_found(self, client):
+
+        client._get_leaf_descriptor.side_effect = [IOError("🤷")]
+        with pytest.raises(IOError), client:
+            client.scandir()
+
     def test_remove(self, client, file_descriptor):
 
         client.remove()
@@ -167,14 +175,73 @@ class TestGoogleDriveFSClient:
         kwargs = client._service.files.return_value.delete.mock_calls[0][2]
         assert kwargs["fileId"] == file_descriptor.id_
 
+    def test_remove_not_found(self, client):
+
+        client._get_leaf_descriptor.side_effect = [IOError("test error")]
+        with pytest.raises(IOError, match="test error"), client:
+            client.remove()
+
+    def test_download_not_found(self, client):
+        client._get_leaf_descriptor.side_effect = [IOError("test error")]
+        buff = io.BytesIO()
+        with pytest.raises(IOError, match="test error"), client:
+            client.get(buff)
+
+    def test_download(self, mocker, client):
+
+        data = b"some data"
+        buff = io.BytesIO()
+
+        def download():
+            buff.write(data)
+            return None, True
+
+        media_download = mocker.patch("tentaclio.clients.google_drive_client.MediaIoBaseDownload")
+        media_download.return_value.next_chunk.side_effect = download
+
+        client.get(buff)
+        buff.seek(0)
+        assert buff.getvalue() == data
+
+    def test_create_new_file_folder_not_found(self, mocker, client):
+        client._get_path_descriptors.side_effect = [IOError("test error")]
+        with pytest.raises(IOError, match="test error"), client:
+            client._create(mocker.MagicMock())
+
+    def test_create_new_file_parent_not_folder(self, mocker, client, file_descriptor):
+        client._get_path_descriptors.return_value = [file_descriptor]
+        with pytest.raises(IOError, match="parent path is not a folder"), client:
+            client._create(mocker.MagicMock())
+
+    def test_create_new_file(self, mocker, client, folder_descriptor):
+        client._get_path_descriptors.return_value = [folder_descriptor]
+        client._create(mocker.MagicMock())
+        client._service.files.return_value.create.assert_called_once()
+
+    def test_update_file(self, mocker, client, file_descriptor):
+        client._update(file_descriptor, mocker.MagicMock())
+        client._service.files.return_value.update.assert_called_once()
+
+    def test_put_update(self, mocker, client):
+        # by default the client comes with a valid
+        # file descriptor
+        client._update = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        with client:
+            client.put(reader)
+        client._update.assert_called_once()
+
+    def test_put_create(self, mocker, client):
+        client._get_leaf_descriptor.side_effect = [IOError("🤷")]
+        client._create = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        with client:
+            client.put(reader)
+        client._create.assert_called_once()
+
     def test_get_leaf_descriptor(self, mocker, file_descriptor):
         file_descriptor_leaf = copy.copy(file_descriptor)
         file_descriptor_leaf.id_ = "leaf"
-
-        get_descriptors = mocker.patch(
-            "tentaclio.clients.google_drive_client._path_parts_to_descriptors"
-        )
-        get_descriptors.return_value = [folder_descriptor, file_descriptor_leaf]
 
         client = GoogleDriveFSClient("gdrive:///My Drive/file")
         client._service = mocker.MagicMock()
@@ -182,8 +249,60 @@ class TestGoogleDriveFSClient:
         client._get_drives.return_value = {
             "My Drive": GoogleDriveFSClient.DEFAULT_DRIVE_DESCRIPTOR
         }
+        client._path_parts_to_descriptors = mocker.MagicMock()
+        client._path_parts_to_descriptors.return_value = [folder_descriptor, file_descriptor_leaf]
         leaf = client._get_leaf_descriptor()
         assert leaf.id_ == "leaf"
+
+    def test_get_file_descriptor_by_name_found_with_parent(
+        self, client, mocked_service, file_props
+    ):
+        client._service = mocked_service
+        f = client._get_file_descriptor_by_name("name", "parent")
+        assert f.id_ == file_props["id"]
+        kwargs = client._service.files.return_value.list.mock_calls[0][2]
+        assert "parent" in kwargs["q"]
+
+    def test_get_file_descriptor_by_name_found_without_parent(
+        self, client, mocked_service, file_props
+    ):
+        client._service = mocked_service
+        f = client._get_file_descriptor_by_name("name", None)
+
+        assert f.id_ == file_props["id"]
+        kwargs = mocked_service.files.return_value.list.mock_calls[0][2]
+        assert "parent" not in kwargs["q"]
+
+    def test_get_file_descriptor_by_name_not_found(self, client, mocked_service, file_props):
+        client._service = mocked_service
+        client._service.files.return_value.list.return_value.execute.return_value = {"files": []}
+        with pytest.raises(IOError, match="Descriptor not found"):
+            client._get_file_descriptor_by_name("name", None)
+
+    def test_path_parts_to_descriptors(self, client, mocker):
+        client._get_file_descriptor_by_name = mocker.MagicMock()
+        client._get_file_descriptor_by_name.side_effect = [
+            _GoogleFileDescriptor(
+                id_=2,
+                name="folder",
+                parents=[1],
+                mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+                url="gdrive://My Drive/folder",
+            ),
+            _GoogleFileDescriptor(
+                id_=3,
+                name="inner",
+                parents=[2],
+                mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
+                url="gdrive://My Drive/folder/inner",
+            ),
+        ]
+
+        descriptors = client._path_parts_to_descriptors(
+            GoogleDriveFSClient.DEFAULT_DRIVE_DESCRIPTOR, ["folder", "inner"]
+        )
+        ids = [d.id_ for d in descriptors]
+        assert ids == ["root", 2, 3]
 
 
 class TestGoogleFileDescriptor:
@@ -210,6 +329,29 @@ class TestGoogleFileDescriptor:
         descriptor = _GoogleFileDescriptor(**args)
         assert not descriptor.is_dir
         assert descriptor.is_file
+
+
+class TestCreateRequest:
+    def test_execute(self, mocker):
+        service = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        uploader = _CreateRequest(service, "name.txt", "parent_id", reader)
+        uploader.execute()
+        kwargs = service.files.return_value.create.mock_calls[0][2]
+        assert kwargs["body"]["name"] == "name.txt"
+        assert kwargs["body"]["parents"] == ["parent_id"]
+        assert kwargs["media_body"].mimetype() == "text/plain"
+
+
+class TestUpdateRequest:
+    def test_execute(self, mocker):
+        service = mocker.MagicMock()
+        reader = mocker.MagicMock()
+        uploader = _UpdateRequest(service, "123", "name.txt", reader)
+        uploader.execute()
+        kwargs = service.files.return_value.update.mock_calls[0][2]
+        assert kwargs["fileId"] == "123"
+        assert kwargs["media_body"].mimetype() == "text/plain"
 
 
 class TestListFilesRequest:
@@ -267,56 +409,6 @@ class TestListDrivesRequest:
         assert descriptor.id_ == drive_props["id"]
         assert descriptor.name == drive_props["name"]
         assert descriptor.root_descriptor == file_descriptor
-
-
-def test_get_file_descriptor_by_name_found_with_parent(mocker, mocked_service, file_props):
-    f = _get_file_descriptor_by_name(mocked_service, "name", "parent")
-
-    assert f.id_ == file_props["id"]
-    kwargs = mocked_service.files.return_value.list.mock_calls[0][2]
-    assert "parent" in kwargs["q"]
-
-
-def test_get_file_descriptor_by_name_found_without_parent(mocker, mocked_service, file_props):
-    f = _get_file_descriptor_by_name(mocked_service, "name", None)
-
-    assert f.id_ == file_props["id"]
-    kwargs = mocked_service.files.return_value.list.mock_calls[0][2]
-    assert "parent" not in kwargs["q"]
-
-
-def test_get_file_descriptor_by_name_not_found(mocker, mocked_service, file_props):
-    mocked_service.files.return_value.list.return_value.execute.return_value = {"files": []}
-    with pytest.raises(RuntimeError, match="Could not find"):
-        _get_file_descriptor_by_name(mocked_service, "name", None)
-
-
-def test_path_parts_to_descriptors(mocker, mocked_service):
-    mocked_get_file_id = mocker.patch(
-        "tentaclio.clients.google_drive_client._get_file_descriptor_by_name"
-    )
-    mocked_get_file_id.side_effect = [
-        _GoogleFileDescriptor(
-            id_=2,
-            name="folder",
-            parents=[1],
-            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
-            url="gdrive://My Drive/folder",
-        ),
-        _GoogleFileDescriptor(
-            id_=3,
-            name="inner",
-            parents=[2],
-            mime_type=_GoogleFileDescriptor.FOLDER_MIME_TYPE,
-            url="gdrive://My Drive/folder/inner",
-        ),
-    ]
-
-    descriptors = _path_parts_to_descriptors(
-        mocked_service, GoogleDriveFSClient.DEFAULT_DRIVE_DESCRIPTOR, ["folder", "inner"]
-    )
-    ids = [d.id_ for d in descriptors]
-    assert ids == ["root", 2, 3]
 
 
 def test_get_random_parent_no_children(mocker):
