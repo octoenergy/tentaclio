@@ -22,10 +22,9 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["GoogleDriveFSClient"]
 
+DEFAULT_TOKEN_FILE = os.environ["HOME"] + os.sep + ".tentaclio_google_drive.json"
 # Load the location of the token file from the environment
-TOKEN_FILE = os.getenv(
-    "TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", os.environ["HOME"] + os.sep + ".google_drive_token.json",
-)
+TOKEN_FILE = os.getenv("TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
 # Generic type
 T = TypeVar("T")

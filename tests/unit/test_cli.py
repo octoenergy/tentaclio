@@ -1,7 +1,8 @@
 import pytest
 from click import testing
 
-from tentaclio import cli, urls
+from tentaclio import __main__ as cli
+from tentaclio import urls
 
 
 @pytest.fixture

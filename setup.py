@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -73,7 +73,6 @@ setup_args = dict(
     # Package data
     package_dir={"": "src"},
     packages=find_packages("src", include=["*tentaclio*"]),
-    entry_points={"console_scripts": ["tentaclio = tentaclio.cli:main"]},
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
