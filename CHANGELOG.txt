@@ -4,33 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2020-08-25
+### Fix
+  - Remove upper constraint on `boto3` Python dependency.
+
 ## [0.0.6] - 2020-08-25
-### Fix 
-  - Windows based system don not have the HOME environment variable set by default. 
+### Fix
+  - Windows based system don not have the HOME environment variable set by default.
   Fixed by using UserProfile instead.
 
 ## [0.0.5] - 2020-08-02
-### Fix 
- - Fix problems with base stream as it needed to make itself as fushable 
+### Fix
+ - Fix problems with base stream as it needed to make itself as fushable
  in order to play nicely with zip files
-### Added 
+### Added
  - Experimental google drive support
 
 ## [0.0.4] - 2020-07-15
-### Fix 
- - Fix problems with base stream as it needed to make itself as seekable 
+### Fix
+ - Fix problems with base stream as it needed to make itself as seekable
  in order to play nicely with zip files
 ### Changed
  - Now the required dev version is python 3.7
 
 
 ## [0.0.3] - 2020-07-02
-### Fix 
- - Fix issue with the application name string for postgres 
+### Fix
+ - Fix issue with the application name string for postgres
 
 ## [0.0.2] - 2020-07-02
 ### Added
- - TENCACLIO__PG_APPLICATION_NAME overrides the application name for postgres connection string 
+ - TENCACLIO__PG_APPLICATION_NAME overrides the application name for postgres connection string
 
 ## [0.0.1] - 2020-06-15
 ### Added

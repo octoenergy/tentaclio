@@ -17,7 +17,7 @@ mypy = "==0.701"
 pydocstyle = "<3.1"
 # Testing
 moto = "*"
-pytest = "*"
+pytest = "==5.4.3"
 pytest-cov = "*"
 # locking due to problem with unit test when bumped
 pytest-mock = "<1.11"
