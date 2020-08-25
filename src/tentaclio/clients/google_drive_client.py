@@ -5,6 +5,7 @@ import json
 import logging
 import mimetypes
 import os
+import platform
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
 
@@ -22,7 +23,12 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["GoogleDriveFSClient"]
 
-DEFAULT_TOKEN_FILE = os.environ["HOME"] + os.sep + ".tentaclio_google_drive.json"
+if "windows" in platform.system().lower():
+    HOME = os.environ["UserProfile"]
+else:
+    HOME = os.environ["HOME"]
+
+DEFAULT_TOKEN_FILE = HOME + os.sep + ".tentaclio_google_drive.json"
 # Load the location of the token file from the environment
 TOKEN_FILE = os.getenv("TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
