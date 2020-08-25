@@ -33,7 +33,7 @@ REQUIREMENTS = [
     # Security constrains
     "urllib3>=1.24.2",
     # AWS
-    "boto3>=1.9.0,<1.10",
+    "boto3>=1.9.0",
     # GS
     "google-cloud-storage",
     # Http
