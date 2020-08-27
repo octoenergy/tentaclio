@@ -30,7 +30,8 @@ class CredentialsInjector(object):
         """Inject credentials to the given url if they are available."""
         creds_by_scheme = self.registry[url.scheme]
         creds_by_host = _filter_by_hostname(url, creds_by_scheme)
-        candidates = _filter_by_path(url, creds_by_host)
+        creds_by_path = _filter_by_path(url, creds_by_host)
+        candidates = _filter_by_user(url, creds_by_path)
 
         if len(candidates) == 0:
             return url
@@ -73,6 +74,12 @@ def _filter_by_hostname(url: urls.URL, to_match: List[urls.URL]) -> List[urls.UR
     if url.hostname != "hostname":
         return list(filter(lambda cred: cred.hostname == url.hostname, to_match))
     return to_match
+
+
+def _filter_by_user(url: urls.URL, to_match: List[urls.URL]) -> List[urls.URL]:
+    if url.username is None:
+        return to_match
+    return list(filter(lambda cred: cred.username == url.username, to_match))
 
 
 PATH_DELIMITERS = "/|::"
