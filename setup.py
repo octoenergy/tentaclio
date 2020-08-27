@@ -55,6 +55,7 @@ REQUIREMENTS = [
     "pandas<1.0.2",
     "click",
     "pyyaml",
+    "dataclasses",
 ]
 
 
