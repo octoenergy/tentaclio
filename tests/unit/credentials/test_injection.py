@@ -62,6 +62,16 @@ from tentaclio.credentials import injection
             "scheme://octo.energy/path/",
             "scheme://user:password@octo.energy/path/",
         ],
+        [
+            "scheme://user:password@octo.energy/path",  # specifying user
+            "scheme://user:@octo.energy/path",
+            "scheme://user:password@octo.energy/path",
+        ],
+        [
+            "scheme://octo.energy/path",  # specified user not found
+            "scheme://user:@octo.energy/path",
+            "scheme://user:@octo.energy/path",
+        ],
     ],
 )
 def test_simple_authenticate(with_creds, raw, expected):
