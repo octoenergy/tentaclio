@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.9"
+VERSION = "0.0.10"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -43,7 +43,7 @@ REQUIREMENTS = [
     # Sqlalchemy
     "sqlalchemy>1.3",
     # Athena
-    "PyAthena",
+    "PyAthena==1.10.7",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Google drive
