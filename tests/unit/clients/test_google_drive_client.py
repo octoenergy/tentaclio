@@ -410,6 +410,17 @@ class TestListDrivesRequest:
         assert descriptor.name == drive_props["name"]
         assert descriptor.root_descriptor == file_descriptor
 
+    def test_yielder_permission_error(self, mocker, drive_props, file_descriptor):
+        mocked_get_drive_root = mocker.patch(
+            "tentaclio.clients.google_drive_client._get_drive_root"
+        )
+        mocked_get_drive_root.side_effect = [IOError("No files found while inspecting drive")]
+
+        service = mocker.MagicMock()
+        lister = _ListDrivesRequest(service)
+
+        assert len(list(lister._yielder({"drives": [drive_props]}))) == 0
+
 
 def test_get_random_parent_no_children(mocker):
     service = mocker.MagicMock()

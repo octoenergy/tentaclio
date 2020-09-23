@@ -458,9 +458,22 @@ class _ListDrivesRequest(_Lister[_GoogleDriveDescriptor]):
 
     def _yielder(self, results) -> Iterable[_GoogleDriveDescriptor]:
         for drive in results.get("drives", []):
-            args = {
-                "id_": drive.get("id"),
-                "name": drive.get("name"),
-                "root_descriptor": _get_drive_root(self.service, drive.get("id"),),
-            }
+            try:
+                args = {
+                    "id_": drive.get("id"),
+                    "name": drive.get("name"),
+                    "root_descriptor": _get_drive_root(self.service, drive.get("id"),),
+                }
+            except IOError as e:
+                # There are times that we can't access the root of shared drive but we can access
+                # random files, this raise an IOError while trying to fetch the root of drive,
+                # let's ignore those drives for the time being
+                if str(e) == "No files found while inspecting drive":
+                    logger.warning(
+                        f"Ignoring drive {drive.get('name')} due "
+                        "to permission errors getting the root."
+                        "Ask for permissions to read the whole shared drive."
+                    )
+                continue
+
             yield _GoogleDriveDescriptor(**args)
