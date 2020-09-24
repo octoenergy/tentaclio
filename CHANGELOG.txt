@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.12] - 2020-09-24
+### Fix
+  - The token from google might have extra fields that cause the authentication process to fail
+
 ## [0.0.11] - 2020-09-23
 ### Fix
-  - When we have access to a file in a shared drive but not to the drive itself it 
+  - When we have access to a file in a shared drive but not to the drive itself it
   breaks the routine to "mount" the drives, as it can't access the root. Ignore those
   drives by the time being and warn the user.
 
