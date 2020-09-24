@@ -15,7 +15,8 @@ from tentaclio.clients.google_drive_client import (
     _ListDrivesRequest,
     _ListFilesRequest,
     _load_credentials,
-    _UpdateRequest
+    _UpdateRequest,
+    _get_default_token_file
 )
 
 
@@ -489,3 +490,28 @@ def test_get_drive_root(mocker, file_props, file_descriptor):
 
     descriptor = _get_drive_root(service, "drive")
     assert descriptor.id_ == "root"
+
+
+def test_home_varible_set(mocker):
+    """Test DEFAULT_TOKEN_FILE is correct."""
+    env_dict = {"HOME": "/home"}
+    expected_token_file = "/home/.tentaclio_google_drive.json"
+    mocker.patch("os.environ", env_dict)
+    assert _get_default_token_file() == expected_token_file
+
+
+def test_home_varible_set_windows(mocker):
+    """Test DEFAULT_TOKEN_FILE is correct."""
+    env_dict = {"UserProfile": "/user-profile", "HOME": "/home"}
+    expected_token_file = "/user-profile/.tentaclio_google_drive.json"
+    mocker.patch("platform.system", lambda: "windows")
+    mocker.patch("os.environ", env_dict)
+    assert _get_default_token_file() == expected_token_file
+
+
+def test_home_varible_set_no_home(mocker):
+    """Test DEFAULT_TOKEN_FILE is correct."""
+    expected_token_file = "/cwd/.tentaclio_google_drive.json"
+    mocker.patch("os.getcwd", lambda: "/cwd")
+    mocker.patch("os.environ", {})
+    assert _get_default_token_file() == expected_token_file

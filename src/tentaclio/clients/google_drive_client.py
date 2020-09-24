@@ -23,12 +23,25 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["GoogleDriveFSClient"]
 
-if "windows" in platform.system().lower():
-    HOME = os.environ["UserProfile"]
-else:
-    HOME = os.environ["HOME"]
 
-DEFAULT_TOKEN_FILE = HOME + os.sep + ".tentaclio_google_drive.json"
+def _get_default_token_file():
+    """Get default token file path.
+
+    Includes a fallback of the current working directory.
+    If the user profile environment variables are not set.
+    """
+    if "windows" in platform.system().lower():
+        HOME = os.environ.get("UserProfile")
+    else:
+        HOME = os.environ.get("HOME")
+
+    if not HOME:
+        HOME = os.getcwd()
+
+    return HOME + os.sep + ".tentaclio_google_drive.json"
+
+
+DEFAULT_TOKEN_FILE = _get_default_token_file()
 # Load the location of the token file from the environment
 TOKEN_FILE = os.getenv("TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
