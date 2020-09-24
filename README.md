@@ -266,10 +266,10 @@ client selector to "Desktop app", and download the generated JSON file.
 2. Generate token file 
 
 ```
-pipenv install tentaclio && pipenv run python -m tentaclio google-token generate
+pipenv install tentaclio && pipenv run python -m tentaclio google-token generate --credentials-file ~/Downloads/credentials.json
 ```
 This will open a browser with a google auth page, log in and accept the authorisation request.
-The token file has been saved in a default location. You can also configure this via the env variable `TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE`
+The token file has been saved in a default location '~/.tentaclio_google_drive.json'. You can also configure this via the env variable `TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE`
 
 3. Get rid of credentials.json
 The `credentials.json` file is not longer need, feel free to delete it.
