@@ -28,6 +28,14 @@ def token_file():
 
 
 @pytest.fixture
+def token_file_unknown_field():
+    with tempfile.NamedTemporaryFile() as f:
+        with open(f.name, "w") as writer:
+            json.dump({"token": "toktok", "superunknown": "sg"}, writer)
+        yield f.name
+
+
+@pytest.fixture
 def file_props():
     return {
         "id": "123",
@@ -88,6 +96,19 @@ def test_load_credentials(mocker, token_file):
     mocked_creds.return_value.valid = True
     token = _load_credentials(token_file)
     token.token == "toktok"
+
+
+def test_load_credentials_unknown_field(mocker, token_file_unknown_field):
+    mocked_creds = mocker.patch("tentaclio.clients.google_drive_client.Credentials")
+
+    def _credentials(x):
+        x.vaild = True
+        return x
+
+    mocked_creds.__call__ = _credentials
+    creds = _load_credentials(token_file_unknown_field)
+    assert "superunknown" not in creds
+    assert "token" not in creds
 
 
 def test_load_not_refreshing(mocker, token_file):

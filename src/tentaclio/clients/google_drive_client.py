@@ -32,6 +32,16 @@ DEFAULT_TOKEN_FILE = HOME + os.sep + ".tentaclio_google_drive.json"
 # Load the location of the token file from the environment
 TOKEN_FILE = os.getenv("TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE", DEFAULT_TOKEN_FILE)
 
+# fetch only the needed entries fron the json file for the credentials
+GOOGLE_CREDENTIALS_ENTRIES = {
+    "client_secret",
+    "client_id",
+    "token",
+    "token_uri",
+    "refresh_token",
+    "scopes",
+}
+
 # Generic type
 T = TypeVar("T")
 
@@ -45,6 +55,7 @@ def _load_credentials(token_file: str) -> Credentials:
     if os.path.exists(token_file):
         with open(token_file) as f:
             state = json.load(f)
+            state = {key: state[key] for key in state if key in GOOGLE_CREDENTIALS_ENTRIES}
             creds = Credentials(**state)
     else:
         raise ValueError(f"Token file is not valid {token_file}")
