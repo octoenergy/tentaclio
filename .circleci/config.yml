@@ -8,6 +8,8 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.0.4
+  python: circleci/python@1.1.0
+
 
 jobs:
   lint:
@@ -19,24 +21,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          # Increasingly general patterns to restore
-          # https://circleci.com/docs/2.0/caching/#using-keys-and-templates
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
-
-      - run:
-          name: Install Python packages
-          command: make sync
-
-      - save_cache:
-          # Pipenv venv and pip cached wheels
-          paths:
-            - "~/.local"
-            - "~/.cache"
-          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: Run linters
@@ -52,15 +38,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
-
-      - run:
-          name: Install Python packages
-          command: make sync
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - save_cache:
           paths:
@@ -84,11 +63,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: verify git tag vs. version
@@ -119,13 +95,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: Run S3 functional tests
@@ -150,13 +121,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: Run postgres functional tests
@@ -179,13 +145,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: Run sftp functional tests
@@ -211,13 +172,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
+      - python/install-packages:
+          pkg-manager: pipenv
 
       - run:
           name: Run postgres functional tests
