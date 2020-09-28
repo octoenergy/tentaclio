@@ -13,8 +13,6 @@ orbs:
 
 jobs:
   lint:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
 
@@ -30,8 +28,6 @@ jobs:
 
 
   unit:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
 
@@ -55,8 +51,6 @@ jobs:
           file: ./coverage.xml
 
   release:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
 
@@ -85,8 +79,6 @@ jobs:
             make release
 
   functional-s3:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
         environment:
@@ -106,8 +98,6 @@ jobs:
           file: ./coverage.xml
 
   functional-ftp:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
         environment:
@@ -132,8 +122,6 @@ jobs:
           file: ./coverage.xml
 
   functional-sftp:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
         environment:
@@ -156,8 +144,6 @@ jobs:
           file: ./coverage.xml
 
   functional-postgres:
-    working_directory: ~/lib
-
     docker:
       - image: circleci/python:3.7
         environment:
