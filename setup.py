@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.12"
+VERSION = "0.0.13"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -52,7 +52,7 @@ REQUIREMENTS = [
     "google-auth-oauthlib",
     # Utils
     "typing-extensions",
-    "pandas<1.0.2",
+    "pandas<=1.1.3",
     "click",
     "pyyaml",
     "dataclasses",
