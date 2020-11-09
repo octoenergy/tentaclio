@@ -5,7 +5,7 @@ which is more performant than using sql alchemy functions.
 """
 
 import pandas as pd
-from pyathena.pandas_cursor import PandasCursor
+from pyathena.pandas.cursor import PandasCursor
 
 from . import decorators, sqla_client
 

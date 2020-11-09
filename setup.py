@@ -43,7 +43,7 @@ REQUIREMENTS = [
     # Sqlalchemy
     "sqlalchemy>1.3",
     # Athena
-    "PyAthena==1.10.7",
+    "PyAthena>=2.0.0",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Google drive

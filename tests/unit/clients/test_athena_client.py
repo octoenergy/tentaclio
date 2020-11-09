@@ -1,6 +1,6 @@
 import pytest
 
-from pyathena.pandas_cursor import PandasCursor
+from pyathena.pandas.cursor import PandasCursor
 
 from tentaclio.clients.athena_client import AthenaClient
 
