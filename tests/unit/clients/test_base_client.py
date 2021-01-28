@@ -1,5 +1,7 @@
 import io
 
+import pytest
+
 from tentaclio.clients import base_client
 from tentaclio.urls import URL
 
@@ -49,3 +51,27 @@ class TestBaseClient:
         with FakeClient(url) as fake_client:
             fake_client.conn = mocked_conn
             assert not fake_client.closed
+
+
+class TestLazyExceptionRaiser:
+    def test_call(self):
+        with pytest.raises(Exception, match="Test exception"):
+            base_client._LazyExceptionRaiser(Exception("Test exception"))()
+
+    def test_getattr_field(self):
+        # This shouldn't blow as we might want to access class definitions in the client code
+        base_client._LazyExceptionRaiser(Exception("Test exception")).this_is_a_field
+
+    def test_getattr_method(self):
+        with pytest.raises(Exception, match="Test exception"):
+            base_client._LazyExceptionRaiser(Exception("Test exception")).this_is_a_method()
+
+
+def test_lazy_import_error():
+    lazy_error = base_client.lazy_import_error("module_name", Exception("Test exception"))
+
+    try:
+        lazy_error()
+    except Exception as e:
+        assert "module_name" in str(e)
+        assert "Test exception" in str(e)
