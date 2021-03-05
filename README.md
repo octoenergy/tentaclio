@@ -97,6 +97,15 @@ with tentaclio.open(bucket, mode="w") as writer:  # supports more pandas readers
 with tentaclio.open(bucket) as reader:
     new_df = pd.read_csv(reader)
 
+# another example: using pandas.DataFrame.to_sql() with tentaclio to upload
+with tentaclio.db(
+        connection_info,
+        connect_args={'options': '-csearch_path=schema_name'}
+    ) as client:
+    df.to_sql(
+        name='observations', # table name
+        con=client.conn,
+    )
 ```
 
 # Installation
@@ -263,10 +272,10 @@ First we need a credentials file in order to be able to generate tokens. The eas
 click on enable drive api. Give the project a name of your choosing (eg `tentaclio`), set the OAuth
 client selector to "Desktop app", and download the generated JSON file.
 
-2. Generate token file 
+2. Generate token file
 
 ```
-pipenv install tentaclio && \ 
+pipenv install tentaclio && \
     pipenv run python -m tentaclio google-token generate --credentials-file ~/Downloads/credentials.json
 ```
 This will open a browser with a google auth page, log in and accept the authorisation request.
