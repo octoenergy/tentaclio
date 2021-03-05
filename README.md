@@ -256,10 +256,12 @@ You can also set a credentials file that looks like:
 ```
 secrets:
     db_1: postgresql://user1:pass1@myhost.com/database_1
-    db_2: postgresql://user2:pass2@otherhost.com/database_2
+    db_2: mssql://user2:pass2@otherhost.com/database_2?driver=ODBC+Driver+17+for+SQL+Server
     ftp_server: ftp://fuser:fpass@ftp.myhost.com
 ```
 And make it accessible to tentaclio by setting the environmental variable `TENTACLIO__SECRETS_FILE`. The actual name of each url is for traceability and has no effect in the functionality.
+
+(Note that you may need to add `?driver={driver from /usr/local/etc/odbcinst.ini}` for mssql database connection strings; see above example)
 
 Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
 automatically configure your environment.
