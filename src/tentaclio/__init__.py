@@ -64,6 +64,7 @@ SCANNER_REGISTRY.register("gdrive", ClientDirScanner(GoogleDriveFSClient))
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
 DB_REGISTRY.register("awsathena+rest", AthenaClient)
+DB_REGISTRY.register("databricks+pyodbc", DatabricksClient)
 
 COPIER_REGISTRY.register("s3+s3", S3Client("s3://"))
 
