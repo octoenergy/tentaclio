@@ -40,6 +40,8 @@ REQUIREMENTS = [
     "requests",
     # Postgres
     "psycopg2-binary",
+    # Databricks
+    "pyodbc"
     # Sqlalchemy
     "sqlalchemy>1.3",
     # Athena
