@@ -57,7 +57,10 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     port: Optional[int]
 
     def __init__(
-        self, url: Union[str, urls.URL], execution_options: dict = None, connect_args: dict = None
+        self,
+        url: Union[str, urls.URL],
+        execution_options: dict = None,
+        connect_args: dict = None,
     ) -> None:
         """Create sqlalchemy client based on the passed url.
 
@@ -119,19 +122,30 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     # Query methods:
 
     @decorators.check_conn
-    def query(self, sql_query: str, params: dict = None, **kwargs) -> result.ResultProxy:
+    def query(
+        self, sql_query: str, params: dict = None, pass_params: bool = True, **kwargs
+    ) -> result.ResultProxy:
         """Execute a read-only SQL query, and return results.
 
         This will not commit any changes to the database.
         """
-        return self.conn.execute(sql_query, params=params, **kwargs)
+        return (
+            self.conn.execute(sql_query, params=params, **kwargs)
+            if pass_params
+            else self.conn.execute(sql_query, **kwargs)
+        )
 
     @decorators.check_conn
-    def execute(self, sql_query: str, params: dict = None, **kwargs) -> None:
+    def execute(
+        self, sql_query: str, params: dict = None, pass_params: bool = True, **kwargs
+    ) -> None:
         """Execute a raw SQL query command."""
         trans = self.conn.begin()
         try:
-            self.conn.execute(sql_query, params=params, **kwargs)
+            if pass_params:
+                self.conn.execute(sql_query, params=params, **kwargs)
+            else:
+                self.conn.execute(sql_query, **kwargs)
         except Exception:
             trans.rollback()
             raise

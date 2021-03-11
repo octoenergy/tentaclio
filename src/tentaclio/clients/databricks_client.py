@@ -4,7 +4,7 @@ import platform
 import urllib
 from typing import Union, Dict, Optional
 
-from sqlalchemy.engine import Connection, create_engine
+from sqlalchemy.engine import Connection, create_engine, result
 
 from tentaclio import urls
 
@@ -85,6 +85,18 @@ class DatabricksClient(sqla_client.SQLAlchemyClient):
                 f"mssql+pyodbc:///?odbc_connect={connection_url}"
             )
         return self.engine.connect()
+
+    def execute(self, sql_query: str, params: dict = None, **kwargs) -> None:
+        if params is not None:
+            logger.warning("Executing without params due to pyodbc limitation")
+        return super().execute(sql_query, pass_params=False, **kwargs)
+
+    def query(
+        self, sql_query: str, params: dict = None, pass_params: bool = True, **kwargs
+    ) -> result.ResultProxy:
+        if params is not None:
+            logger.warning("Querying without params due to pyodbc limiation")
+        return super().query(sql_query, pass_params=False, **kwargs)
 
 
 def build_odbc_connection_string(**kwargs) -> str:
