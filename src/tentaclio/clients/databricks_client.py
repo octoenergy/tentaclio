@@ -1,3 +1,7 @@
+"""Databricks query client.
+
+Extends SQLAlchemyClient adding methods to get simba driver and http_path.
+"""
 import logging
 import os
 import platform
@@ -29,9 +33,13 @@ logger = logging.getLogger(__name__)
 
 
 class DatabricksClient(sqla_client.SQLAlchemyClient):
-    """Databricks client, backed by a pyodbc + SQLAlchemy connection"""
+    """Databricks client, backed by a pyodbc + SQLAlchemy connection."""
 
     def __init__(self, url: Union[str, urls.URL]) -> None:
+        """Create sqlalchemy client based on the passed url.
+
+        This is a wrapper for sqlalchemy engine/connection creation.
+        """
         super().__init__(url)
         self.driver = self._get_driver_path()
         self.http_path = self._get_http_path()
@@ -87,6 +95,7 @@ class DatabricksClient(sqla_client.SQLAlchemyClient):
         return self.engine.connect()
 
     def execute(self, sql_query: str, params: dict = None, **kwargs) -> None:
+        """Execute a raw SQL query command."""
         if params is not None:
             logger.warning("Executing without params due to pyodbc limitation")
         return super().execute(sql_query, pass_params=False, **kwargs)
@@ -94,12 +103,17 @@ class DatabricksClient(sqla_client.SQLAlchemyClient):
     def query(
         self, sql_query: str, params: dict = None, pass_params: bool = True, **kwargs
     ) -> result.ResultProxy:
+        """Execute a read-only SQL query, and return results.
+
+        This will not commit any changes to the database.
+        """
         if params is not None:
             logger.warning("Querying without params due to pyodbc limiation")
         return super().query(sql_query, pass_params=False, **kwargs)
 
 
 def build_odbc_connection_string(**kwargs) -> str:
+    """Build a url formatted odbc connection string from kwargs."""
     connection_url = ";".join([f"{k}={v}" for k, v in kwargs.items()])
     return urllib.parse.quote(connection_url)
 
@@ -107,6 +121,7 @@ def build_odbc_connection_string(**kwargs) -> str:
 def get_param_from_url_query_or_env_var(
     env_var_key: str, url_query_key: str, url_query: Optional[Dict]
 ) -> str:
+    """Check env vars then url query for a given parameter."""
     param = os.environ.get(env_var_key, "")
     if param == "" and url_query:
         param = url_query.get(url_query_key, "")
