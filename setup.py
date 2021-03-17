@@ -41,7 +41,7 @@ REQUIREMENTS = [
     # Postgres
     "psycopg2-binary",
     # Sqlalchemy
-    "sqlalchemy>1.3",
+    "sqlalchemy<1.4",
     # Athena
     "PyAthena==1.10.7",
     # SFTP
