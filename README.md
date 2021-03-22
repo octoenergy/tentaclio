@@ -162,6 +162,7 @@ The supported url protocols are:
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
 * `https://host.com/path/to/resource`
+* `databricks+pyodbc://host/database`
 * `postgresql://host/database::table` will allow you to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
 
 You can add the credentials for any of the urls in order to access protected resources.
@@ -285,6 +286,23 @@ The token file has been saved in a default location '~/.tentaclio_google_drive.j
 
 3. Get rid of credentials.json
 The `credentials.json` file is not longer need, feel free to delete it.
+
+
+## Configuring access to Databricks
+
+In order to use Tentaclio to connect to a Databricks cluster or SQL endpoint, it is necessary to install the required
+[ODBC driver](https://databricks.com/spark/odbc-drivers-download) for your operating system.
+
+Once installed, it is possible to access Databricks as you would any supported URL protocol. However,
+it is likely that you will have to pass some [additional variables](https://docs.databricks.com/integrations/bi/jdbc-odbc-bi.html)
+in the URL query string, including the path to the installed driver.
+
+For example, if your Databricks connection requires you to set DRIVER and HTTPPATH values,
+the URL should look like this:
+
+```
+databricks+pyodbc://<token>@<host>/<database>?DRIVER=<path/to/driver>&HTTPPath=<http_path>
+```
 
 
 ## Quick note on protocols structural subtyping.
