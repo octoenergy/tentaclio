@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.13"
+VERSION = "0.0.14"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -43,7 +43,7 @@ REQUIREMENTS = [
     # Databricks
     "pyodbc",
     # Sqlalchemy
-    "sqlalchemy>1.3",
+    "sqlalchemy<1.4",
     # Athena
     "PyAthena==1.10.7",
     # SFTP
