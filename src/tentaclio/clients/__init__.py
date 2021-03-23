@@ -15,3 +15,4 @@ from .athena_client import *  # noqa
 from .base_client import * # noqa
 from .local_fs_client import * # noqa
 from .google_drive_client import * # noqa
+from .databricks_client import * # noqa
