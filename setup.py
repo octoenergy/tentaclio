@@ -40,8 +40,6 @@ REQUIREMENTS = [
     "requests",
     # Postgres
     "psycopg2-binary",
-    # Databricks
-    "pyodbc",
     # Sqlalchemy
     "sqlalchemy<1.4",
     # Athena
@@ -58,6 +56,10 @@ REQUIREMENTS = [
     "click",
     "pyyaml",
     "dataclasses",
+]
+
+DATABRICKS_REQUIRES = [
+    "pyodbc"
 ]
 
 
@@ -79,6 +81,7 @@ setup_args = dict(
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
+    extra_requires={"databricks": DATABRICKS_REQUIRES},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
