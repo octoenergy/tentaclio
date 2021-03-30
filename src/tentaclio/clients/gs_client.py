@@ -1,9 +1,16 @@
 """GS Stream client."""
-from typing import Optional, Union, Tuple, cast
+from typing import Optional, Tuple, Union, cast
 
-from google.cloud import storage
 
-from tentaclio import urls, protocols
+try:
+    from google.cloud import storage
+except ModuleNotFoundError as e:
+
+    from .base_client import lazy_import_error
+
+    storage = lazy_import_error("googlecloud", e)
+
+from tentaclio import protocols, urls
 
 from . import base_client, decorators, exceptions
 
@@ -23,9 +30,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
     bucket: Optional[str]
     key_name: Optional[str]
 
-    def __init__(
-        self, url: Union[urls.URL, str]
-    ) -> None:
+    def __init__(self, url: Union[urls.URL, str]) -> None:
         """Create a new GS client.
 
         The client is created based on a URL of the form
@@ -67,7 +72,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
         self,
         writer: protocols.ByteWriter,
         bucket_name: Optional[str] = None,
-        key_name: Optional[str] = None
+        key_name: Optional[str] = None,
     ) -> None:
         """Download the contents from gs and write them in the provided writer.
 
@@ -89,7 +94,7 @@ class GSClient(base_client.BaseClient["GSClient"]):
         self,
         reader: protocols.ByteReader,
         bucket_name: Optional[str] = None,
-        key_name: Optional[str] = None
+        key_name: Optional[str] = None,
     ) -> None:
         """Up the contents to gs.
 
@@ -143,23 +148,17 @@ class GSClient(base_client.BaseClient["GSClient"]):
         bucket = self.conn.bucket(bucket_name)
         return bucket.blob(key_name)
 
-    def _get(
-        self, writer: protocols.ByteWriter, bucket_name: str, key_name: str
-    ) -> None:
+    def _get(self, writer: protocols.ByteWriter, bucket_name: str, key_name: str) -> None:
         """Download file on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.download_to_file(writer)
 
-    def _put(
-        self, reader: protocols.ByteReader, bucket_name: str, key_name: str
-    ) -> None:
+    def _put(self, reader: protocols.ByteReader, bucket_name: str, key_name: str) -> None:
         """Upload on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.upload_from_file(reader)
 
-    def _remove(
-        self, bucket_name: str, key_name: str
-    ) -> None:
+    def _remove(self, bucket_name: str, key_name: str) -> None:
         """Delete on the client."""
         blob = self._get_blob(bucket_name, key_name)
         blob.delete()

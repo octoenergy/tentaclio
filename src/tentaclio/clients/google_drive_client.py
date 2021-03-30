@@ -9,10 +9,22 @@ import platform
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Iterable, List, Optional, Tuple, TypeVar, Union
 
-from apiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
+
+try:
+    from apiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+except ModuleNotFoundError as e:
+
+    from .base_client import lazy_import_error
+
+    lazy_error = lazy_import_error("googledrive", e)
+    Request = lazy_error
+    Credentials = lazy_error
+    build = lazy_error
+    MediaIoBaseDownload = lazy_error
+    MediaIoBaseUpload = lazy_error
 
 from tentaclio import fs, protocols, urls
 

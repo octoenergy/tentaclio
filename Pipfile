@@ -8,7 +8,8 @@ python_version = "3.7"
 
 [dev-packages]
 # Symlink to project root
-tentaclio = {editable = true,path = "."}
+#tentaclio = {editable = true,path = "."}
+#tentaclio = {path = "."}
 # Linting
 flake8 = "*"
 # mypy lock due to errors that occur when version is bumped
@@ -24,3 +25,9 @@ pytest-mock = "<1.11"
 # Releasing
 twine = "*"
 secretstorage = "*"
+tentaclio = {extras = ["googlecloud"], path = ".", editable = true}
+
+[packages]
+
+tentaclio = {extras = ["googlecloud"], path = "."}
+
