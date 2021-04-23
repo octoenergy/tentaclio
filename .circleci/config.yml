@@ -6,8 +6,6 @@
 
 version: 2.1
 
-orbs:
-  codecov: codecov/codecov@1.0.4
 
 jobs:
   lint:
@@ -72,9 +70,6 @@ jobs:
           name: Run unit tests
           command: make unit
 
-      - codecov/upload:
-          file: ./coverage.xml
-
   release:
     working_directory: ~/lib
 
@@ -130,9 +125,7 @@ jobs:
       - run:
           name: Run S3 functional tests
           command: make functional-s3
-      
-      - codecov/upload:
-          file: ./coverage.xml
+
 
   functional-ftp:
     working_directory: ~/lib
@@ -161,9 +154,7 @@ jobs:
       - run:
           name: Run postgres functional tests
           command: make functional-ftp
-      
-      - codecov/upload:
-          file: ./coverage.xml
+
 
   functional-sftp:
     working_directory: ~/lib
@@ -190,9 +181,7 @@ jobs:
       - run:
           name: Run sftp functional tests
           command: make functional-sftp
-      
-      - codecov/upload:
-          file: ./coverage.xml
+
 
   functional-postgres:
     working_directory: ~/lib
@@ -222,9 +211,6 @@ jobs:
       - run:
           name: Run postgres functional tests
           command: make functional-postgres
-      
-      - codecov/upload:
-          file: ./coverage.xml
 
 
 workflows:
