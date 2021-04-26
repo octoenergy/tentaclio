@@ -1,5 +1,4 @@
 [![CircleCI status](https://circleci.com/gh/octoenergy/tentaclio/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/tentaclio/tree/master)
-[![codecov](https://codecov.io/gh/octoenergy/tentaclio/branch/master/graph/badge.svg)](https://codecov.io/gh/octoenergy/tentaclio)
 
 
 # Tentaclio
