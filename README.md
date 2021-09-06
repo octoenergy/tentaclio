@@ -161,7 +161,7 @@ The supported url protocols are:
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
 * `https://host.com/path/to/resource`
-* `databricks+pyodbc://host/database`
+* `databricks+pyodbc://hostname/database`
 * `postgresql://host/database::table` will allow you to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
 
 You can add the credentials for any of the urls in order to access protected resources.
