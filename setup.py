@@ -58,6 +58,7 @@ REQUIREMENTS = [
     "click",
     "pyyaml",
     "dataclasses",
+    "numpy>=1.20.0",
 ]
 
 
