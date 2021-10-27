@@ -52,11 +52,10 @@ REQUIREMENTS = [
     "google-auth-oauthlib",
     # Utils
     "typing-extensions",
-    "pandas<=1.1.3",
+    "pandas",
     "click",
     "pyyaml",
     "dataclasses",
-    "numpy>=1.20.0",
 ]
 
 
