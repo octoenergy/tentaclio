@@ -31,33 +31,32 @@ class VerifyVersionCommand(install):
 
 REQUIREMENTS = [
     # Security constrains
-    "urllib3",
+    "urllib3>=1.24.2",
     # AWS
-    "boto3",
+    "boto3>=1.9.0",
     # GS
     "google-cloud-storage",
     # Http
     "requests",
     # Postgres
     "psycopg2-binary",
-    # Databricks
     # Sqlalchemy
-    "sqlalchemy",
+    "sqlalchemy<1.4",
     # Athena
-    "PyAthena",
+    "PyAthena==1.10.7",
     # SFTP
-    "pysftp",
+    "pysftp>=0.2.0,<0.3",
     # Google drive
     "google-api-python-client",
     "google-auth-httplib2",
     "google-auth-oauthlib",
     # Utils
     "typing-extensions",
-    "pandas",
+    "pandas<=1.1.3",
     "click",
     "pyyaml",
     "dataclasses",
-    "numpy",
+    "numpy>=1.20.0",
 ]
 
 
