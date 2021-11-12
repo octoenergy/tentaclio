@@ -48,6 +48,9 @@ STREAM_HANDLER_REGISTRY.register("https", StreamURLHandler(HTTPClient))
 STREAM_HANDLER_REGISTRY.register("googledrive", StreamURLHandler(GoogleDriveFSClient))
 STREAM_HANDLER_REGISTRY.register("gdrive", StreamURLHandler(GoogleDriveFSClient))
 
+# configure dbfs stream handler for tentaclio
+STREAM_HANDLER_REGISTRY.register("dbfs", StreamURLHandler(DBFSClient))
+
 # Directory Scanners
 
 SCANNER_REGISTRY.register("", ClientDirScanner(LocalFSClient))
