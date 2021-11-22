@@ -44,10 +44,6 @@ REQUIREMENTS = [
     "PyAthena==1.10.7",
     # SFTP
     "pysftp>=0.2.0,<0.3",
-    # Google drive
-    "google-api-python-client",
-    "google-auth-httplib2",
-    "google-auth-oauthlib",
     # Utils
     "typing-extensions",
     "pandas<=1.1.3",
