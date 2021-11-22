@@ -30,9 +30,6 @@ STREAM_HANDLER_REGISTRY.register("file", StreamURLHandler(LocalFSClient))
 STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
 STREAM_HANDLER_REGISTRY.register("sftp", StreamURLHandler(SFTPClient))
 
-# postgres handler
-STREAM_HANDLER_REGISTRY.register("postgresql", PostgresURLHandler())
-
 # http / https handlers
 STREAM_HANDLER_REGISTRY.register("http", StreamURLHandler(HTTPClient))
 STREAM_HANDLER_REGISTRY.register("https", StreamURLHandler(HTTPClient))
@@ -46,8 +43,6 @@ SCANNER_REGISTRY.register("file", ClientDirScanner(LocalFSClient))
 SCANNER_REGISTRY.register("ftp", ClientDirScanner(FTPClient))
 SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
 
-# Db registry
-DB_REGISTRY.register("postgresql", PostgresClient)
 
 REMOVER_REGISTRY.register("", ClientRemover(LocalFSClient))
 REMOVER_REGISTRY.register("file", ClientRemover(LocalFSClient))

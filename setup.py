@@ -34,8 +34,6 @@ REQUIREMENTS = [
     "urllib3>=1.24.2",
     # Http
     "requests",
-    # Postgres
-    "psycopg2-binary",
     # Sqlalchemy
     "sqlalchemy<1.4",
     # SFTP

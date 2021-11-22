@@ -128,10 +128,6 @@ jobs:
           name: Install Python packages
           command: make sync
 
-      - run:
-          name: Run postgres functional tests
-          command: make functional-ftp
-
 
   functional-sftp:
     working_directory: ~/lib
@@ -158,36 +154,6 @@ jobs:
       - run:
           name: Run sftp functional tests
           command: make functional-sftp
-
-
-  functional-postgres:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.7
-        environment:
-          TENTACLIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/tentaclio-db
-
-      - image: circleci/postgres:9.5.10
-        environment:
-          # CircleCI img run under `circleci` user
-          POSTGRES_USER: circleci
-          POSTGRES_DB: tentaclio-db
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
-
-      - run:
-          name: Run postgres functional tests
-          command: make functional-postgres
 
 
 workflows:
@@ -218,18 +184,10 @@ workflows:
           requires:
             - lint
             - unit
-      - functional-postgres:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - lint
-            - unit
       - release:
           requires:
             - functional-ftp
             - functional-sftp
-            - functional-postgres
           filters:
             tags:
               only: /[0-9]+(\.[0-9]+)*(-alpha\.[0-9]+)?/
