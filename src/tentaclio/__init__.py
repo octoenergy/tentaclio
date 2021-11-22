@@ -49,7 +49,6 @@ SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
 DB_REGISTRY.register("awsathena+rest", AthenaClient)
-DB_REGISTRY.register("databricks+pyodbc", DatabricksClient)
 
 
 REMOVER_REGISTRY.register("", ClientRemover(LocalFSClient))
