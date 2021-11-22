@@ -26,10 +26,6 @@ from .urls import *  # noqa
 STREAM_HANDLER_REGISTRY.register("", StreamURLHandler(LocalFSClient))
 STREAM_HANDLER_REGISTRY.register("file", StreamURLHandler(LocalFSClient))
 
-# gs handlers
-STREAM_HANDLER_REGISTRY.register("gs", StreamURLHandler(GSClient))
-STREAM_HANDLER_REGISTRY.register("gcs", StreamURLHandler(GSClient))
-
 # ftp / sftp handlers
 STREAM_HANDLER_REGISTRY.register("ftp", StreamURLHandler(FTPClient))
 STREAM_HANDLER_REGISTRY.register("sftp", StreamURLHandler(SFTPClient))
@@ -65,8 +61,6 @@ DB_REGISTRY.register("databricks+pyodbc", DatabricksClient)
 
 REMOVER_REGISTRY.register("", ClientRemover(LocalFSClient))
 REMOVER_REGISTRY.register("file", ClientRemover(LocalFSClient))
-REMOVER_REGISTRY.register("gs", ClientRemover(GSClient))
-REMOVER_REGISTRY.register("gcs", ClientRemover(GSClient))
 REMOVER_REGISTRY.register("ftp", ClientRemover(FTPClient))
 REMOVER_REGISTRY.register("sftp", ClientRemover(SFTPClient))
 

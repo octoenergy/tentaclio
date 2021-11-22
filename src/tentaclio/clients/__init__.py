@@ -8,7 +8,6 @@ Query based clients unify how to access databases leveraging from sqlalchemy.
 from .ftp_client import *  # noqa
 from .http_client import *  # noqa
 from .postgres_client import *  # noqa
-from .gs_client import *  # noqa
 from .sqla_client import *  # noqa
 from .athena_client import *  # noqa
 from .base_client import * # noqa

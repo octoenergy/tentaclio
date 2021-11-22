@@ -11,7 +11,3 @@ class FTPError(ClientError):
 
 class HTTPError(ClientError):
     """Exception encountered over a HTTP client connection."""
-
-
-class GSError(ClientError):
-    """Exception encountered over a GS client connection."""

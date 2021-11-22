@@ -32,8 +32,6 @@ class VerifyVersionCommand(install):
 REQUIREMENTS = [
     # Security constrains
     "urllib3>=1.24.2",
-    # GS
-    "google-cloud-storage",
     # Http
     "requests",
     # Postgres
