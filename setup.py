@@ -38,8 +38,6 @@ REQUIREMENTS = [
     "psycopg2-binary",
     # Sqlalchemy
     "sqlalchemy<1.4",
-    # Athena
-    "PyAthena==1.10.7",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils

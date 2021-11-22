@@ -9,6 +9,5 @@ from .ftp_client import *  # noqa
 from .http_client import *  # noqa
 from .postgres_client import *  # noqa
 from .sqla_client import *  # noqa
-from .athena_client import *  # noqa
 from .base_client import * # noqa
 from .local_fs_client import * # noqa

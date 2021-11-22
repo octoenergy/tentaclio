@@ -48,8 +48,6 @@ SCANNER_REGISTRY.register("sftp", ClientDirScanner(SFTPClient))
 
 # Db registry
 DB_REGISTRY.register("postgresql", PostgresClient)
-DB_REGISTRY.register("awsathena+rest", AthenaClient)
-
 
 REMOVER_REGISTRY.register("", ClientRemover(LocalFSClient))
 REMOVER_REGISTRY.register("file", ClientRemover(LocalFSClient))
