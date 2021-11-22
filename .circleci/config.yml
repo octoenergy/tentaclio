@@ -103,29 +103,6 @@ jobs:
           command: |
             make release
 
-  functional-s3:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.7
-        environment:
-          TENTACLIO__CONN__S3_TEST: s3://public_key:private_key@tentaclio-bucket
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Install Python packages
-          command: make sync
-
-      - run:
-          name: Run S3 functional tests
-          command: make functional-s3
-
 
   functional-ftp:
     working_directory: ~/lib
@@ -227,13 +204,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - functional-s3:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - lint
-            - unit
       - functional-ftp:
           filters:
             tags:
@@ -257,7 +227,6 @@ workflows:
             - unit
       - release:
           requires:
-            - functional-s3
             - functional-ftp
             - functional-sftp
             - functional-postgres
