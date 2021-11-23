@@ -1,7 +1,7 @@
 """Stream handler registry to open readers and writers to urls."""
 import abc
 import logging
-from typing import Callable, ClassVar, Iterable, Protocol
+from typing import Callable, ClassVar, Iterable, Protocol, ContextManager
 
 from tentaclio import clients
 from tentaclio.registry import URLHandlerRegistry
@@ -12,19 +12,8 @@ logger = logging.getLogger(__name__)
 __all__ = ["DB_REGISTRY", "Db"]
 
 
-class Db(Protocol):
+class Db(ContextManager, Protocol):
     """Interface for query-based connections."""
-
-    # The context manager methods are included as we can't
-    # inherit from typing.ContextManager and Protocol
-    # at the same time 🤷
-    def __enter__(self) -> "Db":
-        """Enter the the context manager."""
-        ...
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        """Exit the the context manager."""
-        ...
 
     # Query methods:
 
