@@ -37,7 +37,7 @@ def _get_field_names(reader: IO) -> Sequence[str]:
     csv_reader = csv.DictReader(reader)
     next(csv_reader)
     reader.seek(0)
-    return csv_reader.fieldnames
+    return csv_reader.fieldnames or []
 
 
 class DatabaseCsvWriter(base_stream.StreamBaseIO):

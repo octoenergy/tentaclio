@@ -39,6 +39,12 @@ class Streamer(Protocol):
         ...
 
 
+class StreamerContext(ContextManager, Streamer, Protocol):
+    """Interface for stream-based connections inside context managers."""
+
+    ...
+
+
 class StreamBaseIO:
     """Base class for IO streams that interact with Streamers.
 
@@ -96,7 +102,7 @@ class StreamerWriter(StreamBaseIO):
     connection atomic.
     """
 
-    def __init__(self, client: ContextManager[Streamer], buffer: IO):
+    def __init__(self, client: StreamerContext, buffer: IO):
         """Create a new writer based on a stream client and a buffer."""
         super().__init__(buffer)
         self.client = client
@@ -126,7 +132,7 @@ class StreamerReader(StreamBaseIO):
 
     buffer: IO
 
-    def __init__(self, client: ContextManager[Streamer], buffer: IO):
+    def __init__(self, client: StreamerContext, buffer: IO):
         """Create a reader that will read from the given client to the passed buffer."""
         super().__init__(buffer)
         self.client = client
@@ -162,7 +168,7 @@ class StringToBytesClientReader(StreamerReader):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: ContextManager[Streamer]):
+    def __init__(self, client: StreamerContext):
         """Create a byte based reader that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
@@ -170,7 +176,7 @@ class StringToBytesClientReader(StreamerReader):
     def _load(self):
         # interacts with the client in terms of bytes
         with self.client:
-            self.client.get(self.inner_buffer)
+            self.client.get(self.inner_buffer)  # type: ignore
         self.buffer.seek(0)
 
 
@@ -184,7 +190,7 @@ class StringToBytesClientWriter(StreamerWriter):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: ContextManager[Streamer]):
+    def __init__(self, client: StreamerContext):
         """Create a byte based write that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
