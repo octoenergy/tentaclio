@@ -6,75 +6,81 @@
 
 version: 2.1
 
+executors:
+  standard:
+    docker:
+      - image: circleci/python:3.9
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    working_directory: "~/lib"
+
+# -----------------
+# Reusable commands
+# -----------------
+
+commands:
+  configure_github:
+    steps:
+      - run:
+          name: Configure Github access
+          command: |
+            git config --global --unset url.ssh://git@github.com.insteadof;\
+            echo https://${GITHUB_TOKEN}:@github.com > ~/.git-credentials
+            git config --global credential.helper store
+
+  checkout_source:
+    steps:
+      - restore_cache:
+          keys:
+            - source-{{ .Branch }}-{{ .Revision }}
+            - source-{{ .Branch }}-
+            - source-
+      - checkout
+      - save_cache:
+          key: source-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - "./.git"
+
+  update_virtualenv:
+    steps:
+      - restore_cache:
+          keys:
+            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - virtualenv-{{ .Environment.CACHE_VERSION }}-
+      - configure_github
+      - run:
+          name: Install Python packages
+          command: make sync
+      - save_cache:
+          key: virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - "./.venv"
 
 jobs:
   lint:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.7
-
+    executor: standard
     steps:
-      - checkout
-
-      - restore_cache:
-          # Increasingly general patterns to restore
-          # https://circleci.com/docs/2.0/caching/#using-keys-and-templates
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
-
+      - checkout_source
+      - update_virtualenv
       - run:
-          name: Install Python packages
-          command: make sync
-
-      - save_cache:
-          # Pipenv venv and pip cached wheels
-          paths:
-            - "~/.local"
-            - "~/.cache"
-          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Run linters
+          name: Run Python linter
           command: make lint
 
-
   unit:
-    working_directory: ~/lib
-
-    docker:
-      - image: circleci/python:3.7
-
+    executor: standard
     steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
-
+      - checkout_source
+      - update_virtualenv
       - run:
-          name: Install Python packages
-          command: make sync
-
-      - save_cache:
-          paths:
-            - "~/.local"
-            - "~/.cache"
-          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          name: Run unit tests
+          name: Run Python unit tests
           command: make unit
 
   release:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.9
 
     steps:
       - checkout
@@ -108,7 +114,7 @@ jobs:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.9
         environment:
           TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
@@ -133,7 +139,7 @@ jobs:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.9
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
