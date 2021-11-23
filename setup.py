@@ -30,7 +30,7 @@ class VerifyVersionCommand(install):
 
 
 REQUIREMENTS = [
-    # Security constrains
+    # Security constraints
     "urllib3>=1.24.2",
     # Http
     "requests",
@@ -39,11 +39,9 @@ REQUIREMENTS = [
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
-    "typing-extensions",
-    "pandas<=1.1.3",
+    "pandas",
     "click",
     "pyyaml",
-    "dataclasses",
 ]
 
 
