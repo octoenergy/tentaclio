@@ -24,3 +24,4 @@ pytest-mock = "<1.11"
 # Releasing
 twine = "*"
 secretstorage = "*"
+types-requests = "*"
