@@ -1,6 +1,6 @@
 """HTTP Stream client."""
 import io
-from typing import Optional
+from typing import Optional, Union
 from urllib import parse
 
 import requests
@@ -135,7 +135,7 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
         default_data: protocols.Reader = None,
         default_params: dict = None,
     ):
-        data = default_data or []
+        data: Union[protocols.Reader, list] = default_data or []
         params = default_params or {}
 
         if method == "GET":

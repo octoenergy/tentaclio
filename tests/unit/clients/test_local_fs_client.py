@@ -5,7 +5,7 @@ from tentaclio.clients.local_fs_client import LocalFSClient
 from tentaclio.fs.scanner import DirEntry
 
 
-FakeOsDirEntry = collections.namedtuple("DirEntry", ["name", "path", "is_dir", "is_file"])
+FakeOsDirEntry = collections.namedtuple("FakeOsDirEntry", ["name", "path", "is_dir", "is_file"])
 
 
 class TestLocalFileScanner(object):
