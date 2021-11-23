@@ -1,9 +1,7 @@
 """Csv to database stream like access."""
 import csv
 import io
-from typing import IO, Any, Sequence
-
-from typing_extensions import Protocol
+from typing import IO, Any, Sequence, Protocol
 
 from tentaclio import protocols
 

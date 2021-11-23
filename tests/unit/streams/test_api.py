@@ -33,5 +33,3 @@ def test_reader_modes(mode, mocker):
     api.open("file://path/query", mode)
 
     mocked_open_reader.assert_called_once()
-
-
