@@ -1,7 +1,5 @@
 """Protocols used in tentaclio."""
-from typing import Any, ByteString, Generic, TypeVar, Union
-
-from typing_extensions import Protocol
+from typing import Any, ByteString, Generic, TypeVar, Union, Protocol
 
 
 __all__ = [

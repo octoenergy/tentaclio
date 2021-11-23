@@ -1,9 +1,8 @@
 """Base handler."""
 import io
 import logging
-from typing import Callable
+from typing import Callable, ContextManager
 
-from typing_extensions import ContextManager
 
 from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream

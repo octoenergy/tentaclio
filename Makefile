@@ -18,6 +18,7 @@ clean:
 
 sync:
 	pipenv sync --dev
+	pipenv run pip install -e .
 
 # Testing
 
