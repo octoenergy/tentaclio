@@ -16,7 +16,7 @@ TENTACLIO_SECRETS_FILE = "TENTACLIO__SECRETS_FILE"
 
 
 def add_credentials_from_env_file(
-    injector: injection.CredentialsInjector,
+    injector: injection.CredentialsInjector
 ) -> injection.CredentialsInjector:
     """Add credentials from a configurable yaml file.
 

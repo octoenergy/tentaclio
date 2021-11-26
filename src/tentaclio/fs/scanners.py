@@ -1,6 +1,8 @@
 """Concrete implementations of dir scanners."""
 import logging
-from typing import Callable, Iterable, Protocol, ContextManager
+from typing import Callable, Iterable
+
+from typing_extensions import Protocol
 
 from tentaclio.urls import URL
 
@@ -12,8 +14,19 @@ logger = logging.getLogger(__name__)
 __all__ = ["ClientDirScanner"]
 
 
-class ManagedDirScanner(ContextManager, Protocol):
+class ManagedDirScanner(Protocol):
     """Connection based dir scanner."""
+
+    # The context manager methods are included as we can't
+    # inherit from typing_extensions.ContextManager and Protocol
+    # at the same time 🤷
+    def __enter__(self) -> "ManagedDirScanner":
+        """Enter the the context manager."""
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exit the the context manager."""
+        ...
 
     def scandir(self, **params) -> Iterable[DirEntry]:
         """Scan based on a connection rather than a url."""

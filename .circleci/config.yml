@@ -6,85 +6,78 @@
 
 version: 2.1
 
-executors:
-  standard:
-    docker:
-      - image: circleci/python:3.9
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
-    working_directory: "~/lib"
-
-# -----------------
-# Reusable commands
-# -----------------
-
-commands:
-  configure_github:
-    steps:
-      - run:
-          name: Configure Github access
-          command: |
-            git config --global --unset url.ssh://git@github.com.insteadof;\
-            echo https://${GITHUB_TOKEN}:@github.com > ~/.git-credentials
-            git config --global credential.helper store
-
-  checkout_source:
-    steps:
-      - restore_cache:
-          keys:
-            - source-{{ .Branch }}-{{ .Revision }}
-            - source-{{ .Branch }}-
-            - source-
-      - checkout
-      - save_cache:
-          key: source-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - "./.git"
-
-  update_virtualenv:
-    steps:
-      - restore_cache:
-          keys:
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-
-      - configure_github
-      - run:
-          name: Install Python packages
-          command: make sync
-      - save_cache:
-          key: virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-          paths:
-            - "./.venv"
 
 jobs:
   lint:
-    executor: standard
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.7
+
     steps:
-      - checkout_source
-      - update_virtualenv
+      - checkout
+
+      - restore_cache:
+          # Increasingly general patterns to restore
+          # https://circleci.com/docs/2.0/caching/#using-keys-and-templates
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
       - run:
-          name: Run Python linter
+          name: Install Python packages
+          command: make sync
+
+      - save_cache:
+          # Pipenv venv and pip cached wheels
+          paths:
+            - "~/.local"
+            - "~/.cache"
+          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run linters
           command: make lint
 
+
   unit:
-    executor: standard
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.7
+
     steps:
-      - checkout_source
-      - update_virtualenv
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
       - run:
-          name: Run Python unit tests
+          name: Install Python packages
+          command: make sync
+
+      - save_cache:
+          paths:
+            - "~/.local"
+            - "~/.cache"
+          key: pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Run unit tests
           command: make unit
 
   release:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:3.7
 
     steps:
-      - checkout_source
-      - update_virtualenv
+      - checkout
       - restore_cache:
           keys:
             - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
@@ -109,12 +102,35 @@ jobs:
           command: |
             make release
 
+  functional-s3:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          TENTACLIO__CONN__S3_TEST: s3://public_key:private_key@tentaclio-bucket
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Install Python packages
+          command: make sync
+
+      - run:
+          name: Run S3 functional tests
+          command: make functional-s3
+
 
   functional-ftp:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:3.7
         environment:
           TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
@@ -134,12 +150,16 @@ jobs:
           name: Install Python packages
           command: make sync
 
+      - run:
+          name: Run postgres functional tests
+          command: make functional-ftp
+
 
   functional-sftp:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:3.7
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
@@ -162,6 +182,36 @@ jobs:
           command: make functional-sftp
 
 
+  functional-postgres:
+    working_directory: ~/lib
+
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          TENTACLIO__CONN__POSTGRES_TEST: postgresql://:@localhost:5432/tentaclio-db
+
+      - image: circleci/postgres:9.5.10
+        environment:
+          # CircleCI img run under `circleci` user
+          POSTGRES_USER: circleci
+          POSTGRES_DB: tentaclio-db
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Install Python packages
+          command: make sync
+
+      - run:
+          name: Run postgres functional tests
+          command: make functional-postgres
+
+
 workflows:
   version: 2
 
@@ -176,6 +226,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - functional-s3:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+            - unit
       - functional-ftp:
           filters:
             tags:
@@ -190,10 +247,19 @@ workflows:
           requires:
             - lint
             - unit
+      - functional-postgres:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+            - unit
       - release:
           requires:
+            - functional-s3
             - functional-ftp
             - functional-sftp
+            - functional-postgres
           filters:
             tags:
               only: /[0-9]+(\.[0-9]+)*(-alpha\.[0-9]+)?/

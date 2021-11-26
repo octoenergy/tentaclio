@@ -1,15 +1,31 @@
 """Csv to database stream like access."""
 import csv
 import io
-from typing import IO, Sequence, Protocol, ContextManager
+from typing import IO, Any, Sequence
+
+from typing_extensions import Protocol
 
 from tentaclio import protocols
 
 from . import base_stream
 
 
-class CsvDumper(ContextManager, Protocol):
+class CsvDumper(Protocol):
     """Csv into db dumping contract."""
+
+    # The context manager is an actual protocol defined in the
+    # std library .... but it can't  be inherited from
+    # Also protocols and return types still have gotchas,
+    # here PostgresClient won't be recognised as a CsvDumper
+    # the reason why we're using any
+    # def __enter__(self) -> "CsvDumper":
+    def __enter__(self) -> Any:
+        """Enter the context."""
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exit the context."""
+        ...
 
     def dump_csv(
         self, csv_reader: protocols.Reader, columns: Sequence[str], dest_table: str
@@ -23,7 +39,7 @@ def _get_field_names(reader: IO) -> Sequence[str]:
     csv_reader = csv.DictReader(reader)
     next(csv_reader)
     reader.seek(0)
-    return csv_reader.fieldnames or []
+    return csv_reader.fieldnames
 
 
 class DatabaseCsvWriter(base_stream.StreamBaseIO):

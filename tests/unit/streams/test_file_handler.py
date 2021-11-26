@@ -50,3 +50,4 @@ def test_expand_user(mocker):
 
     api.open(file_name)
     mocked_open.assert_called_with(os.path.expanduser(file_name), "rb")
+

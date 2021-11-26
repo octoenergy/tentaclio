@@ -59,9 +59,9 @@ class URL:
         self._path = parsed_url.path
 
         # Replace %xx escapes - ONLY for username & password
-        if parsed_url.username and self._username:
+        if parsed_url.username:
             self._username = parse.unquote(self._username)
-        if parsed_url.password and self._password:
+        if parsed_url.password:
             self._password = parse.unquote(self._password)
 
         if parsed_url.query:

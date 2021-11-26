@@ -1,5 +1,7 @@
 """Protocols used in tentaclio."""
-from typing import Any, Generic, TypeVar, Union, Protocol
+from typing import Any, ByteString, Generic, TypeVar, Union
+
+from typing_extensions import Protocol
 
 
 __all__ = [
@@ -49,13 +51,13 @@ class Writer(_Writer[Any], Protocol):
     ...
 
 
-class ByteReader(_Reader[bytes], Protocol):
+class ByteReader(_Reader[ByteString], Protocol):
     """Reader protocol for bytestrings."""
 
     ...
 
 
-class ByteWriter(_Writer[bytes], Protocol):
+class ByteWriter(_Writer[ByteString], Protocol):
     """Writer protocol for bytestrings."""
 
     ...

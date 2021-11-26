@@ -1,5 +1,7 @@
 """Functionality for listing directory-like urls."""
-from typing import Callable, ClassVar, Protocol, ContextManager
+from typing import Callable, ClassVar
+
+from typing_extensions import Protocol
 
 from tentaclio.registry import URLHandlerRegistry
 from tentaclio.urls import URL
@@ -8,8 +10,19 @@ from tentaclio.urls import URL
 __all__ = ["REMOVER_REGISTRY", "ClientRemover"]
 
 
-class Remover(ContextManager, Protocol):
+class Remover(Protocol):
     """Contract to delete the resource."""
+
+    # The context manager methods are included as we can't
+    # inherit from typing_extensions.ContextManager and Protocol
+    # at the same time 🤷
+    def __enter__(self) -> "Remover":
+        """Enter the the context manager."""
+        ...
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exit the the context manager."""
+        ...
 
     def remove(self):
         """Remove the underlying resource."""
