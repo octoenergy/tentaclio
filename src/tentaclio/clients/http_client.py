@@ -1,6 +1,6 @@
 """HTTP Stream client."""
 import io
-from typing import Optional, Union
+from typing import Optional
 from urllib import parse
 
 import requests
@@ -18,7 +18,9 @@ DEFAULT_TIMEOUT = 10.0
 DEFAULT_HEADERS = {"Accept": "application/json"}
 
 
-class HTTPClient(base_client.BaseClient["HTTPClient"]):
+class HTTPClient(
+    base_client.BaseClient["HTTPClient"]
+):
     """HTTP stream client.
 
     This client is useful when dealing inputs that may change from local files to http,
@@ -135,7 +137,7 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
         default_data: protocols.Reader = None,
         default_params: dict = None,
     ):
-        data: Union[protocols.Reader, list] = default_data or []
+        data = default_data or []
         params = default_params or {}
 
         if method == "GET":

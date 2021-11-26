@@ -4,22 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = "3.9"
+python_version = "3.7"
 
 [dev-packages]
 # Symlink to project root
 tentaclio = {editable = true,path = "."}
-
 # Linting
 flake8 = "*"
-mypy = "*"
-pydocstyle = "*"
-
+# mypy lock due to errors that occur when version is bumped
+mypy = "==0.701"
+# pydocstyle lock due to errors that occur when version is bumped
+pydocstyle = "<3.1"
 # Testing
 moto = "*"
-pytest = "*"
+pytest = "==5.4.3"
 pytest-cov = "*"
-
+# locking due to problem with unit test when bumped
+pytest-mock = "<1.11"
 # Releasing
 twine = "*"
 secretstorage = "*"
