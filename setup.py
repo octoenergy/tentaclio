@@ -45,6 +45,15 @@ REQUIREMENTS = [
     "importlib_metadata",
 ]
 
+PLUGINS = {
+    "s3": "tentaclio_s3",
+    "athena": "tentaclio_athena",
+    "postgres": "tentaclio_postgres",
+    "databricks": "tentaclio_databricks",
+    "gdrive": "tentaclio_gdrive",
+    "gs": "tentaclio_gs",
+}
+
 
 setup_args = dict(
     # Description
@@ -64,6 +73,7 @@ setup_args = dict(
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
+    extras_require=PLUGINS,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
