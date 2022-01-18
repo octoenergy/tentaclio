@@ -18,9 +18,7 @@ buffer to the underlying client.
 """
 import abc
 import io
-from typing import IO, Any, Optional
-
-from typing_extensions import ContextManager, Protocol
+from typing import IO, Any, Optional, ContextManager, Protocol
 
 from tentaclio import protocols
 
@@ -39,6 +37,15 @@ class Streamer(Protocol):
     def put(self, reader: protocols.ByteReader, **params) -> None:
         """Write the contents of the reader into the client stream."""
         ...
+
+
+class StreamerContextManager(Streamer, ContextManager, Protocol):
+    """Interface for stream-based connections within context managers.
+
+    Useful as mypy doesn't recognise StreamerContext[Streamer]
+    """
+
+    ...
 
 
 class StreamBaseIO:
@@ -98,7 +105,7 @@ class StreamerWriter(StreamBaseIO):
     connection atomic.
     """
 
-    def __init__(self, client: ContextManager[Streamer], buffer: IO):
+    def __init__(self, client: StreamerContextManager, buffer: IO):
         """Create a new writer based on a stream client and a buffer."""
         super().__init__(buffer)
         self.client = client
@@ -128,7 +135,7 @@ class StreamerReader(StreamBaseIO):
 
     buffer: IO
 
-    def __init__(self, client: ContextManager[Streamer], buffer: IO):
+    def __init__(self, client: StreamerContextManager, buffer: IO):
         """Create a reader that will read from the given client to the passed buffer."""
         super().__init__(buffer)
         self.client = client
@@ -164,7 +171,7 @@ class StringToBytesClientReader(StreamerReader):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: ContextManager[Streamer]):
+    def __init__(self, client: StreamerContextManager):
         """Create a byte based reader that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
@@ -186,7 +193,7 @@ class StringToBytesClientWriter(StreamerWriter):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: ContextManager[Streamer]):
+    def __init__(self, client: StreamerContextManager):
         """Create a byte based write that will read from the given client."""
         self.inner_buffer = io.BytesIO()
         super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))

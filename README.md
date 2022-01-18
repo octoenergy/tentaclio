@@ -147,22 +147,31 @@ with tentaclio.open("s3://bucket/file", mode='w') as writer:
 ```
 Allowed modes are `r`, `w`, `rb`, and `wb`. You can use `t` instead of `b` to indicate text streams, but that's the default.
 
+In order to keep tentaclio as light as possible, it only includes `file`, `ftp`, `sftp`, `http` and `https` schemes by default.
+However, many more are easily available by installing extra packages:
 
-The supported url protocols are:
-
+Default:
 * `/local/file`
 * `file:///local/file`
-* `s3://bucket/file`
-* `gs://bucket/file`
-* `gsc://bucket/file`
-* `gdrive:/My Drive/file`
-* `googledrive:/My Drive/file`
 * `ftp://path/to/file`
 * `sftp://path/to/file`
 * `http://host.com/path/to/resource`
 * `https://host.com/path/to/resource`
-* `databricks+pyodbc://hostname/database`
+
+[tentaclio-s3](https://github.com/octoenergy/tentaclio-s3)
+* `s3://bucket/file`
+
+[tentaclio-gs](https://github.com/octoenergy/tentaclio-gs)
+* `gs://bucket/file`
+* `gsc://bucket/file`
+
+[tentaclio-gdrive](https://github.com/octoenergy/tentaclio-gdrive)
+* `gdrive:/My Drive/file`
+* `googledrive:/My Drive/file`
+
+[tentaclio-postgres](https://github.com/octoenergy/tentaclio-postgres)
 * `postgresql://host/database::table` will allow you to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
+
 
 You can add the credentials for any of the urls in order to access protected resources.
 
@@ -213,11 +222,20 @@ with tentaclio.db(POSTGRES_TEST_URL) as client:
 
 The supported db schemes are:
 
-* `postgresql://`
+Default:
 * `sqlite://`
-* `awsathena+rest://`
 * `mssql://`
-* Any other scheme supported by sqlalchemy.
+* + Any other scheme supported by sqlalchemy.
+
+[tentaclio-postgres](https://github.com/octoenergy/tentaclio-postgres)
+* `postgresql://`
+
+[tentaclio-athena](https://github.com/octoenergy/tentaclio-athena)
+* `awsathena+rest://`
+
+[tentaclio-databricks](https://github.com/octoenergy/tentaclio-databricks)
+* `databricks+pyodbc://`
+
 
 #### Extras for databases
 For postgres you can set the variable `TENTACLIO__PG_APPLICATION_NAME` and the value will be injected
@@ -265,44 +283,6 @@ And make it accessible to tentaclio by setting the environmental variable `TENTA
 
 Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
 automatically configure your environment.
-
-## Configuring access to google drive.
-Google drive support is _experimental_ and should be used at your own risk. Also, due to google drive itself it's rather slow.
-
-1. Get the credentials.
-First we need a credentials file in order to be able to generate tokens. The easiest way to do this is by going to [this example](https://developers.google.com/drive/api/v3/quickstart/python),
-click on enable drive api. Give the project a name of your choosing (eg `tentaclio`), set the OAuth
-client selector to "Desktop app", and download the generated JSON file.
-
-2. Generate token file
-
-```
-pipenv install tentaclio && \
-    pipenv run python -m tentaclio google-token generate --credentials-file ~/Downloads/credentials.json
-```
-This will open a browser with a google auth page, log in and accept the authorisation request.
-The token file has been saved in a default location '~/.tentaclio_google_drive.json'. You can also configure this via the env variable `TENTACLIO__GOOGLE_DRIVE_TOKEN_FILE`
-
-3. Get rid of credentials.json
-The `credentials.json` file is not longer need, feel free to delete it.
-
-
-## Configuring access to Databricks
-
-In order to use Tentaclio to connect to a Databricks cluster or SQL endpoint, it is necessary to install the required
-[ODBC driver](https://databricks.com/spark/odbc-drivers-download) for your operating system.
-
-Once installed, it is possible to access Databricks as you would any supported URL protocol. However,
-it is likely that you will have to pass some [additional variables](https://docs.databricks.com/integrations/bi/jdbc-odbc-bi.html)
-in the URL query string, including the path to the installed driver.
-
-For example, if your Databricks connection requires you to set DRIVER and HTTPPATH values,
-the URL should look like this:
-
-```
-databricks+pyodbc://<token>@<host>/<database>?DRIVER=<path/to/driver>&HTTPPath=<http_path>
-```
-
 
 ## Quick note on protocols structural subtyping.
 

@@ -3,7 +3,6 @@ import io
 import logging
 from typing import Callable
 
-from typing_extensions import ContextManager
 
 from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
@@ -12,7 +11,7 @@ from tentaclio.urls import URL
 
 logger = logging.getLogger(__name__)
 
-StreamerFactory = Callable[..., ContextManager[base_stream.Streamer]]
+StreamerFactory = Callable[..., base_stream.StreamerContextManager]
 
 __all__ = ["StreamURLHandler"]
 

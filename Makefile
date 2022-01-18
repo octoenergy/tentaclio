@@ -18,6 +18,7 @@ clean:
 
 sync:
 	pipenv sync --dev
+	pipenv run pip install -e .
 
 # Testing
 
@@ -33,20 +34,11 @@ lint:
 unit:
 	unset TENTACLIO__PG_APPLICATION_NAME; pipenv run pytest tests/unit
 
-functional-s3:
-	pipenv run pytest tests/functional/s3
-
-functional-gs:
-	pipenv run pytest tests/functional/gs
-
 functional-ftp:
 	pipenv run pytest tests/functional/ftp
 
 functional-sftp:
 	pipenv run pytest tests/functional/sftp
-
-functional-postgres:
-	pipenv run pytest tests/functional/postgres
 
 format:
 	black -l 99 src
