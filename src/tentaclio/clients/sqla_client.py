@@ -7,7 +7,7 @@ import contextlib
 from typing import Container, Generator, Optional, Union
 
 import pandas as pd
-from sqlalchemy.engine import Connection, create_engine, result, Engine
+from sqlalchemy.engine import Connection, Engine, create_engine, result
 from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData

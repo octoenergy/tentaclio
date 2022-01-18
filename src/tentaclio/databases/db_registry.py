@@ -1,7 +1,7 @@
 """Stream handler registry to open readers and writers to urls."""
 import abc
 import logging
-from typing import Callable, ClassVar, Iterable, Protocol, ContextManager
+from typing import Callable, ClassVar, ContextManager, Iterable, Protocol
 
 from tentaclio import clients
 from tentaclio.registry import URLHandlerRegistry

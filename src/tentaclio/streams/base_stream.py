@@ -18,7 +18,7 @@ buffer to the underlying client.
 """
 import abc
 import io
-from typing import IO, Any, Optional, ContextManager, Protocol
+from typing import IO, Any, ContextManager, Optional, Protocol
 
 from tentaclio import protocols
 

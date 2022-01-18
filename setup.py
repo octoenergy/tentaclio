@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -42,7 +42,17 @@ REQUIREMENTS = [
     "pandas",
     "click",
     "pyyaml",
+    "importlib_metadata",
 ]
+
+PLUGINS = {
+    "s3": "tentaclio_s3",
+    "athena": "tentaclio_athena",
+    "postgres": "tentaclio_postgres",
+    "databricks": "tentaclio_databricks",
+    "gdrive": "tentaclio_gdrive",
+    "gs": "tentaclio_gs",
+}
 
 
 setup_args = dict(
@@ -63,6 +73,7 @@ setup_args = dict(
     include_package_data=False,
     # Dependencies
     install_requires=REQUIREMENTS,
+    extras_require=PLUGINS,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

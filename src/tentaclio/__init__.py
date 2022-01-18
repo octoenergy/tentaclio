@@ -9,7 +9,6 @@ The main benefits are:
     the underlying implementation (thanks to sqlalchemy).
     * Credentials management that allows a distributed credentials storage.
 """
-
 from .clients import *  # noqa
 from .databases import *  # noqa
 from .databases.api import *  # noqa
@@ -19,6 +18,8 @@ from .protocols import *  # noqa
 from .streams import *  # noqa
 from .urls import *  # noqa
 
+
+import_tentaclio_plugins()
 
 # Stream handlers
 

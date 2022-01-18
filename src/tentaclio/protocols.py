@@ -1,5 +1,5 @@
 """Protocols used in tentaclio."""
-from typing import Any, Generic, TypeVar, Union, Protocol
+from typing import Any, Generic, Protocol, TypeVar, Union
 
 
 __all__ = [
