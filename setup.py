@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "0.0.15"
+VERSION = "1.0.1"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -30,34 +30,18 @@ class VerifyVersionCommand(install):
 
 
 REQUIREMENTS = [
-    # Security constrains
+    # Security constraints
     "urllib3>=1.24.2",
-    # AWS
-    "boto3>=1.9.0",
-    # GS
-    "google-cloud-storage",
     # Http
     "requests",
-    # Postgres
-    "psycopg2-binary",
-    # Databricks
-    "pyodbc",
     # Sqlalchemy
     "sqlalchemy<1.4",
-    # Athena
-    "PyAthena==1.10.7",
     # SFTP
     "pysftp>=0.2.0,<0.3",
-    # Google drive
-    "google-api-python-client",
-    "google-auth-httplib2",
-    "google-auth-oauthlib",
     # Utils
-    "typing-extensions",
-    "pandas<=1.1.3",
+    "pandas",
     "click",
     "pyyaml",
-    "dataclasses",
 ]
 
 
@@ -87,6 +71,8 @@ setup_args = dict(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Typing :: Typed",
     ],
     cmdclass={"verify": VerifyVersionCommand},
