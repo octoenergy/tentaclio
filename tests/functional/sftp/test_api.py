@@ -1,5 +1,6 @@
-import tentaclio
 import pytest
+
+import tentaclio
 import tentaclio.clients
 from tentaclio.credentials import authenticate
 

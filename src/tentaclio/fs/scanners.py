@@ -1,6 +1,6 @@
 """Concrete implementations of dir scanners."""
 import logging
-from typing import Callable, Iterable, Protocol, ContextManager
+from typing import Callable, ContextManager, Iterable, Protocol
 
 from tentaclio.urls import URL
 

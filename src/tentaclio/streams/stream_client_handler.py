@@ -3,7 +3,6 @@ import io
 import logging
 from typing import Callable
 
-
 from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
 from tentaclio.urls import URL
