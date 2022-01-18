@@ -42,6 +42,7 @@ REQUIREMENTS = [
     "pandas",
     "click",
     "pyyaml",
+    "importlib_metadata",
 ]
 
 
