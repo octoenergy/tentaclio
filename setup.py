@@ -49,7 +49,7 @@ PLUGINS = {
     "s3": "tentaclio_s3",
     "athena": "tentaclio_athena",
     "postgres": "tentaclio_postgres",
-    "databricks": "tentaclio_databricks",
+    "databricks": "tentaclio_databricks>=1.0.0",
     "gdrive": "tentaclio_gdrive",
     "gs": "tentaclio_gs",
 }
