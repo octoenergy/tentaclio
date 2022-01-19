@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -35,11 +35,13 @@ REQUIREMENTS = [
     # Http
     "requests",
     # Sqlalchemy
+    # Pinned due to incompatibility with base client
     "sqlalchemy<1.4",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
-    "pandas",
+    # Pinned to due requiring sqlalchemy>=1.4
+    "pandas<1.4",
     "click",
     "pyyaml",
     "importlib_metadata",
@@ -49,7 +51,7 @@ PLUGINS = {
     "s3": "tentaclio_s3",
     "athena": "tentaclio_athena",
     "postgres": "tentaclio_postgres",
-    "databricks": "tentaclio_databricks",
+    "databricks": "tentaclio_databricks>=1.0.0",
     "gdrive": "tentaclio_gdrive",
     "gs": "tentaclio_gs",
 }
