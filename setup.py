@@ -35,11 +35,13 @@ REQUIREMENTS = [
     # Http
     "requests",
     # Sqlalchemy
+    # Pinned due to incompatibility with base client
     "sqlalchemy<1.4",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
-    "pandas",
+    # Pinned to due requiring sqlalchemy>=1.4
+    "pandas<1.4",
     "click",
     "pyyaml",
     "importlib_metadata",
