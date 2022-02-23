@@ -7,7 +7,7 @@ import contextlib
 from typing import Container, Generator, Optional, Union
 
 import pandas as pd
-from sqlalchemy.engine import Connection, Engine, create_engine, result
+from sqlalchemy.engine import Connection, CursorResult, Engine, create_engine
 from sqlalchemy.engine import url as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
@@ -119,7 +119,7 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     # Query methods:
 
     @decorators.check_conn
-    def query(self, sql_query: str, **kwargs) -> result.ResultProxy:
+    def query(self, sql_query: str, **kwargs) -> CursorResult:
         """Execute a read-only SQL query, and return results.
 
         This will not commit any changes to the database.

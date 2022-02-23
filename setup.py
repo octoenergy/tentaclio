@@ -35,13 +35,11 @@ REQUIREMENTS = [
     # Http
     "requests",
     # Sqlalchemy
-    # Pinned due to incompatibility with base client
-    "sqlalchemy<1.4",
+    "sqlalchemy>=1.4",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
-    # Pinned to due requiring sqlalchemy>=1.4
-    "pandas<1.4",
+    "pandas",
     "click",
     "pyyaml",
     "importlib_metadata",
@@ -90,7 +88,6 @@ setup_args = dict(
     ],
     cmdclass={"verify": VerifyVersionCommand},
 )
-
 
 if __name__ == "__main__":
 
