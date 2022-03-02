@@ -29,7 +29,11 @@ class S3Client(base_client.BaseClient["S3Client"]):
     key_name: Optional[str]
 
     def __init__(
-        self, url: Union[urls.URL, str], aws_profile: str = None, conn_encrypt: bool = False
+        self,
+        url: Union[urls.URL, str],
+        aws_profile: str = None,
+        conn_encrypt: bool = False,
+        acl: str = None,
     ) -> None:
         """Create a new S3 client.
 
@@ -40,6 +44,7 @@ class S3Client(base_client.BaseClient["S3Client"]):
         """
         self.aws_profile = aws_profile
         self.conn_encrypt = conn_encrypt
+        self.acl = acl
         super().__init__(url)
 
         self.aws_access_key_id = self.url.username or None
@@ -70,7 +75,7 @@ class S3Client(base_client.BaseClient["S3Client"]):
         # s3 doesn't have close method
         if self.closed:
             raise ValueError("Trying to close a closed client")
-        self.closed = True
+        self.closed: bool = True
 
     # Stream methods:
 
@@ -106,7 +111,8 @@ class S3Client(base_client.BaseClient["S3Client"]):
         extra_args = {}
         if self.conn_encrypt:
             extra_args["ServerSideEncryption"] = "AES256"
-
+        if self.acl:
+            extra_args["ACL"] = self.acl
         self.conn.upload_fileobj(reader, s3_bucket, s3_key, ExtraArgs=extra_args)
 
     # Helpers:
