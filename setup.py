@@ -44,7 +44,7 @@ REQUIREMENTS = [
     "pandas<1.4",
     "click",
     "pyyaml",
-    "importlib_metadata",
+    "importlib_metadata>3.7.0",
 ]
 
 PLUGINS = {
