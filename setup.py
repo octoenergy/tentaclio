@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -35,13 +35,11 @@ REQUIREMENTS = [
     # Http
     "requests",
     # Sqlalchemy
-    # Pinned due to incompatibility with base client
-    "sqlalchemy<1.4",
+    "sqlalchemy>=1.4",
     # SFTP
     "pysftp>=0.2.0,<0.3",
     # Utils
-    # Pinned to due requiring sqlalchemy>=1.4
-    "pandas<1.4",
+    "pandas",
     "click",
     "pyyaml",
     "importlib_metadata>3.7.0",
@@ -90,7 +88,6 @@ setup_args = dict(
     ],
     cmdclass={"verify": VerifyVersionCommand},
 )
-
 
 if __name__ == "__main__":
 
