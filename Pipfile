@@ -9,17 +9,20 @@ python_version = "3.9"
 [dev-packages]
 # Symlink to project root
 tentaclio = {editable = true,path = "."}
+
 # Linting
 flake8 = "*"
 mypy = "*"
 pydocstyle = "*"
 types-pyyaml = "*"
 types-requests = "*"
+
 # Testing
 moto = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+
 # Releasing
 twine = "*"
 secretstorage = "*"
