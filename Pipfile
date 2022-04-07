@@ -23,6 +23,3 @@ pytest-mock = "*"
 # Releasing
 twine = "*"
 secretstorage = "*"
-# Docs Generation
-sphinx = "*"
-myst-parser = "*"
