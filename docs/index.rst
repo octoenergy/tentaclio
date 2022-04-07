@@ -10,13 +10,11 @@ Welcome to Tentaclio's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   readme
-
-
+   pages/readme_link
+   pages/docs
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
