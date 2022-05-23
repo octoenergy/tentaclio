@@ -1,5 +1,7 @@
 import io
 
+import pytest
+
 from tentaclio.streams import base_stream
 
 
@@ -56,3 +58,20 @@ class TestStreamerReader:
 
         reader = base_stream.StreamerReader(client, io.BytesIO())
         assert reader.seekable()
+
+
+@pytest.mark.parametrize(
+    "client, extras, expected",
+    [
+        (base_stream.StringToBytesClientReader, {}, "utf-8"),
+        (base_stream.StringToBytesClientReader, {"encoding": "latin1"}, "latin1"),
+        (base_stream.StringToBytesClientWriter, {}, "utf-8"),
+        (base_stream.StringToBytesClientWriter, {"encoding": "latin1"}, "latin1"),
+    ],
+)
+def test_setting_encoding_in_string_to_bytes_clients(client, extras, expected, mocker):
+    mock_client = mocker.MagicMock()
+    mock_inner_buffer = mocker.MagicMock()
+    patched_io = mocker.patch("io.TextIOWrapper")
+    base_stream.StringToBytesClientReader(mock_client, extras, mock_inner_buffer)
+    patched_io.assert_called_with(mock_inner_buffer, encoding=expected)

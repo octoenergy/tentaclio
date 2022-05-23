@@ -78,7 +78,7 @@ class TestHTTPClient:
             assert client._fetch_url(endpoint) == full_url
 
     def test_put_bytes(self, mocker, mocked_http_conn):
-        """Check that the conversion from bytes to string works. """
+        """Check that the conversion from bytes to string works."""
         buff = io.StringIO()
 
         def mocked_request(_, __, default_data, default_params):

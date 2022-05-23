@@ -11,6 +11,8 @@ python_version = "3.9"
 tentaclio = {editable = true,path = "."}
 
 # Linting
+isort = "*"
+black = "*"
 flake8 = "*"
 mypy = "*"
 pydocstyle = "*"

@@ -171,10 +171,11 @@ class StringToBytesClientReader(StreamerReader):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: StreamerContextManager):
+    def __init__(self, client: StreamerContextManager, extras: dict, inner_buffer=io.BytesIO()):
         """Create a byte based reader that will read from the given client."""
-        self.inner_buffer = io.BytesIO()
-        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
+        self.inner_buffer = inner_buffer
+        encoding = extras.get("encoding", "utf-8")
+        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding=encoding))
 
     def _load(self):
         # interacts with the client in terms of bytes
@@ -193,10 +194,11 @@ class StringToBytesClientWriter(StreamerWriter):
 
     inner_buffer: io.BytesIO
 
-    def __init__(self, client: StreamerContextManager):
+    def __init__(self, client: StreamerContextManager, extras: dict, inner_buffer=io.BytesIO()):
         """Create a byte based write that will read from the given client."""
-        self.inner_buffer = io.BytesIO()
-        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding="utf-8"))
+        self.inner_buffer = inner_buffer
+        encoding = extras.get("encoding", "utf-8")
+        super().__init__(client, io.TextIOWrapper(self.inner_buffer, encoding=encoding))
 
     def _flush(self) -> None:
         """Flush and close the writer."""
