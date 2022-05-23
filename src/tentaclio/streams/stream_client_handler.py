@@ -36,7 +36,9 @@ class StreamURLHandler:
 
         if _is_bytes_mode(mode):
             return base_stream.StreamerReader(client, io.BytesIO())
-        return base_stream.StringToBytesClientReader(client)
+        return base_stream.StringToBytesClientReader(
+            client, encoding=extras.get("encoding", "utf-8")
+        )
 
     def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
         """Open an stream client writing."""
@@ -44,4 +46,6 @@ class StreamURLHandler:
 
         if _is_bytes_mode(mode):
             return base_stream.StreamerWriter(client, io.BytesIO())
-        return base_stream.StringToBytesClientWriter(client)
+        return base_stream.StringToBytesClientWriter(
+            client, encoding=extras.get("encoding", "utf-8")
+        )
