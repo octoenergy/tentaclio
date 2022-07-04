@@ -236,6 +236,9 @@ Default:
 [tentaclio-databricks](https://github.com/octoenergy/tentaclio-databricks)
 * `databricks+pyodbc://`
 
+[tentaclio-snowflake](https://github.com/octoenergy/tentaclio-snowflake)
+* `snowflake://`
+
 
 #### Extras for databases
 For postgres you can set the variable `TENTACLIO__PG_APPLICATION_NAME` and the value will be injected

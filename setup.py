@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "1.0.5"
+VERSION = "1.0.6"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -52,6 +52,7 @@ PLUGINS = {
     "databricks": "tentaclio_databricks>=1.0.0",
     "gdrive": "tentaclio_gdrive",
     "gs": "tentaclio_gs",
+    "snowflake": "tentaclio_snowflake"
 }
 
 
