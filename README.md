@@ -234,7 +234,7 @@ Default:
 * `awsathena+rest://`
 
 [tentaclio-databricks](https://github.com/octoenergy/tentaclio-databricks)
-* `databricks+pyodbc://`
+* `databricks+thrift://`
 
 [tentaclio-snowflake](https://github.com/octoenergy/tentaclio-snowflake)
 * `snowflake://`
