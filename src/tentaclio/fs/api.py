@@ -8,7 +8,7 @@ from .remover import REMOVER_REGISTRY
 from .scanner import SCANNER_REGISTRY, DirEntry
 
 
-__all__ = ["scandir", "listdir", "copy", "remove"]
+__all__ = ["scandir", "listdir", "copy", "remove", "walk"]
 
 
 def scandir(url: str) -> Iterable[DirEntry]:
