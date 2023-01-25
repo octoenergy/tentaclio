@@ -1,14 +1,14 @@
 """Main entry points to tentaclio-io."""
-from typing import ContextManager
+from typing import ContextManager, Union
 
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
 
-from .base_stream import StreamerReader, StreamerWriter
+from .base_stream import DirtyStreamerWriter, StreamerReader, StreamerWriter
 from .stream_registry import STREAM_HANDLER_REGISTRY, _WriterContextManager
 
 
-__all__ = ["open"]
+__all__ = ["open", "make_empty_safe"]
 
 VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 
@@ -39,6 +39,13 @@ def open(url: str, mode: str = None, **kwargs) -> AnyContextStreamerReaderWriter
         return _open_writer(url=url, mode=mode, **kwargs)
     else:
         return _open_reader(url=url, mode=mode, **kwargs)
+
+
+def make_empty_safe(
+    context_writer: _WriterContextManager,
+) -> ContextManager[protocols.WriterClosable]:
+    """Make the writer to not flush the contents if nothing was written."""
+    return _WriterContextManager(DirtyStreamerWriter(context_writer.resource))
 
 
 # Helpers
