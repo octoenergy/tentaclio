@@ -23,6 +23,28 @@ class TestStreamerWriter:
         client.put.assert_called()
 
 
+class TestDirtyStreamerWriter:
+    def test_write_dirty(self, mocker):
+        client = mocker.MagicMock()
+        buff = io.StringIO()
+
+        writer = base_stream.DirtyStreamerWriter(base_stream.StreamerWriter(client, buff))
+        writer.write("hello")
+        assert "hello" == buff.getvalue()
+        writer.close()
+        client.put.assert_called()
+
+    def test_write_clean(self, mocker):
+        client = mocker.MagicMock()
+        buff = io.StringIO()
+
+        writer = base_stream.DirtyStreamerWriter(base_stream.StreamerWriter(client, buff))
+        writer.close()
+
+        assert buff.closed
+        client.put.assert_not_called()
+
+
 class TestStreamerReader:
     def test_read(self, mocker):
         client = mocker.MagicMock()

@@ -4,15 +4,20 @@ from typing import ContextManager
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
 
-from .stream_registry import STREAM_HANDLER_REGISTRY
+from .base_stream import StreamerReader, StreamerWriter
+from .stream_registry import STREAM_HANDLER_REGISTRY, _WriterContextManager
 
 
 __all__ = ["open"]
 
 VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 
+AnyContextStreamerReaderWriter = Union[
+    ContextManager[StreamerReader], ContextManager[StreamerWriter]
+]
 
-def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyReaderWriter]:
+
+def open(url: str, mode: str = None, **kwargs) -> AnyContextStreamerReaderWriter:
     """Open a url and return a reader or writer depending on mode.
 
     Arguments:
@@ -46,13 +51,13 @@ def _assert_mode(mode: str):
         raise ValueError(f"Mode {mode} is not allowed. Valid modes are  {valid_modes}")
 
 
-def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[protocols.Writer]:
+def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[StreamerWriter]:
     """Open a url and return a writer."""
     authenticated = authenticate(url)
     return STREAM_HANDLER_REGISTRY.open_stream_writer(authenticated, mode, extras=kwargs)
 
 
-def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[protocols.Reader]:
+def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[StreamerReader]:
     """Open a url and return a reader."""
     authenticated = authenticate(url)
     return STREAM_HANDLER_REGISTRY.open_stream_reader(authenticated, mode, extras=kwargs)

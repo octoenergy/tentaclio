@@ -126,6 +126,42 @@ class StreamerWriter(StreamBaseIO):
             self.client.put(self.buffer)
 
 
+class DirtyStreamerWriter(StreamerWriter):
+    """Offer stream like access to underlying client.
+
+    Offer a IO stream interface to clients while maintaining the
+    connection atomic.
+
+    It only flushes if the stream is dirty
+    ** WARNING ** this breaks the python's `open` contract
+    but this is extreamily useful for not breaking downstream
+    systems when the no data is been written (i.e. spark or athena)
+
+    """
+
+    # wrapped_writer to delegate io functionality
+    wrapped_writer: StreamerWriter
+    # Flag to indicate that the stream is dirty
+    dirty = False
+
+    def __init__(self, writer: StreamerWriter):
+        """Create a new writer based on a stream client and a buffer."""
+        # the buffer is the buffer for the underlying stream
+        super().__init__(writer.client, writer.buffer)
+        self.writer = writer
+
+    def write(self, contents: Any) -> int:
+        """Write the contents to the underlying buffer."""
+        self.dirty = True
+        return self.writer.write(contents)
+
+    def close(self) -> None:
+        """Flush and close the writer."""
+        if self.dirty:
+            self.writer._flush()
+        self.buffer.close()
+
+
 class StreamerReader(StreamBaseIO):
     """Offer stream like access to underlying client.
 

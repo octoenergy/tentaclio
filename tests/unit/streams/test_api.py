@@ -33,3 +33,10 @@ def test_reader_modes(mode, mocker):
     api.open("file://path/query", mode)
 
     mocked_open_reader.assert_called_once()
+
+
+def test_make_empty_safe(mocker):
+    writer = mocker.MagicMock()
+    wrapped = api.make_empty_safe(writer)
+    with wrapped as w:
+        assert not w.dirty

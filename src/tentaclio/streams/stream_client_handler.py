@@ -3,7 +3,6 @@ import io
 import logging
 from typing import Callable
 
-from tentaclio.protocols import ReaderClosable, WriterClosable
 from tentaclio.streams import base_stream
 from tentaclio.urls import URL
 
@@ -30,7 +29,7 @@ class StreamURLHandler:
         """Create a handler using  a stream client factory to instantiate the underlying client."""
         self.client_factory = client_factory
 
-    def open_reader_for(self, url: URL, mode: str, extras: dict) -> ReaderClosable:
+    def open_reader_for(self, url: URL, mode: str, extras: dict) -> base_stream.StreamerReader:
         """Open an stream client for reading."""
         client = self.client_factory(url, **extras)
 
@@ -40,7 +39,7 @@ class StreamURLHandler:
             client, encoding=extras.get("encoding", "utf-8")
         )
 
-    def open_writer_for(self, url: URL, mode: str, extras: dict) -> WriterClosable:
+    def open_writer_for(self, url: URL, mode: str, extras: dict) -> base_stream.StreamerWriter:
         """Open an stream client writing."""
         client = self.client_factory(url, **extras)
 
