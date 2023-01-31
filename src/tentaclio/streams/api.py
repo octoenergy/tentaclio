@@ -1,18 +1,23 @@
 """Main entry points to tentaclio-io."""
-from typing import ContextManager
+from typing import ContextManager, Union
 
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
 
-from .stream_registry import STREAM_HANDLER_REGISTRY
+from .base_stream import DirtyStreamerWriter, StreamerReader, StreamerWriter
+from .stream_registry import STREAM_HANDLER_REGISTRY, _WriterContextManager
 
 
-__all__ = ["open"]
+__all__ = ["open", "make_empty_safe"]
 
 VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 
+AnyContextStreamerReaderWriter = Union[
+    ContextManager[StreamerReader], ContextManager[StreamerWriter]
+]
 
-def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyReaderWriter]:
+
+def open(url: str, mode: str = None, **kwargs) -> AnyContextStreamerReaderWriter:
     """Open a url and return a reader or writer depending on mode.
 
     Arguments:
@@ -36,6 +41,13 @@ def open(url: str, mode: str = None, **kwargs) -> ContextManager[protocols.AnyRe
         return _open_reader(url=url, mode=mode, **kwargs)
 
 
+def make_empty_safe(
+    context_writer: _WriterContextManager,
+) -> ContextManager[protocols.WriterClosable]:
+    """Make the writer to not flush the contents if nothing was written."""
+    return _WriterContextManager(DirtyStreamerWriter(context_writer.resource))
+
+
 # Helpers
 
 
@@ -46,13 +58,13 @@ def _assert_mode(mode: str):
         raise ValueError(f"Mode {mode} is not allowed. Valid modes are  {valid_modes}")
 
 
-def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[protocols.Writer]:
+def _open_writer(url: str, mode: str, **kwargs) -> ContextManager[StreamerWriter]:
     """Open a url and return a writer."""
     authenticated = authenticate(url)
     return STREAM_HANDLER_REGISTRY.open_stream_writer(authenticated, mode, extras=kwargs)
 
 
-def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[protocols.Reader]:
+def _open_reader(url: str, mode: str, **kwargs) -> ContextManager[StreamerReader]:
     """Open a url and return a reader."""
     authenticated = authenticate(url)
     return STREAM_HANDLER_REGISTRY.open_stream_reader(authenticated, mode, extras=kwargs)

@@ -192,6 +192,21 @@ with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
 
+##### Notes on writing files for Spark, Presto, and similar downstream systems
+
+The default behaviour for the `open` context manager in python is to create an empty file when opening
+it in writable mode. This can be annoying if the process that creates the data within the `with` clause
+yields empty dataframes and nothing gets written. This will make Spark and Presto panic.
+
+To avoid this we can make the stream _empty safe_ so the empty buffer won't be flushed if no writes have been performed so no empty file will be created.
+
+
+```
+with tio.make_empty_safe(tio.open("s3://bucket/file.parquet", mode="wb")) as writer:
+    if not df.empty:
+        df.to_parquet(writer)
+```
+
 ### File system like operations to resources
 #### Listing resources
 Some URL schemes allow listing resources in a pythonnic way:

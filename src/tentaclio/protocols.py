@@ -75,4 +75,4 @@ class WriterClosable(Writer, Closable, Protocol):
     ...
 
 
-AnyReaderWriter = Union[Reader, Writer]
+AnyReaderWriter = Union[ReaderClosable, WriterClosable]
