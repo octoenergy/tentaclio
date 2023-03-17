@@ -1,6 +1,7 @@
 """Slack http hook."""
 import io
 import json
+from typing import Optional
 
 from tentaclio.clients import http_client
 
@@ -16,7 +17,11 @@ class SlackHook:
         self.url = url
 
     def notify(
-        self, message: str, channel: str = None, username: str = None, icon_emoji: str = None
+        self,
+        message: str,
+        channel: Optional[str] = None,
+        username: Optional[str] = None,
+        icon_emoji: Optional[str] = None,
     ) -> None:
         """Send a notification to slack."""
         body = self._build_request_body(
@@ -31,7 +36,10 @@ class SlackHook:
 
     @staticmethod
     def _build_request_body(
-        message: str, channel: str = None, username: str = None, icon_emoji: str = None
+        message: str,
+        channel: Optional[str] = None,
+        username: Optional[str] = None,
+        icon_emoji: Optional[str] = None,
     ) -> str:
         # Fetch message payload
         payload = dict(text=message)

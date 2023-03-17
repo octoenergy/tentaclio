@@ -22,7 +22,6 @@ def csv_data():
 
 
 def test_dump_csv(csv_data, csv_dumper):
-
     with csv_db_stream.DatabaseCsvWriter(csv_dumper, "my_table") as writer:
         writer.write(csv_data.getvalue())
 

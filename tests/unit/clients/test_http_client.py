@@ -53,7 +53,6 @@ class TestHTTPClient:
         mocked_writer = mocker.Mock()
 
         with pytest.raises(exceptions.HTTPError):
-
             with http_client.HTTPClient(url) as client:
                 client.get(mocked_writer, endpoint=path)
 
@@ -73,7 +72,6 @@ class TestHTTPClient:
     )
     def test_fetching_url_endpoint(self, base_url, endpoint, auth, full_url):
         with http_client.HTTPClient(base_url) as client:
-
             assert client.conn.auth == auth
             assert client._fetch_url(endpoint) == full_url
 

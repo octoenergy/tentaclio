@@ -1,4 +1,5 @@
 import io
+from typing import Optional
 
 import pytest
 
@@ -9,7 +10,7 @@ from tentaclio.streams import StreamURLHandler
 
 class FakeClient(base_client.BaseClient["FakeClient"]):
     # clients only understand bytes
-    def __init__(self, url: URL, message: bytearray = None, *args, **kwargs):
+    def __init__(self, url: URL, message: Optional[bytearray] = None, *args, **kwargs):
         self._writer = io.BytesIO()
         self._message = message or bytes("hello", encoding="utf-8")
         self._closed = False

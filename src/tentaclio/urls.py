@@ -74,13 +74,13 @@ class URL:
 
     def copy(
         self,
-        scheme: str = None,
-        username: str = None,
-        password: str = None,
-        hostname: str = None,
-        port: int = None,
-        path: str = None,
-        query: str = None,
+        scheme: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        hostname: Optional[str] = None,
+        port: Optional[int] = None,
+        path: Optional[str] = None,
+        query: Optional[str] = None,
     ) -> "URL":
         """Copy this url optionally overwriting the provided components."""
         return URL.from_components(
