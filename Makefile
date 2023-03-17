@@ -41,10 +41,10 @@ functional-sftp:
 	pipenv run pytest tests/functional/sftp
 
 format:
-	black -l 99 src
-	black -l 99 tests
-	isort -rc src
-	isort -rc tests
+	pipenv run black -l 99 src
+	pipenv run black -l 99 tests
+	pipenv run isort src
+	pipenv run isort tests
 
 # Deployment
 
