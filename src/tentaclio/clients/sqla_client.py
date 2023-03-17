@@ -7,8 +7,9 @@ import contextlib
 from typing import Container, Generator, Optional, Union
 
 import pandas as pd
+from sqlalchemy import text
 from sqlalchemy.engine import Connection, CursorResult, Engine, create_engine
-from sqlalchemy.engine import url as sqla_url
+from sqlalchemy.engine.url import URL as sqla_url
 from sqlalchemy.orm import session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
@@ -20,7 +21,7 @@ from . import base_client, decorators
 __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
 
 
-SessionGenerator = Generator[None, session.Session, None]
+SessionGenerator = Generator[session.Session, None, None]
 
 
 class _TrueContainer(Container[str]):
@@ -57,7 +58,10 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     port: Optional[int]
 
     def __init__(
-        self, url: Union[str, urls.URL], execution_options: dict = None, connect_args: dict = None
+        self,
+        url: Union[str, urls.URL],
+        execution_options: Optional[dict] = None,
+        connect_args: Optional[dict] = None,
     ) -> None:
         """Create sqlalchemy client based on the passed url.
 
@@ -84,15 +88,13 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     # Connection methods:
 
     def _connect(self) -> Connection:
-
-        parsed_url = sqla_url.URL(
+        parsed_url = sqla_url.create(
             drivername=self.drivername,
             username=self.username,
             password=self.password,
             host=self.host,
             port=self.port,
             database=self.database,
-            query=self.url_query,
         )
         if self.engine is None:
             self.engine = create_engine(
@@ -124,14 +126,14 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
 
         This will not commit any changes to the database.
         """
-        return self.conn.execute(sql_query, **kwargs)
+        return self.conn.execute(text(sql_query), **kwargs)
 
     @decorators.check_conn
     def execute(self, sql_query: str, **kwargs) -> None:
         """Execute a raw SQL query command."""
         trans = self.conn.begin()
         try:
-            self.conn.execute(sql_query, **kwargs)
+            self.conn.execute(text(sql_query), **kwargs)
         except Exception:
             trans.rollback()
             raise
@@ -141,7 +143,7 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     # Dataframe methods:
 
     @decorators.check_conn
-    def get_df(self, sql_query: str, params: dict = None, **kwargs) -> pd.DataFrame:
+    def get_df(self, sql_query: str, params: Optional[dict] = None, **kwargs) -> pd.DataFrame:
         """Run a raw SQL query and return a data frame."""
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
