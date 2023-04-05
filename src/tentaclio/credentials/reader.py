@@ -16,6 +16,8 @@ TENTACLIO_SECRETS_FILE = "TENTACLIO__SECRETS_FILE"
 
 
 class TentaclioFileError(Exception):
+    """Tentaclio secrets file errors."""
+
     TENTACLIO_FILE = os.getenv(TENTACLIO_SECRETS_FILE, "<unknown file>")
     ERROR_TEMPLATE = """
 #########################################
@@ -30,6 +32,7 @@ Check https://github.com/octoenergy/tentaclio#credentials-file for more info abo
 """
 
     def __init__(self, message: str):
+        """Intialise a new TentaclioFileError."""
         message = self.ERROR_TEMPLATE.format(message=message, tentaclio_file=self.TENTACLIO_FILE)
         super().__init__(message)
 
