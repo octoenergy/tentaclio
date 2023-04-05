@@ -15,6 +15,25 @@ SECRETS = "secrets"
 TENTACLIO_SECRETS_FILE = "TENTACLIO__SECRETS_FILE"
 
 
+class TentaclioFileError(Exception):
+    TENTACLIO_FILE = os.getenv(TENTACLIO_SECRETS_FILE, "<unknown file>")
+    ERROR_TEMPLATE = """
+#########################################
+
+Your tentaclio secrets file is malformed:
+
+File: {tentaclio_file}
+
+{message}
+
+Check https://github.com/octoenergy/tentaclio#credentials-file for more info about this file
+"""
+
+    def __init__(self, message: str):
+        message = self.ERROR_TEMPLATE.format(message=message, tentaclio_file=self.TENTACLIO_FILE)
+        super().__init__(message)
+
+
 def add_credentials_from_env_file(
     injector: injection.CredentialsInjector,
 ) -> injection.CredentialsInjector:
@@ -29,10 +48,27 @@ def add_credentials_from_env_file(
     return injector
 
 
+def _process_mark_error(error: yaml.MarkedYAMLError) -> str:
+    error_str = ""
+    if error.problem_mark is not None:
+        error_str += str(error.problem) + "\n"
+        error_str += str(error.problem_mark) + "\n"
+    if error.context_mark is not None:
+        error_str += str(error.context) + "\n"
+        error_str += str(error.context_mark) + "\n"
+    return error_str
+
+
 def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
-    loaded_data = yaml.safe_load(io.StringIO(yaml_reader.read()))
+    try:
+        loaded_data = yaml.safe_load(io.StringIO(yaml_reader.read()))
+    except yaml.MarkedYAMLError as error:
+        raise TentaclioFileError(_process_mark_error(error))
+
     if SECRETS not in loaded_data:
-        raise KeyError(f"no secrets in yaml data. Make sure the file has a '{SECRETS}' element")
+        raise TentaclioFileError(
+            "No secrets in yaml data. Make sure the file has a `secrets:` element"
+        )
     return loaded_data[SECRETS]
 
 
@@ -43,8 +79,7 @@ def _load_from_file(
         with open(path, "r") as f:
             return add_credentials_from_reader(injector, f)
     except IOError as e:
-        logger.error("Error while loading secrets file {path}")
-        raise e
+        raise TentaclioFileError("File not found") from e
 
 
 def add_credentials_from_reader(
