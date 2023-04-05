@@ -3,7 +3,7 @@ import io
 import pytest
 
 from tentaclio import urls
-from tentaclio.credentials import injection, reader
+from tentaclio.credentials import TentaclioFileError, injection, reader
 
 
 @pytest.fixture
@@ -32,13 +32,13 @@ secrets:
 
 
 def test_bad_yaml():
-    with pytest.raises(Exception):
+    with pytest.raises(TentaclioFileError):
         data = io.StringIO("sadfsaf")
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
 
 def test_no_credentials_in_file(no_creds_yaml):
-    with pytest.raises(KeyError):
+    with pytest.raises(TentaclioFileError):
         data = io.StringIO(no_creds_yaml)
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
