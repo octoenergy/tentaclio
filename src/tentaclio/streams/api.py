@@ -1,5 +1,5 @@
 """Main entry points to tentaclio-io."""
-from typing import ContextManager, Union
+from typing import ContextManager, Optional, Union
 
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
@@ -17,7 +17,7 @@ AnyContextStreamerReaderWriter = Union[
 ]
 
 
-def open(url: str, mode: str = None, **kwargs) -> AnyContextStreamerReaderWriter:
+def open(url: str, mode: Optional[str] = None, **kwargs) -> AnyContextStreamerReaderWriter:
     """Open a url and return a reader or writer depending on mode.
 
     Arguments:

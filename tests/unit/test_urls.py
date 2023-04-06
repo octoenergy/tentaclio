@@ -4,7 +4,6 @@ from tentaclio import urls
 
 
 class TestURL:
-
     # Generic parsing rules:
     def test_missing_url(self):
         with pytest.raises(urls.URLError):

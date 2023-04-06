@@ -2,7 +2,6 @@ from tentaclio import credentials, urls
 
 
 def test_authenticate(mocker):
-
     injector = credentials.CredentialsInjector()
     injector.register_credentials(urls.URL("ftp://user:pass@google.com"))
     mock_cred = mocker.patch("tentaclio.credentials.api.load_credentials_injector")

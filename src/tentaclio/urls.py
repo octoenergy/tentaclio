@@ -38,6 +38,7 @@ class URL:
     _port: Optional[int] = None
     _path: str
     _query: Optional[Dict[str, str]] = None
+    _query_string: Optional[str] = None
 
     def __init__(self, url: str) -> None:
         """Create a url by parsing the parametre."""
@@ -57,6 +58,7 @@ class URL:
         self._hostname = parsed_url.hostname
         self._port = parsed_url.port
         self._path = parsed_url.path
+        self._query_string = parsed_url.query
 
         # Replace %xx escapes - ONLY for username & password
         if parsed_url.username and self._username:
@@ -74,13 +76,13 @@ class URL:
 
     def copy(
         self,
-        scheme: str = None,
-        username: str = None,
-        password: str = None,
-        hostname: str = None,
-        port: int = None,
-        path: str = None,
-        query: str = None,
+        scheme: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        hostname: Optional[str] = None,
+        port: Optional[int] = None,
+        path: Optional[str] = None,
+        query: Optional[str] = None,
     ) -> "URL":
         """Copy this url optionally overwriting the provided components."""
         return URL.from_components(
@@ -167,6 +169,11 @@ class URL:
     def query(self) -> Optional[Dict[str, str]]:
         """Access the query."""
         return self._query
+
+    @property
+    def query_string(self) -> Optional[str]:
+        """Access the query string."""
+        return self._query_string
 
     @property
     def url(self) -> str:

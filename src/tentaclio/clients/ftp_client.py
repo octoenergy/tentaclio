@@ -41,7 +41,7 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
     # Stream methods:
 
     @decorators.check_conn
-    def get(self, writer: protocols.ByteWriter, file_path: str = None) -> None:
+    def get(self, writer: protocols.ByteWriter, file_path: Optional[str] = None) -> None:
         """Write the contents of a remote file into the passed writer.
 
         Arguments:
@@ -162,7 +162,7 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
     # Stream methods:
 
     @decorators.check_conn
-    def get(self, writer: protocols.ByteWriter, file_path: str = None) -> None:
+    def get(self, writer: protocols.ByteWriter, file_path: Optional[str] = None) -> None:
         """Write the contents of a remote file into the passed writer.
 
         Arguments:
@@ -180,7 +180,7 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
         self.conn.getfo(remote_path, writer)
 
     @decorators.check_conn
-    def put(self, reader: protocols.ByteReader, file_path: str = None) -> None:
+    def put(self, reader: protocols.ByteReader, file_path: Optional[str] = None) -> None:
         """Write the contents of the reader into the remote file.
 
         Arguments:

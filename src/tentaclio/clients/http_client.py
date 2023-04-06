@@ -38,7 +38,10 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
     endpoint: str
 
     def __init__(
-        self, url: str, default_timeout: float = None, default_headers: dict = None
+        self,
+        url: str,
+        default_timeout: Optional[float] = None,
+        default_headers: Optional[dict] = None,
     ) -> None:
         """Create a new http/https client based on the passed url and extra params."""
         # Default connection timeout at 10''
@@ -81,9 +84,9 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
     def get(
         self,
         writer: protocols.ByteWriter,
-        endpoint: str = None,
-        params: dict = None,
-        options: dict = None,
+        endpoint: Optional[str] = None,
+        params: Optional[dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """Read the contents from the url and write them into the provided writer.
 
@@ -103,9 +106,9 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
     def put(
         self,
         reader: protocols.ByteReader,
-        endpoint: str = None,
-        params: dict = None,
-        options: dict = None,
+        endpoint: Optional[str] = None,
+        params: Optional[dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """Write the contents of the provided reader into the url using POST.
 
@@ -132,8 +135,8 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
         self,
         method: str,
         url: str,
-        default_data: protocols.Reader = None,
-        default_params: dict = None,
+        default_data: Optional[protocols.Reader] = None,
+        default_params: Optional[dict] = None,
     ):
         data: Union[protocols.Reader, list] = default_data or []
         params = default_params or {}
@@ -149,7 +152,9 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
 
         return self.conn.prepare_request(request)
 
-    def _send_request(self, request: requests.PreparedRequest, default_options: dict = None):
+    def _send_request(
+        self, request: requests.PreparedRequest, default_options: Optional[dict] = None
+    ):
         options = default_options or {}
 
         response = self.conn.send(

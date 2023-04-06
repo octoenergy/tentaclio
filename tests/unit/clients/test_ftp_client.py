@@ -49,7 +49,6 @@ class TestFTPClient:
     @pytest.mark.parametrize("url,path", [("ftp://:@localhost", None)])
     def test_get_invalid_path(self, url, path, mocked_ftp_conn):
         with ftp_client.FTPClient(url) as client:
-
             with pytest.raises(exceptions.FTPError):
                 client.get(io.StringIO(), file_path=path)
 
@@ -149,7 +148,6 @@ class TestSFTPClient:
     @pytest.mark.parametrize("url,path", [("sftp://:@localhost", None)])
     def test_get_invalid_path(self, url, path, mocked_sftp_conn):
         with ftp_client.SFTPClient(url) as client:
-
             with pytest.raises(exceptions.FTPError):
                 client.get(io.StringIO(), file_path=path)
 
