@@ -97,7 +97,7 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
             database=self.database,
         )
         if self.url.query_string:
-            parsed_url.update_query_string(self.url.query_string)
+            parsed_url = parsed_url.update_query_string(self.url.query_string)
         if self.engine is None:
             self.engine = create_engine(
                 parsed_url,
