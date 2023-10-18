@@ -4,10 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.2] - 2023-10-18
-### Added
-  - Add support for connecting to SFTP via private key authentication. Replaces pysftp dependency with paramiko.
-
 ## [1.2.1] - 2023-04-20
 ### Fix
   - Issue where URL query parameters were not passed correctly to sqlalchemy for db connections.
@@ -18,12 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Older versions of tentaclio should pin `sqlalchemy < 2.0` to avoid this issue.
 
 ## [1.1.0] - 2023-04-05
-### Changed
+### Changed 
   - Credential files error reporting to help users identify the credentials issues
 
 ## [1.0.9] - 2023-01-25
 ### Added
-  - Add `tentaclio.streams.api.make_empty_safe` to modify the standard behavoir of creating
+  - Add `tentaclio.streams.api.make_empty_safe` to modify the standard behavoir of creating 
   empty files when no data is written into the stream.
 
 ## [1.0.8] - 2022-11-08

@@ -2,12 +2,10 @@
 import ftplib
 import io
 import logging
-import os
 import stat
 from typing import Iterable, Optional, Union
 
-from paramiko import DSSKey, ECDSAKey, Ed25519Key, PKey, RSAKey, sftp_client
-from paramiko.transport import Transport
+import pysftp
 
 from tentaclio import fs, protocols, urls
 
@@ -136,65 +134,30 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
 
     allowed_schemes = ["sftp"]
 
-    conn: sftp_client.SFTPClient
+    conn: pysftp.Connection
     username: str
     password: str
     port: int
-    private_key: str
-    private_key_pass: str
 
-    def __init__(
-        self,
-        url: Union[str, urls.URL],
-        private_key_path: Optional[str] = None,
-        private_key_password: Optional[str] = None,
-        **kwargs,
-    ) -> None:
+    def __init__(self, url: Union[str, urls.URL], **kwargs) -> None:
         """Create a new sftp client based on the url starting with sftp://."""
         super().__init__(url)
         self.username = self.url.username or ""
         self.password = self.url.password or ""
         self.port = self.url.port or 22
-        self.private_key_path = private_key_path
-        self.private_key_password = private_key_password
-
-    def _get_private_key(self) -> PKey:
-        if not self.private_key_path:
-            raise exceptions.FTPError("No private key path provided.")
-
-        with open(self.private_key_path, "r", encoding="utf-8") as head:
-            key_id = head.readline()[11:][:-18]
-
-        key_types = {"DSA": DSSKey, "EC": ECDSAKey, "OPENSSH": Ed25519Key, "RSA": RSAKey}
-        key = key_types[key_id.strip()]  # type: type[PKey]
-        private_key = key.from_private_key_file(self.private_key_path, self.private_key_password)
-        return private_key
-
-    def _authenticate(self, transport: Transport) -> None:
-        if self.private_key_path:
-            private_key = self._get_private_key()
-            transport.auth_publickey(self.username, private_key)
-        elif self.password:
-            transport.auth_password(self.username, self.password)
-        else:
-            raise exceptions.FTPError("No password or private key provided.")
-        if not transport.is_authenticated():
-            raise exceptions.FTPError("Authentication failed.")
 
     # Connection methods:
 
-    def _connect(self) -> sftp_client.SFTPClient:
-        if self.url.hostname is None:
-            raise exceptions.FTPError("Missing hostname in url")
-        transport = Transport((self.url.hostname, self.port))
-        transport.start_client()
-        self._authenticate(transport)
-
-        client = sftp_client.SFTPClient.from_transport(transport)
-        if not client:
-            raise exceptions.FTPError("Unable to connect to the server")
-        else:
-            return client
+    def _connect(self) -> pysftp.Connection:
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None
+        return pysftp.Connection(
+            self.url.hostname,
+            username=self.username,
+            password=self.password,
+            cnopts=cnopts,
+            port=self.port,
+        )
 
     # Stream methods:
 
@@ -210,15 +173,11 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
         if remote_path == "":
             raise exceptions.FTPError("Missing remote file path")
 
-        if not self.isfile(remote_path):
+        if not self.conn.isfile(remote_path):
             raise exceptions.FTPError("Unable to fetch the remote file")
 
         logger.info(f"sftp reading from {remote_path}")
-
-        if not isinstance(writer, io.BytesIO):
-            raise exceptions.FTPError("Writer is not a BytesIO object")
-        else:
-            self.conn.getfo(remote_path, writer)
+        self.conn.getfo(remote_path, writer)
 
     @decorators.check_conn
     def put(self, reader: protocols.ByteReader, file_path: Optional[str] = None) -> None:
@@ -244,8 +203,6 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
         base_url = f"sftp://{self.url.hostname}:{self.port}{self.url.path}/"
         entries = []
         for attrs in self.conn.listdir_attr(self.url.path):
-            if attrs.st_mode is None:
-                continue
             url = urls.URL(base_url + attrs.filename)
             if stat.S_ISDIR(attrs.st_mode):
                 entries.append(fs.build_folder_entry(url))
@@ -255,44 +212,6 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
             else:
                 continue  # ignore other type of entries
         return entries
-
-    def isdir(self, remotedir: str) -> bool:
-        """Return True if remotedir is a directory, False otherwise."""
-        try:
-            stat_mode = self.conn.stat(remotedir).st_mode
-            if isinstance(stat_mode, int):
-                return stat.S_ISDIR(stat_mode)
-            return False
-        except IOError:
-            # file does not exist
-            return False
-
-    def isfile(self, remotepath: str) -> bool:
-        """Return True if remotepath is a file, False otherwise."""
-        try:
-            stat_mode = self.conn.stat(remotepath).st_mode
-            if isinstance(stat_mode, int):
-                return stat.S_ISREG(stat_mode)
-            return False
-        except IOError:
-            # file does not exist
-            return False
-
-    def makedirs(self, remotedir: str, mode: int = 777) -> None:
-        """Create all directories in remotedir as needed, setting their mode to mode if created."""
-        if self.isdir(remotedir):
-            return
-        elif self.isfile(remotedir):
-            raise OSError(
-                "a file with the same name as the remotedir, " "'%s', already exists." % remotedir
-            )
-        else:
-            head, tail = os.path.split(remotedir)
-            if head and not self.isdir(head):
-                self.makedirs(head, mode)
-
-            if tail:
-                self.conn.mkdir(remotedir, mode=int(str(mode), 8))
 
     @decorators.check_conn
     def remove(self):

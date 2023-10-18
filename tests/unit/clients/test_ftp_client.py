@@ -153,12 +153,11 @@ class TestSFTPClient:
 
     def test_get(self, mocked_sftp_conn):
         expected = bytes("hello", "utf-8")
-        FakeAttr = collections.namedtuple("FakeAttr", ["st_mode"])
+
         client = ftp_client.SFTPClient("sftp://user:pass@localhost/myfile.txt")
         client.connect().getfo = lambda _, f: f.write(expected)
         buff = io.BytesIO()
         with client:
-            client.conn.stat.return_value = FakeAttr(stat.S_IFREG)
             client.get(buff)
 
         assert buff.getvalue() == expected

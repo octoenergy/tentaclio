@@ -15,7 +15,6 @@ isort = "*"
 flake8 = "*"
 mypy = "*"
 pydocstyle = "*"
-types-paramiko = "*"
 types-pyyaml = "*"
 types-requests = "*"
 # Testing

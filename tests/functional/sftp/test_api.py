@@ -22,7 +22,7 @@ def test_list_folders():
     cli = tentaclio.clients.SFTPClient(authenticate("sftp://hostname"))
 
     with cli:
-        cli.makedirs("upload/folder1/folder2")
+        cli.conn.makedirs("upload/folder1/folder2")
 
     with tentaclio.open("sftp://hostname/upload/folder1/data.txt", mode="w") as f:
         f.write(data)

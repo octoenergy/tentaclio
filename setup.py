@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
-VERSION = "1.2.2"
+VERSION = "1.2.1"
 
 REPO_ROOT = pathlib.Path(__file__).parent
 
@@ -37,7 +37,7 @@ REQUIREMENTS = [
     # Sqlalchemy
     "sqlalchemy>=1.4",
     # SFTP
-    "paramiko",
+    "pysftp>=0.2.0,<0.3",
     # Utils
     "pandas",
     "click",
