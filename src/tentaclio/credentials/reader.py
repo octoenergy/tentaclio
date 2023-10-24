@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 SECRETS = "secrets"
 TENTACLIO_SECRETS_FILE = "TENTACLIO__SECRETS_FILE"
-ENV_VARIABLE_PATTERN = r"\${[a-zA-Z_]+[a-zA-Z0-9_]*}"
+ENV_VARIABLE_PATTERN = re.compile(r"\${[a-zA-Z_]+[a-zA-Z0-9_]*}")
 NOT_VALID_ENV_VARIABLE_VALUES = "[${}]"
 
 
@@ -90,19 +90,19 @@ def _load_from_file(
         raise TentaclioFileError("File not found") from e
 
 
-def replace_env_variables(url: str) -> str:
+def _replace_env_variables(url: str) -> str:
     """Replace the environment variables inside the url by its value in the environment.
 
     Environment variables match the following format: ${ENV_VARIABLE_NAME}
     """
-    pattern = re.compile(ENV_VARIABLE_PATTERN)
-    env_variables = re.findall(pattern, url)
+    env_variables = re.findall(ENV_VARIABLE_PATTERN, url)
     for env_variable in env_variables:
         env_variable_name = re.sub(NOT_VALID_ENV_VARIABLE_VALUES, "", env_variable)
         env_value = os.getenv(env_variable_name)
         if not env_value:
             raise EnvironmentError(
-                f"Error while reading variable '{env_variable_name}' from the environment. "
+                f"Error while reading variable '{env_variable_name}' from the environment "
+                f"when interpolating it from the secrets file. "
                 f"Check that the variable exists in your environment."
             )
         url = url.replace(env_variable, env_value)
@@ -123,7 +123,7 @@ def add_credentials_from_reader(
     creds = _load_creds_from_yaml(yaml_reader)
     for name, url in creds.items():
         logger.info(f"Adding secret: {name}")
-        url = replace_env_variables(url)
+        url = _replace_env_variables(url)
         try:
             injector.register_credentials(urls.URL(url))
         except Exception as e:

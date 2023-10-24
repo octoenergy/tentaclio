@@ -302,6 +302,14 @@ And make it accessible to tentaclio by setting the environmental variable `TENTA
 Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
 automatically configure your environment.
 
+Environment variables can be included in the credentials file by using `${ENV_VARIABLE}` as it follows:
+```
+secrets:
+    db: postgresql://${DB_USER}:${DB_PASS}@myhost.com/database
+```
+Tentaclio will search `DB_USER` and `DB_PASS` in the environment and will interpolate their values with the secrets file content.
+
+
 ## Quick note on protocols structural subtyping.
 
 In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).
