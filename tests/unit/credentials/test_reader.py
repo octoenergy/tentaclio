@@ -90,10 +90,10 @@ def test_credentials_bad_url(creds_yaml_bad_url):
     ],
 )
 def test_credentials_env_variable(url, expected, creds_yaml_env_variables, monkeypatch):
-    monkeypatch.setenv("USER", "user")
-    monkeypatch.setenv("USER_DB", "user_db")
-    monkeypatch.setenv("PASSWORD", "password")
-    monkeypatch.setenv("PASSWORD_DB", "password_db")
+    monkeypatch.setenv('USER', 'user')
+    monkeypatch.setenv('USER_DB', 'user_db')
+    monkeypatch.setenv('PASSWORD', 'password')
+    monkeypatch.setenv('PASSWORD_DB', 'password_db')
 
     data = io.StringIO(creds_yaml_env_variables)
     injector = reader.add_credentials_from_reader(injection.CredentialsInjector(), data)

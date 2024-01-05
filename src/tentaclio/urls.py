@@ -50,18 +50,7 @@ class URL:
         if self._url is None:
             raise URLError("None url")
 
-        try:
-            parsed_url = parse.urlparse(self._url)
-        except ValueError as e:
-            if str(e) == "Invalid IPv6 URL":
-                message = (
-                    "Please ensure the provided Tentaclio secret URL is in valid format."
-                    " If your password element contains special characters,"
-                    " please ensure it is URL encoded. You can do this using"
-                    "the Python urllib.parse.quote_plus() function."
-                )
-                raise ValueError("Invalid IPv6 URL : " + message)
-            raise e
+        parsed_url = parse.urlparse(self._url)
 
         self._scheme = parsed_url.scheme
         self._username = parsed_url.username
