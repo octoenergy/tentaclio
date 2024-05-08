@@ -180,7 +180,7 @@ jobs:
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:<< parameters.version >>
+      - image: cimg/python:<< parameters.version >>
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
