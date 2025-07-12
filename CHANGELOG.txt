@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.2] - 2025-07-12
 ### Added
   - Add support for use of private key path and private key password for SFTP using query parameters.
-  - Does not cover the case where both query parameters and a private key connection is required.
+  - Not changed: If query parameters are provided in usage url, they overwrite query parameters in credentials url.
+  - Limitations: Assume connections that use private key (SFTP) would not use query parameters. If needed, this can be
+  handled in injection.py.
 
 ## [1.3.1] - 2024-01-04
 ### Changed
