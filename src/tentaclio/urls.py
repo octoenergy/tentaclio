@@ -134,7 +134,15 @@ class URL:
         password = self.password
         if password:
             password = "__secret__" + password[-4:]
-        return self.copy(password=password)._url
+
+        query = self.query
+        if query is not None:
+            keys_to_redact = ["private_key_path", "private_key_password"]
+            for key in keys_to_redact:
+                if query.get(key):
+                    query[key] = "__secret__"
+
+        return self.copy(password=password,query=query)._url
 
     def __eq__(self, other: Any):
         """Check if two urls are equal."""
