@@ -3,14 +3,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[requires]
-python_version = "3.9"
-
 [dev-packages]
 # Symlink to project root
 tentaclio = {editable = true,path = "."}
 # Linting
-black = "*"
+black = "==23.9.1"
 isort = "*"
 flake8 = "*"
 mypy = "*"
@@ -19,7 +16,7 @@ types-paramiko = "*"
 types-pyyaml = "*"
 types-requests = "*"
 # Testing
-moto = "*"
+moto = "==5.0.6"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
