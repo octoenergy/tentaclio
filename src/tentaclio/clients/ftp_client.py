@@ -155,10 +155,10 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
         self.username = self.url.username or ""
         self.password = self.url.password or ""
         self.port = self.url.port or 22
-        self.private_key_path = private_key_path or self.url.query.get(
-            "private_key_path") if self.url.query else None
-        self.private_key_password = private_key_password or self.url.query.get(
-            "private_key_password") if self.url.query else None
+        self.private_key_path = private_key_path or (self.url.query.get(
+            "private_key_path") if self.url.query else None)
+        self.private_key_password = private_key_password or (self.url.query.get(
+            "private_key_password") if self.url.query else None)
 
     def _get_private_key(self) -> PKey:
         if not self.private_key_path:
