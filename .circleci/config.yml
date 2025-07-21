@@ -8,8 +8,13 @@ version: 2.1
 
 executors:
   standard:
+    parameters:
+      version:
+        description: "python version"
+        default: "3.9"
+        type: string
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:<< parameters.version >>
         environment:
           PIPENV_VENV_IN_PROJECT: true
     working_directory: "~/lib"
@@ -42,54 +47,80 @@ commands:
             - "./.git"
 
   update_virtualenv:
+    parameters:
+      version:
+        description: "python version"
+        type: string
     steps:
       - restore_cache:
           keys:
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-
+            - virtualenv-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - virtualenv-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - virtualenv-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-
       - configure_github
       - run:
           name: Install Python packages
           command: make sync
       - save_cache:
-          key: virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: virtualenv-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "./.venv"
 
 jobs:
   lint:
-    executor: standard
+    parameters:
+      version:
+        description: "python version"
+        default: "3.9"
+        type: string
+    executor:
+      name: standard
+      version: << parameters.version >>
     steps:
       - checkout_source
-      - update_virtualenv
+      - update_virtualenv:
+          version: << parameters.version >>
       - run:
           name: Run Python linter
           command: make lint
 
   unit:
-    executor: standard
+    parameters:
+      version:
+        description: "python version"
+        default: "3.9"
+        type: string
+    executor:
+      name: standard
+      version: << parameters.version >>
     steps:
       - checkout_source
-      - update_virtualenv
+      - update_virtualenv:
+          version: << parameters.version >>
       - run:
           name: Run Python unit tests
           command: make unit
 
   release:
+    parameters:
+      version:
+        description: "python version"
+        default: "3.9"
+        type: string
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:<< parameters.version >>
 
     steps:
       - checkout_source
-      - update_virtualenv
+      - update_virtualenv:
+          version: << parameters.version >>
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+            - pip-cache-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-
 
       - run:
           name: verify git tag vs. version
@@ -111,10 +142,15 @@ jobs:
 
 
   functional-ftp:
+    parameters:
+      version:
+        description: "python version"
+        default: "3.9"
+        type: string
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:<< parameters.version >>
         environment:
           TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
@@ -128,7 +164,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Install Python packages
@@ -136,10 +172,15 @@ jobs:
 
 
   functional-sftp:
+    parameters:
+        version:
+          description: "python version"
+          default: "3.9"
+          type: string
     working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:<< parameters.version >>
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
@@ -151,7 +192,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-<< parameters.version >>-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Install Python packages
@@ -163,7 +204,6 @@ jobs:
 
 
 workflows:
-  version: 2
 
   test-build-deploy:
     jobs:
@@ -173,26 +213,25 @@ workflows:
             only: /.*/
 
       - unit:
+          name: unit.<< matrix.version >>
+          matrix:
+            parameters:
+              version: ["3.9","3.10","3.11"]
           filters:
             tags:
               only: /.*/
-      - functional-ftp:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - lint
-            - unit
       - functional-sftp:
+          matrix:
+            parameters:
+              version: ["3.9","3.10","3.11"]
           filters:
             tags:
               only: /.*/
           requires:
             - lint
-            - unit
+            - unit.<< matrix.version >>
       - release:
           requires:
-            - functional-ftp
             - functional-sftp
           filters:
             tags:
