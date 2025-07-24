@@ -9,10 +9,9 @@ version: 2.1
 executors:
   standard:
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
         environment:
           PIPENV_VENV_IN_PROJECT: true
-    working_directory: "~/lib"
 
 # -----------------
 # Reusable commands
@@ -77,10 +76,9 @@ jobs:
           command: make unit
 
   release:
-    working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
 
     steps:
       - checkout_source
@@ -101,8 +99,8 @@ jobs:
           name: init .pypirc
           command: |
             echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = octoenergy" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+            echo -e "username = __token__" >> ~/.pypirc
+            echo -e "password = $PYPI_API_TOKEN" >> ~/.pypirc
 
       - run:
           name: create release
@@ -111,10 +109,9 @@ jobs:
 
 
   functional-ftp:
-    working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
         environment:
           TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
@@ -136,10 +133,9 @@ jobs:
 
 
   functional-sftp:
-    working_directory: ~/lib
 
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
