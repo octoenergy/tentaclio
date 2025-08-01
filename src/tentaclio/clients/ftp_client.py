@@ -97,7 +97,7 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
         entries = []
 
         def parser(line):
-            nonlocal entries
+            nonlocal entries  # noqa: F824
             parts = line.split()
             file_name = parts[-1]
             url = urls.URL(base_url + file_name)

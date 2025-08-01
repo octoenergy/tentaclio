@@ -38,7 +38,7 @@ def postgres_url():
 @pytest.fixture(scope="function")
 def s3_client(s3_url):
     """Function level fixture due to cumbersome way of deleting non-empty AWS buckets"""
-    with moto.mock_s3():
+    with moto.mock_aws():
         with clients.S3Client(s3_url) as client:
             yield client
 
