@@ -56,7 +56,4 @@ release: package
 
 # Release
 package:
-	# create a source distribution
-	pipenv run python setup.py sdist
-	# create a wheel
-	pipenv run python setup.py bdist_wheel
+	pipenv run python -m build
