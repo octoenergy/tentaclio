@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all reset update clean sync test lint unit integration release package
+.PHONY: all reset update clean sync test lint unit integration release check-release package
 
 all: reset test
 
@@ -53,6 +53,9 @@ circleci:
 
 release: package
 	pipenv run twine upload dist/*
+
+check-release: package
+	pipenv run twine check dist/*
 
 # Release
 package:
