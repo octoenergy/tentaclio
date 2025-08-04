@@ -107,6 +107,24 @@ jobs:
           command: |
             make release
 
+  check-release:
+
+    docker:
+      - image: cimg/python:3.9
+
+    steps:
+      - checkout_source
+      - update_virtualenv
+      - restore_cache:
+          keys:
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+
+      - run:
+          name: check release
+          command: |
+            make check-release
 
   functional-ftp:
 
@@ -167,7 +185,6 @@ workflows:
         filters:
           tags:
             only: /.*/
-
       - unit:
           filters:
             tags:
@@ -186,10 +203,19 @@ workflows:
           requires:
             - lint
             - unit
+      - check-release:
+          requires:
+            - lint
+            - unit
+          filters:
+            tags:
+              only: /.*/
+          context: TENTACLIO
       - release:
           requires:
             - functional-ftp
             - functional-sftp
+            - check-release
           filters:
             tags:
               only: /[0-9]+(\.[0-9]+)*(-alpha\.[0-9]+)?/
