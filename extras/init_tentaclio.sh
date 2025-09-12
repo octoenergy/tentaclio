@@ -34,7 +34,7 @@ case "$shell" in
         profile="$HOME/.config/fish/config.fish"
         ;;
     * )
-        echo "🤔 I don't know how to cofigure your $shell, please add"
+        echo "🤔 I don't know how to configure your $shell, please add"
         echo ""
         echo "\texport TENTACLIO__SECRETS_FILE=${HOME}/.tentaclio.yml"
         echo ""
@@ -46,7 +46,7 @@ esac
 if [[ -z $(grep TENTACLIO__SECRETS_FILE $profile) ]]; then
     echo "export TENTACLIO__SECRETS_FILE=$HOME/.tentaclio.yml # tentaclio secrets file" >> $profile
 else
-    echo "🙅 Envrionmental variable already in profile file, doing nothing."
+    echo "🙅 Environmental variable already in profile file, doing nothing."
 fi
 
 echo "🕵️  Now you can edit ~/.tentaclio.yml to add your secrets"
