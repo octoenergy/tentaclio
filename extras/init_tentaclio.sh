@@ -36,10 +36,10 @@ case "$shell" in
     * )
         echo "🤔 I don't know how to cofigure your $shell, please add"
         echo ""
-        echo "\texport TENTACLIO__SECRETS_FILE=${HOME}/.tentaclio.yml" 
+        echo "\texport TENTACLIO__SECRETS_FILE=${HOME}/.tentaclio.yml"
         echo ""
         echo "to your profile file."
-        exit
+        return
         ;;
 esac
 
