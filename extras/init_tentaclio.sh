@@ -21,14 +21,14 @@ if [ -z "$shell" ]; then
         # Valid shell detected, keep it
         ;;
     *)
-        # Not a valid shell, fall back to $SHELL
+        # Not a valid shell, fall back to $SHELL (default user shell)
         shell="$(basename "$SHELL")"
+        echo "🤔 Could not detect shell from PID, using default user shell ${SHELL}. Check if you are using that shell."
         ;;
   esac
 fi
 
-echo $shell
-return
+echo "🐚 Detected shell: $shell"
 
 echo "📃 Adding TENTACLIO__SECRETS_FILE to profile file."
 case "$shell" in
