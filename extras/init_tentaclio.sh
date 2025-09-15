@@ -13,11 +13,22 @@ fi
 
 # Add secrets file to profile file.
 if [ -z "$shell" ]; then
-  shell="$(ps c -p "$PPID" -o 'ucomm=' 2>/dev/null || true)"
+  shell="$(ps c -p "$$" -o 'ucomm=' 2>/dev/null || true)"
   shell="${shell##-}"
   shell="${shell%% *}"
-  shell="$(basename "${shell:-$SHELL}")"
+  case "$shell" in
+    bash|zsh|ksh|fish)
+        # Valid shell detected, keep it
+        ;;
+    *)
+        # Not a valid shell, fall back to $SHELL
+        shell="$(basename "$SHELL")"
+        ;;
+  esac
 fi
+
+echo $shell
+return
 
 echo "📃 Adding TENTACLIO__SECRETS_FILE to profile file."
 case "$shell" in
