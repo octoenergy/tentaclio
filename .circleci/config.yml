@@ -34,7 +34,8 @@ commands:
             - source-{{ .Branch }}-{{ .Revision }}
             - source-{{ .Branch }}-
             - source-
-      - checkout
+      - checkout:
+          method: full
       - save_cache:
           key: source-{{ .Branch }}-{{ .Revision }}
           paths:
@@ -139,7 +140,8 @@ jobs:
           FTP_PASS: tentacle
 
     steps:
-      - checkout
+      - checkout:
+          method: full
 
       - restore_cache:
           keys:
@@ -161,7 +163,8 @@ jobs:
         command: octopus:tentacle:::upload
 
     steps:
-      - checkout
+      - checkout:
+          method: full
 
       - restore_cache:
           keys:
