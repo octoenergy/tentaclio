@@ -1,50 +1,46 @@
 SHELL := /bin/bash
 
-.PHONY: all reset update clean sync test lint unit integration release check-release package
+.PHONY: all reset clean sync test lint unit integration release check-release package
 
 all: reset test
 
 # Local installation
 
-reset: clean update
-
-update:
-	pipenv update --dev
+reset: clean sync
 
 clean:
 	rm -rf build dist htmlcov
 	find src -type d -name __pycache__ | xargs rm -rf
-	pipenv clean
+	uv clean
 
 sync:
-	pipenv sync --dev
-	pipenv run pip install -e .
+	uv sync --dev
 
 # Testing
 
 test: lint unit
 
 lint:
-	pipenv run flake8 src
-	pipenv run mypy src
-	pipenv run pydocstyle src
-	pipenv run flake8 tests
-	pipenv run mypy tests
+	uv run flake8 src
+	uv run mypy src
+	uv run pydocstyle src
+	uv run flake8 tests
+	uv run mypy tests
 
 unit:
-	unset TENTACLIO__PG_APPLICATION_NAME; pipenv run pytest tests/unit
+	unset TENTACLIO__PG_APPLICATION_NAME; uv run pytest tests/unit
 
 functional-ftp:
-	pipenv run pytest tests/functional/ftp
+	uv run pytest tests/functional/ftp
 
 functional-sftp:
-	pipenv run pytest tests/functional/sftp
+	uv run pytest tests/functional/sftp
 
 format:
-	pipenv run black -l 99 src
-	pipenv run black -l 99 tests
-	pipenv run isort src
-	pipenv run isort tests
+	uv run black -l 99 src
+	uv run black -l 99 tests
+	uv run isort src
+	uv run isort tests
 
 # Deployment
 
@@ -52,14 +48,13 @@ circleci:
 	circleci config validate
 
 release: package
-	pipenv run twine upload dist/*
-
+	uv run twine upload dist/*
 check-release: package
-	pipenv run twine check dist/*
+	uv run twine check dist/*
 
 # Release
 package:
 	# create a source distribution
-	pipenv run python setup.py sdist
+	uv run python setup.py sdist
 	# create a wheel
-	pipenv run python setup.py bdist_wheel
+	uv run python setup.py bdist_wheel
