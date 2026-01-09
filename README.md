@@ -192,7 +192,7 @@ with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
 
-##### Notes on writing files for Spark, Presto, and similar downstream systems
+#### Notes on writing files for Spark, Presto, and similar downstream systems
 
 The default behaviour for the `open` context manager in python is to create an empty file when opening
 it in writable mode. This can be annoying if the process that creates the data within the `with` clause
