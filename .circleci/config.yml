@@ -10,8 +10,6 @@ executors:
   standard:
     docker:
       - image: cimg/python:3.9
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
 
 # -----------------
 # Reusable commands
@@ -45,7 +43,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
             - virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
             - virtualenv-{{ .Environment.CACHE_VERSION }}-
       - configure_github
@@ -53,7 +51,7 @@ commands:
           name: Install Python packages
           command: make sync
       - save_cache:
-          key: virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: virtualenv-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
           paths:
             - "./.venv"
 
@@ -86,9 +84,9 @@ jobs:
       - update_virtualenv
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-
 
       - run:
           name: verify git tag vs. version
@@ -118,9 +116,9 @@ jobs:
       - update_virtualenv
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-
 
       - run:
           name: check release
@@ -145,7 +143,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
 
       - run:
           name: Install Python packages
@@ -168,7 +166,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - pip-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - uv-cache-{{ .Environment.CACHE_VERSION }}-{{ .Branch }}-{{ checksum "uv.lock" }}
 
       - run:
           name: Install Python packages
