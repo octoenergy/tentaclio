@@ -109,21 +109,25 @@ with tentaclio.db(
 
 # Installation
 
-You can get tentaclio using pip
+You can install tentaclio with your favourite package manager:
 
 ```sh
 pip install tentaclio
 ```
-or pipenv
 ```sh
 pipenv install tentaclio
+```
+```sh
+uv install tentaclio
 ```
 
 ## Developing.
 
-Clone this repo and install [pipenv](https://pipenv.readthedocs.io/en/latest/):
+Clone this repo and install [uv](https://docs.astral.sh/uv/#installation).
 
-In the `Makefile` you'll find some useful targets for linting, testing, etc. i.e.:
+In the `Makefile` you'll find some useful targets for linting, testing, etc.
+
+For example:
 ```sh
 make test
 ```
