@@ -54,7 +54,5 @@ check-release: package
 
 # Release
 package:
-	# create a source distribution
-	uv run python setup.py sdist
-	# create a wheel
-	uv run python setup.py bdist_wheel
+	# Build source distribution and wheel using modern build tools
+	uv build

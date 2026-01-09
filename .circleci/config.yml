@@ -90,10 +90,7 @@ jobs:
 
       - run:
           name: verify git tag vs. version
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            python setup.py verify
+          command: python3 scripts/verify_version.py
       - run:
           name: init .pypirc
           command: |
