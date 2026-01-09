@@ -1,7 +1,7 @@
 # Tentaclio
 
-[![CircleCI status](https://circleci.com/gh/octoenergy/tentaclio/tree/master.png?circle-token=df7aad11367f1ace5bce253b18efb6b21eaa65bc)](https://circleci.com/gh/octoenergy/tentaclio/tree/master)
-[![Documentation Status](https://readthedocs.org/projects/tentaclio/badge/?version=latest)](https://tentaclio.readthedocs.io/en/latest/?badge=latest)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/octoenergy/tentaclio/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/octoenergy/tentaclio/tree/master)
+[![Documentation Status](https://readthedocs.org/projects/tentaclio/badge/?version=latest)](https://tentaclio.readthedocs.io/en/latest/)
 
 Python library that simplifies:
 * Handling streams from different protocols such as `file:`, `ftp:`, `sftp:`, `s3:`, ...
