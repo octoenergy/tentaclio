@@ -73,6 +73,11 @@ dev = [
     "click",
     "paramiko<4.0.0",
 ]
+docs = [
+    "sphinx~=4.5.0",
+    "myst-parser~=0.17.0",
+    "sphinx-rtd-theme",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

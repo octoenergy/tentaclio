@@ -56,3 +56,13 @@ check-release: package
 package:
 	# Build source distribution and wheel using modern build tools
 	uv build
+
+# Docs
+install-docs-deps:
+	uv sync --group docs
+
+docs:
+	uv run mkdocs serve
+
+docs-build:
+	cd docs && uv run --group docs make html
