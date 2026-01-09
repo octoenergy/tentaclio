@@ -58,6 +58,7 @@ dev = [
     "black",
     "isort",
     "flake8",
+    "Flake8-pyproject",
     "mypy",
     "pydocstyle",
     "types-paramiko~=3.3.0.0",
@@ -95,3 +96,49 @@ url = "https://pypi.org/simple"
 
 [tool.uv.sources]
 tentaclio = { path = ".", editable = true }
+
+# Tool configurations
+
+[tool.pytest.ini_options]
+python_files = "test_*.py"
+python_classes = "Test"
+python_functions = "test_*"
+filterwarnings = ["error::RuntimeWarning"]
+addopts = "--cov=./src/tentaclio/ --cov-report xml --cov-report term"
+
+[tool.mypy]
+incremental = true
+warn_unused_configs = true
+warn_unused_ignores = true
+check_untyped_defs = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+
+[tool.isort]
+line_length = 99
+multi_line_output = 3
+lines_after_imports = 2
+default_section = "THIRDPARTY"
+known_first_party = ["tentaclio"]
+sections = ["STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.flake8]
+exclude = ["logs", ".*/*.py", "*.egg-info"]
+max-line-length = 99
+max-complexity = 10
+ignore = ["F405", "W391", "W503"]
+
+[tool.black]
+line-length = 99
+
+[tool.coverage.run]
+source = ["src/tentaclio"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
