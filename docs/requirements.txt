@@ -67,7 +67,7 @@ packaging==25.0
     # via sphinx
 pandas==2.3.3
     # via tentaclio
-paramiko==3.4.0
+paramiko==3.5.1
     # via tentaclio
 pycparser==2.23 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
     # via cffi
