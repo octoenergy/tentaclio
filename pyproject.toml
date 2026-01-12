@@ -1,6 +1,6 @@
 [project]
 name = "tentaclio"
-version = "1.4.0"
+version = "1.4.1"
 description = "Unification of data connectors for distributed data tasks"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -27,7 +27,7 @@ dependencies = [
     # SQLAlchemy
     "sqlalchemy>=1.4",
     # SFTP
-    "paramiko<4.0.0",
+    "paramiko>=3.4.0,<4.0.0",
     # Utils
     "pandas",
     "click",
