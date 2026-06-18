@@ -40,3 +40,15 @@ def test_make_empty_safe(mocker):
     wrapped = api.make_empty_safe(writer)
     with wrapped as w:
         assert not w.dirty
+
+
+def test_open_no_mode_returns_reader(mocker):
+    mocked_open_reader = mocker.patch.object(api, "_open_reader")
+    api.open("file://path/query")
+    mocked_open_reader.assert_called_once()
+
+
+def test_open_none_mode_returns_reader(mocker):
+    mocked_open_reader = mocker.patch.object(api, "_open_reader")
+    api.open("file://path/query", None)
+    mocked_open_reader.assert_called_once()
