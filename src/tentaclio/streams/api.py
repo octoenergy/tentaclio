@@ -1,5 +1,5 @@
 """Main entry points to tentaclio-io."""
-from typing import ContextManager, Optional, Union
+from typing import ContextManager, Literal, Optional, Union, overload
 
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
@@ -15,6 +15,16 @@ VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 AnyContextStreamerReaderWriter = Union[
     ContextManager[StreamerReader], ContextManager[StreamerWriter]
 ]
+
+
+# Overloads narrow the return type based on mode, so type checkers
+# know that mode="w" yields a writer and mode="r" yields a reader.
+@overload
+def open(url: str, mode: Literal["w", "wt", "wb"], **kwargs) -> ContextManager[StreamerWriter]: ...
+@overload
+def open(url: str, mode: Literal["r", "rt", "rb", "b", "t", ""] = ..., **kwargs) -> ContextManager[StreamerReader]: ...
+@overload  # fallback for dynamic mode values
+def open(url: str, mode: Optional[str] = ..., **kwargs) -> AnyContextStreamerReaderWriter: ...
 
 
 def open(url: str, mode: Optional[str] = None, **kwargs) -> AnyContextStreamerReaderWriter:
