@@ -126,7 +126,11 @@ sections = ["STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 exclude = ["logs", ".*/*.py", "*.egg-info"]
 max-line-length = 99
 max-complexity = 10
-ignore = ["F405", "W391", "W503"]
+ignore = ["F405", "W391", "W503", "E704"]
+per-file-ignores = ["src/tentaclio/streams/api.py:E302"]
+
+[tool.pydocstyle]
+ignore_decorators = "overload"
 
 [tool.black]
 line-length = 99

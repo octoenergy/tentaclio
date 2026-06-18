@@ -1,4 +1,5 @@
 """Main entry points to tentaclio-io."""
+
 from typing import ContextManager, Literal, Optional, Union, overload
 
 from tentaclio import protocols
@@ -22,7 +23,9 @@ AnyContextStreamerReaderWriter = Union[
 @overload
 def open(url: str, mode: Literal["w", "wt", "wb"], **kwargs) -> ContextManager[StreamerWriter]: ...
 @overload
-def open(url: str, mode: Literal["r", "rt", "rb", "b", "t", ""] = ..., **kwargs) -> ContextManager[StreamerReader]: ...
+def open(
+    url: str, mode: Literal["r", "rt", "rb", "b", "t", ""] = ..., **kwargs
+) -> ContextManager[StreamerReader]: ...
 @overload  # fallback for dynamic mode values
 def open(url: str, mode: Optional[str] = ..., **kwargs) -> AnyContextStreamerReaderWriter: ...
 
