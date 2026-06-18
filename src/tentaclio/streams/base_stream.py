@@ -70,9 +70,9 @@ class StreamBaseIO:
         return getattr(self.buffer, "mode", "rb")
 
     @property
-    def closed(self):
+    def closed(self) -> bool:
         """Tell if the resource is closed."""
-        self.buffer.closed
+        return self.buffer.closed
 
     def __iter__(self):
         """Return the resource as an iterable.
@@ -223,6 +223,10 @@ class StringToBytesClientReader(StreamerReader):
         with self.client:
             self.client.get(self.inner_buffer)
         self.buffer.seek(0)
+
+    def read(self, size: int = -1) -> str:  # type: ignore[override]
+        """Read the contents of the buffer as text."""
+        return self.buffer.read(size)
 
 
 class StringToBytesClientWriter(StreamerWriter):

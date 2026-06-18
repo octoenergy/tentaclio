@@ -4,7 +4,12 @@ from typing import ContextManager, Literal, Optional, Union, overload
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
 
-from .base_stream import DirtyStreamerWriter, StreamerReader, StreamerWriter
+from .base_stream import (
+    DirtyStreamerWriter,
+    StreamerReader,
+    StreamerWriter,
+    StringToBytesClientReader,
+)
 from .stream_registry import STREAM_HANDLER_REGISTRY, _WriterContextManager
 
 
@@ -26,8 +31,15 @@ def open(
 
 @overload
 def open(
-    url: str, mode: Literal["r", "rb", "rt", "b", "t", ""] = ..., **kwargs
+    url: str, mode: Literal["rb", "b"], **kwargs
 ) -> ContextManager[StreamerReader]:
+    ...
+
+
+@overload
+def open(
+    url: str, mode: Literal["r", "rt", "t", ""] = ..., **kwargs
+) -> ContextManager[StringToBytesClientReader]:
     ...
 
 
