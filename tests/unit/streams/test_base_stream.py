@@ -78,3 +78,39 @@ class TestStreamerReader:
 
         reader = base_stream.StreamerReader(client, io.BytesIO())
         assert reader.seekable()
+
+    def test_seek(self, mocker):
+        client = mocker.MagicMock()
+        client.get = lambda f: f.write(b"hello world")
+
+        reader = base_stream.StreamerReader(client, io.BytesIO())
+        reader.seek(6)
+        assert reader.read() == b"world"
+
+    def test_seek_whence(self, mocker):
+        client = mocker.MagicMock()
+        client.get = lambda f: f.write(b"hello world")
+
+        reader = base_stream.StreamerReader(client, io.BytesIO())
+        reader.read(5)
+        reader.seek(-5, 2)  # seek from end
+        assert reader.read() == b"world"
+
+    def test_mode(self, mocker):
+        client = mocker.MagicMock()
+        buff = io.BytesIO()
+
+        reader = base_stream.StreamerReader(client, buff)
+        assert reader.mode == "rb"
+
+    def test_satisfies_pandas_read_buffer(self, mocker):
+        """StreamerReader has the methods pandas ReadBuffer[bytes] expects."""
+        client = mocker.MagicMock()
+        client.get = lambda f: f.write(b"data")
+
+        reader = base_stream.StreamerReader(client, io.BytesIO())
+        assert hasattr(reader, "read")
+        assert hasattr(reader, "seek")
+        assert hasattr(reader, "mode")
+        assert isinstance(reader.read(), bytes)
+        assert isinstance(reader.mode, str)

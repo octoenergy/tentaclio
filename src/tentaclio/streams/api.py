@@ -1,10 +1,15 @@
 """Main entry points to tentaclio-io."""
-from typing import ContextManager, Optional, Union
+from typing import ContextManager, Literal, Optional, Union, overload
 
 from tentaclio import protocols
 from tentaclio.credentials import authenticate
 
-from .base_stream import DirtyStreamerWriter, StreamerReader, StreamerWriter
+from .base_stream import (
+    DirtyStreamerWriter,
+    StreamerReader,
+    StreamerWriter,
+    StringToBytesClientReader,
+)
 from .stream_registry import STREAM_HANDLER_REGISTRY, _WriterContextManager
 
 
@@ -15,6 +20,34 @@ VALID_MODES = ("", "rb", "wb", "rt", "wt", "r", "w", "b", "t")
 AnyContextStreamerReaderWriter = Union[
     ContextManager[StreamerReader], ContextManager[StreamerWriter]
 ]
+
+
+@overload
+def open(
+    url: str, mode: Literal["w", "wb", "wt"], **kwargs
+) -> ContextManager[StreamerWriter]:
+    ...
+
+
+@overload
+def open(
+    url: str, mode: Literal["rb", "b"], **kwargs
+) -> ContextManager[StreamerReader]:
+    ...
+
+
+@overload
+def open(
+    url: str, mode: Literal["r", "rt", "t", ""] = ..., **kwargs
+) -> ContextManager[StringToBytesClientReader]:
+    ...
+
+
+@overload
+def open(
+    url: str, mode: Optional[str] = ..., **kwargs
+) -> AnyContextStreamerReaderWriter:
+    ...
 
 
 def open(url: str, mode: Optional[str] = None, **kwargs) -> AnyContextStreamerReaderWriter:

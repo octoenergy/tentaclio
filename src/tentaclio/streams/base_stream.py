@@ -16,6 +16,7 @@ is used and only exposes the bytes versions to the S3Client.
 This is down by using TextIOWrapper when text is needed by the client code and exposes the inner
 buffer to the underlying client.
 """
+
 import abc
 import io
 from typing import IO, Any, ContextManager, Optional, Protocol
@@ -64,9 +65,14 @@ class StreamBaseIO:
         self.buffer = buffer
 
     @property
-    def closed(self):
+    def mode(self) -> str:
+        """Return the mode of the underlying buffer."""
+        return getattr(self.buffer, "mode", "rb")
+
+    @property
+    def closed(self) -> bool:
         """Tell if the resource is closed."""
-        self.buffer.closed
+        return self.buffer.closed
 
     def __iter__(self):
         """Return the resource as an iterable.
@@ -77,9 +83,9 @@ class StreamBaseIO:
         # for pandas compatibility
         return self.buffer.__iter__()
 
-    def seek(self, *args, **kargs):
+    def seek(self, offset: int, whence: int = 0) -> int:
         """Change the stream position to the given byte offset."""
-        return self.buffer.seek(*args, **kargs)
+        return self.buffer.seek(offset, whence)
 
     def tell(self) -> int:
         """Return the current stream position."""
@@ -183,7 +189,7 @@ class StreamerReader(StreamBaseIO):
             self.client.get(self.buffer)
         self.buffer.seek(0)
 
-    def read(self, size: int = -1):
+    def read(self, size: int = -1) -> bytes:
         """Read the contents of the buffer."""
         return self.buffer.read(size)
 
@@ -217,6 +223,10 @@ class StringToBytesClientReader(StreamerReader):
         with self.client:
             self.client.get(self.inner_buffer)
         self.buffer.seek(0)
+
+    def read(self, size: int = -1) -> str:  # type: ignore[override]
+        """Read the contents of the buffer as text."""
+        return self.buffer.read(size)
 
 
 class StringToBytesClientWriter(StreamerWriter):
