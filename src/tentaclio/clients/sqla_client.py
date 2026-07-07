@@ -151,10 +151,10 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
     @decorators.check_conn
-    def get_pl(self, sql_query: str, params: Optional[dict] = None, **kwargs) -> pl.DataFrame:
+    def get_pl(self, sql_query: str, **kwargs) -> pl.DataFrame:
         """Run a raw SQL query and return a polars DataFrame."""
         return pl.read_database(
-            sql_query, self.conn, execute_options={"parameters": params}, **kwargs
+            sql_query, self.conn, **kwargs
         )
 
 
