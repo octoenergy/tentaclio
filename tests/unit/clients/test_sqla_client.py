@@ -59,3 +59,22 @@ def test_execute_query(sqlite_url):
         df = client.get_df("test_table")
     assert df["id"].values.tolist() == [0, 1, 2]
     assert df["name"].values.tolist() == ["Javi", "Eric", "Igor"]
+
+
+def test_execute_query_polars(sqlite_url):
+    client = SQLAlchemyClient(sqlite_url)
+    with client:
+        client.execute(
+            """
+            CREATE TABLE test_table (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
+            """
+        )
+        client.execute("""INSERT INTO test_table VALUES (0, 'Javi'), (1, 'Eric'), (2, 'Igor')""")
+
+    with client:
+        df = client.get_pl("SELECT * FROM test_table")
+    assert df["id"].to_list() == [0, 1, 2]
+    assert df["name"].to_list() == ["Javi", "Eric", "Igor"]
