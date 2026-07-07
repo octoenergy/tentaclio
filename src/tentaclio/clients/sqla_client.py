@@ -7,6 +7,7 @@ import contextlib
 from typing import Container, Generator, Optional, Union
 
 import pandas as pd
+import polars as pl
 from sqlalchemy import text
 from sqlalchemy.engine import Connection, CursorResult, Engine, create_engine
 from sqlalchemy.engine.url import URL as sqla_url
@@ -148,6 +149,13 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
     def get_df(self, sql_query: str, params: Optional[dict] = None, **kwargs) -> pd.DataFrame:
         """Run a raw SQL query and return a data frame."""
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
+
+    @decorators.check_conn
+    def get_pl(self, sql_query: str, params: Optional[dict] = None, **kwargs) -> pl.DataFrame:
+        """Run a raw SQL query and return a polars DataFrame."""
+        return pl.read_database(
+            sql_query, self.conn, execute_options={"parameters": params}, **kwargs
+        )
 
 
 # Session context managers:
