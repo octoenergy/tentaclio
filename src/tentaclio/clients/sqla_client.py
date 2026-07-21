@@ -4,10 +4,10 @@ This client is used for convinience when using different sql
 providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
 """
 import contextlib
-from typing import Container, Generator, Optional, Union
+import importlib
+from typing import TYPE_CHECKING, Any, Container, Generator, Optional, Union
 
 import pandas as pd
-import polars as pl
 from sqlalchemy import text
 from sqlalchemy.engine import Connection, CursorResult, Engine, create_engine
 from sqlalchemy.engine.url import URL as sqla_url
@@ -17,6 +17,11 @@ from sqlalchemy.sql.schema import MetaData
 from tentaclio import urls
 
 from . import base_client, decorators
+
+if TYPE_CHECKING:
+    from polars import DataFrame as PolarsDataFrame  # pyright: ignore[reportMissingImports]
+else:
+    PolarsDataFrame = Any
 
 
 __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
@@ -151,8 +156,16 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
     @decorators.check_conn
-    def get_pl(self, sql_query: str, **kwargs) -> pl.DataFrame:
+    def get_pl(self, sql_query: str, **kwargs) -> PolarsDataFrame:
         """Run a raw SQL query and return a polars DataFrame."""
+        try:
+            pl = importlib.import_module("polars")
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "Polars is not installed. Install it with `pip install tentaclio[polars]` or "
+                "`pip install polars` to use the `.get_pl()` method."
+            ) from exc
+
         return pl.read_database(
             sql_query, self.conn, **kwargs
         )

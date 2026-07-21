@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from tentaclio.clients.sqla_client import SQLAlchemyClient
@@ -62,6 +64,8 @@ def test_execute_query(sqlite_url):
 
 
 def test_execute_query_polars(sqlite_url):
+    pl = pytest.importorskip("polars")
+
     client = SQLAlchemyClient(sqlite_url)
     with client:
         client.execute(
@@ -76,5 +80,24 @@ def test_execute_query_polars(sqlite_url):
 
     with client:
         df = client.get_pl("SELECT * FROM test_table")
+    assert isinstance(df, pl.DataFrame)
     assert df["id"].to_list() == [0, 1, 2]
     assert df["name"].to_list() == ["Javi", "Eric", "Igor"]
+
+
+def test_get_pl_raises_when_polars_not_installed(sqlite_url, monkeypatch):
+    client = SQLAlchemyClient(sqlite_url)
+    with client:
+        client.execute(
+            """
+            CREATE TABLE test_table (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
+            """
+        )
+
+    monkeypatch.setitem(sys.modules, "polars", None)
+    with client:
+        with pytest.raises(ModuleNotFoundError, match="Polars is not installed"):
+            client.get_pl("SELECT * FROM test_table")

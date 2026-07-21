@@ -43,6 +43,7 @@ databricks = ["tentaclio_databricks>=1.0.0"]
 gdrive = ["tentaclio_gdrive"]
 gs = ["tentaclio_gs"]
 snowflake = ["tentaclio_snowflake"]
+polars = ["polars>=0.16"]
 
 [project.urls]
 Homepage = "https://github.com/octopus-energy/tentaclio"
