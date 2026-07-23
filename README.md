@@ -47,7 +47,7 @@ tentaclio.remove("s3://my-bucket/octopus/the-9th-tentacle.txt")
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://mybucket/path/to/dir"):
     print("Entry", entry)
 ```
 
@@ -193,7 +193,7 @@ with tentaclio.open("/path/to/my/file") as reader:
 
 [...]
 
-with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
+with tentaclio.open("s3:/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer)
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
@@ -219,7 +219,7 @@ Some URL schemes allow listing resources in a pythonic way:
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://mybucket/path/to/dir"):
     print("Entry", entry)
 ```
 
