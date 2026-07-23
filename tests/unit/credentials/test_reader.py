@@ -7,6 +7,19 @@ from tentaclio.credentials import TentaclioFileError, injection, reader
 
 
 @pytest.fixture
+def empty_creds_yaml():
+    return ""
+
+
+@pytest.fixture
+def creds_yaml_not_key_value_mapping():
+    return """
+- 1
+- 2
+"""
+
+
+@pytest.fixture
 def no_creds_yaml():
     return """
 example: []
@@ -19,6 +32,30 @@ def creds_yaml():
 secrets:
     local_ftp: ftp://user:password@local.com
     remote_db: postgresql://user_db:password_db@db.com/database
+"""
+
+
+@pytest.fixture
+def creds_yaml_empty_secrets():
+    return """
+secrets:
+"""
+
+
+@pytest.fixture
+def creds_yaml_secrets_bad_indentation():
+    return """
+secrets:
+local_ftp: ftp://user:password@local.com
+"""
+
+
+@pytest.fixture
+def creds_yaml_secrets_not_key_value_mapping():
+    return """
+secrets:
+    - 1
+    - 2
 """
 
 
@@ -55,9 +92,39 @@ def test_bad_yaml():
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
 
+def test_empty_credentials_file(empty_creds_yaml):
+    with pytest.raises(TentaclioFileError):
+        data = io.StringIO(empty_creds_yaml)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_file_not_key_value_mapping(creds_yaml_not_key_value_mapping):
+    with pytest.raises(TentaclioFileError):
+        data = io.StringIO(creds_yaml_not_key_value_mapping)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
 def test_no_credentials_in_file(no_creds_yaml):
     with pytest.raises(TentaclioFileError):
         data = io.StringIO(no_creds_yaml)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_empty_secrets(creds_yaml_empty_secrets):
+    data = io.StringIO(creds_yaml_empty_secrets)
+    with pytest.raises(TentaclioFileError):
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_secrets_bad_indentation(creds_yaml_secrets_bad_indentation):
+    data = io.StringIO(creds_yaml_secrets_bad_indentation)
+    with pytest.raises(TentaclioFileError):
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_secrets_not_key_value_mapping(creds_yaml_secrets_not_key_value_mapping):
+    data = io.StringIO(creds_yaml_secrets_not_key_value_mapping)
+    with pytest.raises(TentaclioFileError):
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
 

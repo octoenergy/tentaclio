@@ -71,11 +71,37 @@ def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
     except yaml.MarkedYAMLError as error:
         raise TentaclioFileError(_process_mark_error(error))
 
+    if not isinstance(loaded_data, dict):
+        raise TentaclioFileError(
+            "The yaml data is not a mapping of key-value pairs like:\n"
+            "    secrets:\n"
+            "        my_creds_name: http://user:password@google.com/path\n"
+            "        my_db: postgres://user_db:password@octopus.energy/database\n"
+            "I.e. the data type returned by `yaml.safe_load()` is not a `dict` python dtype."
+        )
     if SECRETS not in loaded_data:
         raise TentaclioFileError(
             "No secrets in yaml data. Make sure the file has a `secrets:` element"
         )
-    return loaded_data[SECRETS]
+
+    secrets = loaded_data[SECRETS]
+
+    if secrets is None:
+        raise TentaclioFileError(
+            "No entries found within the `secrets:` block of the yaml data.\n"
+            "Are the entries indented correctly or is the `secrets:` block empty?"
+        )
+    if not isinstance(secrets, dict):
+        raise TentaclioFileError(
+            "The `secrets:` block of the yaml data is not a mapping of key-value pairs like:\n"
+            "    secrets:\n"
+            "        my_creds_name: http://user:password@google.com/path\n"
+            "        my_db: postgres://user_db:password@octopus.energy/database\n"
+            "I.e. the data type returned by `yaml.safe_load()` for the `secrets:` block is not a "
+            "`dict` python dtype."
+        )
+
+    return secrets
 
 
 def _load_from_file(
