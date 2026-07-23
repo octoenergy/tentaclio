@@ -87,10 +87,7 @@ secrets:
 
 
 def test_bad_yaml():
-    with pytest.raises(
-        TentaclioFileError,
-        match="expected '<document start>', but found '<block mapping start>'",
-    ):
+    with pytest.raises(TentaclioFileError, match="Your tentaclio secrets file is malformed"):
         data = io.StringIO("  a: b\nc: d")
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 

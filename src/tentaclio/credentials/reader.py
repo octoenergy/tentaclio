@@ -80,7 +80,7 @@ def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
             "The YAML secrets file must be a mapping of key-value pairs like:\n"
             f"    {SECRETS}:\n"
             "        my_creds_name: http://user:password@google.com/path\n"
-            "        my_db: postgres://user_db:password@octopus.energy/database\n"
+            "        my_db: postgresql://user_db:password@octopus.energy/database\n"
             "The value returned by `yaml.safe_load()` was not a Python `dict`."
         )
     if SECRETS not in loaded_data:
@@ -102,7 +102,7 @@ def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
             "pairs like:\n"
             f"    {SECRETS}:\n"
             "        my_creds_name: http://user:password@google.com/path\n"
-            "        my_db: postgres://user_db:password@octopus.energy/database\n"
+            "        my_db: postgresql://user_db:password@octopus.energy/database\n"
             f"The value returned by `yaml.safe_load()` for the `{SECRETS}:` block was not a "
             "Python `dict`."
         )
@@ -147,7 +147,7 @@ def add_credentials_from_reader(
     The file has the following format:
         secrets:
             my_creds_name: http://user:password@google.com/path
-            my_db: postgres://user_db:password@octopus.energy/database
+            my_db: postgresql://user_db:password@octopus.energy/database
 
     """
     creds = _load_creds_from_yaml(yaml_reader)

@@ -193,7 +193,7 @@ with tentaclio.open("/path/to/my/file") as reader:
 
 [...]
 
-with tentaclio.open("s3:/path/to/my/file", mode='w') as writer:
+with tentaclio.open("s3://my-bucket/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer)
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
@@ -208,7 +208,7 @@ To avoid this we can make the stream _empty safe_ so the empty buffer won't be f
 
 
 ```
-with tio.make_empty_safe(tio.open("s3://bucket/file.parquet", mode="wb")) as writer:
+with tio.make_empty_safe(tio.open("s3://my-bucket/file.parquet", mode="wb")) as writer:
     if not df.empty:
         df.to_parquet(writer)
 ```
@@ -219,7 +219,7 @@ Some URL schemes allow listing resources in a pythonic way:
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://my-bucket/path/to/dir"):
     print("Entry", entry)
 ```
 
