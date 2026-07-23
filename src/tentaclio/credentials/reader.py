@@ -112,10 +112,10 @@ def add_credentials_from_reader(
 ) -> injection.CredentialsInjector:
     """Read the credentials from a yml.
 
-    The file has the follwing format:
+    The file has the following format:
         secrets:
             my_creds_name: http://user:password@google.com/path
-            my_db: postgres://user_db:password@octoenergy.com/databasek
+            my_db: postgres://user_db:password@octopus.energy/database
 
     """
     creds = _load_creds_from_yaml(yaml_reader)

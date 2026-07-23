@@ -57,7 +57,7 @@ import os
 
 import tentaclio
 
-print("env ftp credentials", os.getenv("TENTACLIO__CONN__OCTOPUS_FTP"))
+print("env ftp credentials", os.getenv("TENTACLIO__CONN__OCTOPUS_ENERGY_FTP"))
 # This prints `sftp://constantine:tentacl3@sftp.octopus.energy/`
 
 # Credentials get automatically injected.
