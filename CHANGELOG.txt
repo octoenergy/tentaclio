@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     backport dependency in favour of the stdlib `importlib.metadata.packages_distributions`
     (available since 3.10). CircleCI executors bumped from `cimg/python:3.9` to `3.10`
     accordingly.
+  - Upgrade Sphinx from the `~4.5.0` pin (and the five `sphinxcontrib-*` upper-bound pins added
+    to keep it building) to `sphinx>=8.0`/`myst-parser>=4.0`. Added `myst_heading_anchors = 4`
+    to `docs/conf.py` so in-page anchor links in `README.md` (e.g. `#credentials-file`) still
+    resolve when included into the docs build.
+  - Bump `moto` from `~4.0.0` to `~5.2.0`; `moto.mock_s3()` was replaced with `moto.mock_aws()`
+    in `tests/conftest.py`.
   - Release to PyPI via a GitHub Actions workflow using PyPI Trusted Publishing (OIDC),
     instead of a CircleCI job using a long-lived API token. CircleCI still runs lint,
     unit, and functional tests.

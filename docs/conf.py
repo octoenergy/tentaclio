@@ -31,6 +31,10 @@ extensions = [
     'myst_parser'
 ]
 
+# Generate anchors for headings so in-page links like [text](#some-heading)
+# in README.md resolve when it's included into the docs build.
+myst_heading_anchors = 4
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
