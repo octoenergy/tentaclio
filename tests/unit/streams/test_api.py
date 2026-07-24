@@ -39,7 +39,7 @@ def test_make_empty_safe(mocker):
     writer = mocker.MagicMock()
     wrapped = api.make_empty_safe(writer)
     with wrapped as w:
-        assert not w.dirty
+        assert not w.dirty  # type: ignore[attr-defined]
 
 
 def test_open_no_mode_returns_reader(mocker):

@@ -18,4 +18,4 @@ def test_add_credentials():
 def test_add_credentials_bad_url():
     env = {"TENTACLIO__CONN__DB": None}
     with pytest.raises(Exception):
-        add_credentials_from_env(CredentialsInjector(), env)
+        add_credentials_from_env(CredentialsInjector(), env)  # type: ignore[arg-type]

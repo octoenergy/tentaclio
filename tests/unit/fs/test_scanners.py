@@ -17,12 +17,12 @@ class FakeClient:
     def __exit__(self, *args):
         pass
 
-    def scandir(self) -> Iterable[DirEntry]:
+    def scandir(self, **params) -> Iterable[DirEntry]:
         assert self.entered  # Connection should be open before scanning
         return (DirEntry(url=URL("file:///home/constantine"), is_dir=True, is_file=False),)
 
 
 def test_client_scanner():
     scanner = ClientDirScanner(FakeClient)
-    entries = scanner.scandir(URL("file:///home/"))
+    entries = list(scanner.scandir(URL("file:///home/")))
     assert entries[0].url == URL("file:///home/constantine")

@@ -84,8 +84,8 @@ class TestHTTPClient:
             buff.seek(0)
 
         with http_client.HTTPClient("http://host.com/endpoint") as client:
-            client._build_request = mocked_request
-            client._send_request = mocker.MagicMock()
+            client._build_request = mocked_request  # type: ignore[method-assign,assignment]
+            client._send_request = mocker.MagicMock()  # type: ignore[method-assign]
 
             data = io.BytesIO(bytes("my_data", encoding="utf-8"))
             client.put(data)

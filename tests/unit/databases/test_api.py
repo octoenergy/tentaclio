@@ -23,7 +23,7 @@ def fake_db():
         load_credentials_injector(),
         {"TENTACLIO__CONN__TEST": "dbtest://costantine:tentacl3@mytest/"},
     )
-    DB_REGISTRY.register("dbtest", FakeDb)
+    DB_REGISTRY.register("dbtest", FakeDb)  # type: ignore[arg-type]
 
 
 def test_database(mocker):
@@ -34,7 +34,7 @@ def test_database(mocker):
 
 def test_authenticate_db(fake_db):
     my_db = api.db("dbtest://mytest/")
-    url = my_db.url
+    url = my_db.url  # type: ignore[attr-defined]
 
     assert url.username == "costantine"
     assert url.password == "tentacl3"

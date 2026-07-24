@@ -56,7 +56,7 @@ class TestFTPClient:
         expected = bytes("hello", "utf-8")
 
         client = ftp_client.FTPClient("ftp://user:pass@localhost/myfile.txt")
-        client.connect().retrbinary = lambda _, f: f(expected)
+        client.connect().retrbinary = lambda _, f: f(expected)  # type: ignore[attr-defined]
         buff = io.BytesIO()
         with client:
             client.get(buff)
@@ -68,7 +68,8 @@ class TestFTPClient:
         result = io.BytesIO()
 
         client = ftp_client.FTPClient("ftp://user:pass@localhost/myfile.txt")
-        client.connect().storbinary = lambda _, f: result.write(f.read())
+        conn = client.connect()
+        conn.storbinary = lambda _, f: result.write(f.read())  # type: ignore[attr-defined]
 
         with client:
             reader = io.BytesIO(expected)
@@ -81,7 +82,7 @@ class TestFTPClient:
         fake_entries = [("my_file.txt", {"type": "file"})]
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.return_value = fake_entries
+            client.conn.mlsd.return_value = fake_entries  # type: ignore[attr-defined]
 
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/my_file.txt")
@@ -91,7 +92,7 @@ class TestFTPClient:
         fake_entries = [("another_dir", {"type": "dir"})]
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.return_value = fake_entries
+            client.conn.mlsd.return_value = fake_entries  # type: ignore[attr-defined]
 
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/another_dir")
@@ -100,16 +101,20 @@ class TestFTPClient:
     def test_scandir_mlst_not_supported(self, mocked_ftp_conn):
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+            client.conn.mlsd.side_effect = ftplib.error_perm(  # type: ignore[attr-defined]
+                "501 'MLST type;'"
+            )
 
         client.scandir()
         # assert we do a simple dir in the client
-        client.conn.dir.assert_called()
+        client.conn.dir.assert_called()  # type: ignore[attr-defined]
 
     def test_scandir_mlst_propagate_error(self, mocked_ftp_conn):
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.side_effect = Exception("any other exception")
+            client.conn.mlsd.side_effect = Exception(  # type: ignore[attr-defined]
+                "any other exception"
+            )
 
         with pytest.raises(Exception, match="any other exception"):
             client.scandir()
@@ -118,9 +123,13 @@ class TestFTPClient:
         fake_entry = "-rwxrwxrwx   1 owner    group               0 Feb 17 17:54 important_file"
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+            client.conn.mlsd.side_effect = ftplib.error_perm(  # type: ignore[attr-defined]
+                "501 'MLST type;'"
+            )
             # mock ftplib.dir behaviour
-            client.conn.dir = lambda url, parser: parser(fake_entry)
+            client.conn.dir = (  # type: ignore[method-assign]
+                lambda url, parser: parser(fake_entry)  # type: ignore[assignment,misc]
+            )
 
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/important_file")
@@ -130,9 +139,13 @@ class TestFTPClient:
         fake_entry = "drwxrwxrwx   1 owner    group               0 Feb 17 17:54 nested"
         client = ftp_client.FTPClient("ftp://localhost:9999/mydir")
         with client:
-            client.conn.mlsd.side_effect = ftplib.error_perm("501 'MLST type;'")
+            client.conn.mlsd.side_effect = ftplib.error_perm(  # type: ignore[attr-defined]
+                "501 'MLST type;'"
+            )
             # mock ftplib.dir behaviour
-            client.conn.dir = lambda url, parser: parser(fake_entry)
+            client.conn.dir = (  # type: ignore[method-assign]
+                lambda url, parser: parser(fake_entry)  # type: ignore[assignment,misc]
+            )
 
         entries = list(client.scandir())
         assert entries[0].url == URL("ftp://localhost:9999/mydir/nested")
@@ -155,10 +168,13 @@ class TestSFTPClient:
         expected = bytes("hello", "utf-8")
         FakeAttr = collections.namedtuple("FakeAttr", ["st_mode"])
         client = ftp_client.SFTPClient("sftp://user:pass@localhost/myfile.txt")
-        client.connect().getfo = lambda _, f: f.write(expected)
+        conn = client.connect()
+        conn.getfo = lambda _, f: f.write(expected)  # type: ignore[attr-defined]
         buff = io.BytesIO()
         with client:
-            client.conn.stat.return_value = FakeAttr(stat.S_IFREG)
+            client.conn.stat.return_value = FakeAttr(  # type: ignore[attr-defined]
+                stat.S_IFREG
+            )
             client.get(buff)
 
         assert buff.getvalue() == expected
@@ -171,7 +187,9 @@ class TestSFTPClient:
         # forgive me father for I have sinned.
         # mocking the context manager of the connection, a bit coupled with the
         # actual implementation and long.
-        client.connect().open().__enter__().write = lambda data: result.write(data)
+        conn = client.connect()
+        handle = conn.open().__enter__()  # type: ignore[attr-defined]
+        handle.write = lambda data: result.write(data)
 
         with client:
             reader = io.BytesIO(expected)
@@ -195,7 +213,9 @@ class TestSFTPClient:
         FakeAttr = collections.namedtuple("FakeAttr", ["filename", "st_mode"])
         client = ftp_client.SFTPClient("sftp://localhost:9999/mydir")
         with client:
-            client.conn.listdir_attr.return_value = [FakeAttr("my_file.txt", stat.S_IFREG)]
+            client.conn.listdir_attr.return_value = [  # type: ignore[attr-defined]
+                FakeAttr("my_file.txt", stat.S_IFREG)
+            ]
 
         entries = list(client.scandir())
         print("entries", entries)
@@ -206,7 +226,9 @@ class TestSFTPClient:
         FakeAttr = collections.namedtuple("FakeAttr", ["filename", "st_mode"])
         client = ftp_client.SFTPClient("sftp://localhost:9999/mydir")
         with client:
-            client.conn.listdir_attr.return_value = [FakeAttr("other_folder", stat.S_IFDIR)]
+            client.conn.listdir_attr.return_value = [  # type: ignore[attr-defined]
+                FakeAttr("other_folder", stat.S_IFDIR)
+            ]
 
         entries = list(client.scandir())
         print("entries", entries)

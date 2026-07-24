@@ -19,7 +19,7 @@ class FakeClient(base_client.BaseClient["FakeClient"]):
         # return a closable
         return io.BytesIO()
 
-    def get(self, writer: Writer) -> None:
+    def get(self, writer: Writer, **params) -> None:
         writer.write(self._message)
 
     def put(self, reader: Reader, **params) -> None:
@@ -69,7 +69,7 @@ def test_open_reader_with_encoding(mocker, extras, expected):
     handler = StreamURLHandler(FakeClient)
     handler.client_factory = mocker.MagicMock()
     mock_client = mocker.MagicMock()
-    handler.client_factory.return_value = mock_client
+    handler.client_factory.return_value = mock_client  # type: ignore[attr-defined]
     mocked_reader = mocker.patch("tentaclio.streams.base_stream.StringToBytesClientReader")
     handler.open_reader_for(URL("scheme://my/path"), mode="t", extras=extras)
     mocked_reader.assert_called_with(mock_client, encoding=expected)
@@ -80,7 +80,7 @@ def test_open_writer_with_encoding(mocker, extras, expected):
     handler = StreamURLHandler(FakeClient)
     handler.client_factory = mocker.MagicMock()
     mock_client = mocker.MagicMock()
-    handler.client_factory.return_value = mock_client
+    handler.client_factory.return_value = mock_client  # type: ignore[attr-defined]
     mock_writer = mocker.patch("tentaclio.streams.base_stream.StringToBytesClientWriter")
     handler.open_writer_for(URL("scheme://my/path"), mode="t", extras=extras)
     mock_writer.assert_called_with(mock_client, encoding=expected)

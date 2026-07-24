@@ -4,7 +4,8 @@ import tempfile
 
 import pytest
 
-from tentaclio import URL, api
+from tentaclio import URL
+from tentaclio.streams import api
 
 
 @pytest.fixture
