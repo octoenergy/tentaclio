@@ -4,8 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Ideas / Not Yet Planned
+  - Migrate CI fully to GitHub Actions and retire CircleCI. GHA already builds docs and
+    publishes releases; CircleCI only remains for lint/unit/functional, duplicating config
+    across two systems.
+  - Consider generating `CHANGELOG.txt` from per-PR fragments (e.g. `towncrier`) instead of
+    hand-editing it, now that releases are tag-driven via `setuptools-scm`.
+  - Bump `paramiko` past the `<4.0.0` ceiling (currently resolves to 3.5.1; latest is 5.0.0) and
+    `types-paramiko` off `~3.3.0.0` to match. The ceiling was added to dodge a DSSKey removal in
+    paramiko 4; needs checking what else changed across 4.x/5.x before lifting it.
+
 ## [Unreleased]
 ### Changed
+  - Bump the minimum supported Python from 3.9 (EOL) to 3.10; drop the `importlib_metadata`
+    backport dependency in favour of the stdlib `importlib.metadata.packages_distributions`
+    (available since 3.10). CircleCI executors bumped from `cimg/python:3.9` to `3.10`
+    accordingly.
   - Release to PyPI via a GitHub Actions workflow using PyPI Trusted Publishing (OIDC),
     instead of a CircleCI job using a long-lived API token. CircleCI still runs lint,
     unit, and functional tests.

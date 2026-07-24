@@ -3,7 +3,7 @@ name = "tentaclio"
 dynamic = ["version"]
 description = "Unification of data connectors for distributed data tasks"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 authors = [
     { name = "Octopus Energy", email = "nerds@octoenergy.com" }
@@ -13,7 +13,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -33,7 +32,6 @@ dependencies = [
     "pandas",
     "click",
     "pyyaml",
-    "importlib_metadata>3.7.0",
 ]
 
 [project.optional-dependencies]
