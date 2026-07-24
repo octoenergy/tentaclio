@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Tentaclio'
-copyright = '2022, octoenergy'
-author = 'octoenergy'
+copyright = '2022, octopus-energy'
+author = 'octopus-energy'
 
 
 # -- General configuration ---------------------------------------------------

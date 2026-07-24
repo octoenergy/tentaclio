@@ -162,18 +162,18 @@ Default:
 * `http://host.com/path/to/resource`
 * `https://host.com/path/to/resource`
 
-[tentaclio-s3](https://github.com/octoenergy/tentaclio-s3)
+[tentaclio-s3](https://github.com/octopus-energy/tentaclio-s3)
 * `s3://bucket/file`
 
-[tentaclio-gs](https://github.com/octoenergy/tentaclio-gs)
+[tentaclio-gs](https://github.com/octopus-energy/tentaclio-gs)
 * `gs://bucket/file`
 * `gsc://bucket/file`
 
-[tentaclio-gdrive](https://github.com/octoenergy/tentaclio-gdrive)
+[tentaclio-gdrive](https://github.com/octopus-energy/tentaclio-gdrive)
 * `gdrive:/My Drive/file`
 * `googledrive:/My Drive/file`
 
-[tentaclio-postgres](https://github.com/octoenergy/tentaclio-postgres)
+[tentaclio-postgres](https://github.com/octopus-energy/tentaclio-postgres)
 * `postgresql://host/database::table` will allow you to write from a csv format into a database with the same column names (note that the table goes after `::` :warning:).
 
 
@@ -221,7 +221,7 @@ for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
     print("Entry", entry)
 ```
 
-Whereas `listdir` might be convinient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octoenergy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
+Whereas `listdir` might be convinient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octopus-energy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
 
 
 ### Database access
@@ -246,16 +246,16 @@ Default:
 * `mssql://`
 * + Any other scheme supported by sqlalchemy.
 
-[tentaclio-postgres](https://github.com/octoenergy/tentaclio-postgres)
+[tentaclio-postgres](https://github.com/octopus-energy/tentaclio-postgres)
 * `postgresql://`
 
-[tentaclio-athena](https://github.com/octoenergy/tentaclio-athena)
+[tentaclio-athena](https://github.com/octopus-energy/tentaclio-athena)
 * `awsathena+rest://`
 
-[tentaclio-databricks](https://github.com/octoenergy/tentaclio-databricks)
+[tentaclio-databricks](https://github.com/octopus-energy/tentaclio-databricks)
 * `databricks+thrift://`
 
-[tentaclio-snowflake](https://github.com/octoenergy/tentaclio-snowflake)
+[tentaclio-snowflake](https://github.com/octopus-energy/tentaclio-snowflake)
 * `snowflake://`
 
 
@@ -303,7 +303,7 @@ And make it accessible to tentaclio by setting the environmental variable `TENTA
 
 (Note that you may need to add `?driver={driver from /usr/local/etc/odbcinst.ini}` for mssql database connection strings; see above example)
 
-Alternatively you can run `curl https://raw.githubusercontent.com/octoenergy/tentaclio/master/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
+Alternatively you can run `curl https://raw.githubusercontent.com/octopus-energy/tentaclio/main/extras/init_tentaclio.sh` to create a secrets file in `~/.tentaclio.yml` and
 automatically configure your environment.
 
 Environment variables can be included in the credentials file by using `${ENV_VARIABLE}` as it follows:

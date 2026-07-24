@@ -45,8 +45,8 @@ gs = ["tentaclio_gs"]
 snowflake = ["tentaclio_snowflake"]
 
 [project.urls]
-Homepage = "https://github.com/octoenergy/tentaclio"
-Repository = "https://github.com/octoenergy/tentaclio"
+Homepage = "https://github.com/octopus-energy/tentaclio"
+Repository = "https://github.com/octopus-energy/tentaclio"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

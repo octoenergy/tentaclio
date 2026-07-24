@@ -31,7 +31,7 @@ File: {tentaclio_file}
 
 {message}
 
-Check https://github.com/octoenergy/tentaclio#credentials-file for more info about this file
+Check https://github.com/octopus-energy/tentaclio#credentials-file for more info about this file
 """
 
     def __init__(self, message: str):
