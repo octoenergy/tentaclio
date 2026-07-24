@@ -7,7 +7,7 @@ class TestURL:
     # Generic parsing rules:
     def test_missing_url(self):
         with pytest.raises(urls.URLError):
-            urls.URL(None)
+            urls.URL(None)  # type: ignore[arg-type]
 
     @pytest.mark.parametrize(
         "url,username,password",

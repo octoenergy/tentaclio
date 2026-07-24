@@ -1,6 +1,6 @@
 [project]
 name = "tentaclio"
-version = "1.4.1"
+dynamic = ["version"]
 description = "Unification of data connectors for distributed data tasks"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -45,11 +46,11 @@ gs = ["tentaclio_gs"]
 snowflake = ["tentaclio_snowflake"]
 
 [project.urls]
-Homepage = "https://github.com/octoenergy/tentaclio"
-Repository = "https://github.com/octoenergy/tentaclio"
+Homepage = "https://github.com/octopus-energy/tentaclio"
+Repository = "https://github.com/octopus-energy/tentaclio"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
@@ -68,7 +69,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-mock",
-    "twine",
     "secretstorage",
     "pkginfo",
     "click",
@@ -78,6 +78,11 @@ docs = [
     "sphinx~=4.5.0",
     "myst-parser~=0.17.0",
     "sphinx-rtd-theme",
+    "sphinxcontrib-applehelp<1.0.8",
+    "sphinxcontrib-devhelp<1.0.6",
+    "sphinxcontrib-htmlhelp<2.0.5",
+    "sphinxcontrib-serializinghtml<1.1.10",
+    "sphinxcontrib-qthelp<1.0.7",
 ]
 
 [tool.setuptools]
@@ -86,6 +91,12 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["tentaclio*"]
+
+[tool.setuptools.package-data]
+tentaclio = ["py.typed"]
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
 
 [tool.uv]
 package = true

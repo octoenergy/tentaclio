@@ -9,6 +9,8 @@ The main benefits are:
     the underlying implementation (thanks to sqlalchemy).
     * Credentials management that allows a distributed credentials storage.
 """
+from importlib.metadata import version as _version
+
 from .clients import *  # noqa
 from .databases import *  # noqa
 from .databases.api import *  # noqa
@@ -18,6 +20,8 @@ from .protocols import *  # noqa
 from .streams import *  # noqa
 from .urls import *  # noqa
 
+
+__version__ = _version("tentaclio")
 
 import_tentaclio_plugins()
 

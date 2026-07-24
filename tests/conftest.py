@@ -39,14 +39,14 @@ def postgres_url():
 def s3_client(s3_url):
     """Function level fixture due to cumbersome way of deleting non-empty AWS buckets"""
     with moto.mock_s3():
-        with clients.S3Client(s3_url) as client:
+        with clients.S3Client(s3_url) as client:  # type: ignore[attr-defined]
             yield client
 
 
 @pytest.fixture(scope="session")
 def db_client(postgres_url):
     """Create and tear down the session-wide SQLAlchemy Db connection"""
-    with clients.PostgresClient(postgres_url) as client:
+    with clients.PostgresClient(postgres_url) as client:  # type: ignore[attr-defined]
         yield client
 
 
@@ -59,7 +59,7 @@ def application_name():
 def db_client_application_name(postgres_url, application_name, monkeypatch):
     """Create and tear down the session-wide SQLAlchemy Db connection"""
     monkeypatch.setenv("TENTACLIO__PG_APPLICATION_NAME", application_name)
-    with clients.PostgresClient(postgres_url) as client:
+    with clients.PostgresClient(postgres_url) as client:  # type: ignore[attr-defined]
         yield client
 
 
@@ -68,10 +68,10 @@ def db_client_application_name(postgres_url, application_name, monkeypatch):
 
 class FakeHandler(object):
     def open_reader_for(self, url: "URL", extras: dict) -> Reader:
-        ...
+        raise NotImplementedError
 
     def open_writer_for(self, url: "URL", extras: dict) -> Writer:
-        ...
+        raise NotImplementedError
 
 
 @pytest.fixture
