@@ -3,7 +3,7 @@ import importlib
 import logging
 from typing import Callable, Iterable
 
-from importlib_metadata import packages_distributions
+from importlib.metadata import packages_distributions
 
 
 PackageLister = Callable[[], Iterable[str]]

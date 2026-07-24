@@ -3,7 +3,7 @@ name = "tentaclio"
 dynamic = ["version"]
 description = "Unification of data connectors for distributed data tasks"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 authors = [
     { name = "Octopus Energy", email = "nerds@octoenergy.com" }
@@ -13,7 +13,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -33,7 +32,6 @@ dependencies = [
     "pandas",
     "click",
     "pyyaml",
-    "importlib_metadata>3.7.0",
 ]
 
 [project.optional-dependencies]
@@ -65,7 +63,7 @@ dev = [
     "types-paramiko~=3.3.0.0",
     "types-pyyaml",
     "types-requests",
-    "moto~=4.0.0",
+    "moto~=5.2.0",
     "pytest",
     "pytest-cov",
     "pytest-mock",
@@ -75,14 +73,9 @@ dev = [
     "paramiko<4.0.0",
 ]
 docs = [
-    "sphinx~=4.5.0",
-    "myst-parser~=0.17.0",
+    "sphinx>=8.0",
+    "myst-parser>=4.0",
     "sphinx-rtd-theme",
-    "sphinxcontrib-applehelp<1.0.8",
-    "sphinxcontrib-devhelp<1.0.6",
-    "sphinxcontrib-htmlhelp<2.0.5",
-    "sphinxcontrib-serializinghtml<1.1.10",
-    "sphinxcontrib-qthelp<1.0.7",
 ]
 
 [tool.setuptools]

@@ -9,7 +9,7 @@ version: 2.1
 executors:
   standard:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.10
 
 # -----------------
 # Reusable commands
@@ -77,7 +77,7 @@ jobs:
   functional-ftp:
 
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.10
         environment:
           TENTACLIO__CONN__FTP_TEST: ftp://octopus:tentacle@localhost
 
@@ -102,7 +102,7 @@ jobs:
   functional-sftp:
 
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.10
         environment:
           TENTACLIO__CONN__SFTP_TEST: sftp://octopus:tentacle@localhost:22
 
