@@ -15,9 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     require a version-bump commit before tagging; `scripts/verify_version.py` is
     removed since there's no longer a committed version to verify against tags.
     `tentaclio.__version__` is now exposed at runtime via `importlib.metadata`.
+  - Add a GitHub Actions workflow that builds the Sphinx docs on every push/PR touching
+    `docs/` or `src/`, so a broken build is caught in CI instead of only surfacing on
+    Read the Docs' own webhook-triggered build. Docs are still hosted on Read the Docs;
+    `.readthedocs.yaml` is unchanged.
+  - Fix `make docs` (previously invoked `mkdocs serve`, but this project's docs are
+    built with Sphinx and `mkdocs` was not even a dependency). It now runs
+    `docs-build` and serves the built HTML via `python -m http.server`.
 ### Fixed
   - Ship the `py.typed` marker file so the `Typing :: Typed` classifier is accurate for
     consumers relying on PEP 561 type information.
+  - Fix pre-existing `mypy tests` failures (52 errors across 14 files) that had been
+    silently blocking `make test`/`make lint` from ever reaching `unit`.
+  - Pin `sphinxcontrib-applehelp`/`devhelp`/`htmlhelp`/`qthelp`/`serializinghtml` to the
+    last versions compatible with the pinned `sphinx~=4.5.0` (newer releases of these
+    call `require_sphinx('5.0')` and fail the build outright). This was silently broken
+    for anyone building docs locally or on Read the Docs with an unpinned resolver.
 ### Added
   - Add `Programming Language :: Python :: 3.13` classifier.
 

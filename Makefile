@@ -48,9 +48,9 @@ circleci:
 	circleci config validate
 
 release: package
-	uv run twine upload dist/*
+	uv publish
 check-release: package
-	uv run twine check dist/*
+	uv publish --dry-run
 
 # Release
 package:
@@ -61,8 +61,8 @@ package:
 install-docs-deps:
 	uv sync --group docs
 
-docs:
-	uv run mkdocs serve
+docs: docs-build
+	cd docs/_build/html && uv run python -m http.server
 
 docs-build:
 	cd docs && uv run --group docs make html

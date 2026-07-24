@@ -2968,6 +2968,11 @@ docs = [
     { name = "myst-parser" },
     { name = "sphinx" },
     { name = "sphinx-rtd-theme" },
+    { name = "sphinxcontrib-applehelp" },
+    { name = "sphinxcontrib-devhelp" },
+    { name = "sphinxcontrib-htmlhelp" },
+    { name = "sphinxcontrib-qthelp" },
+    { name = "sphinxcontrib-serializinghtml" },
 ]
 
 [package.metadata]
@@ -3015,6 +3020,11 @@ docs = [
     { name = "myst-parser", specifier = "~=0.17.0" },
     { name = "sphinx", specifier = "~=4.5.0" },
     { name = "sphinx-rtd-theme" },
+    { name = "sphinxcontrib-applehelp", specifier = "<1.0.8" },
+    { name = "sphinxcontrib-devhelp", specifier = "<1.0.6" },
+    { name = "sphinxcontrib-htmlhelp", specifier = "<2.0.5" },
+    { name = "sphinxcontrib-qthelp", specifier = "<1.0.7" },
+    { name = "sphinxcontrib-serializinghtml", specifier = "<1.1.10" },
 ]
 
 [[package]]

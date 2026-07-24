@@ -78,6 +78,11 @@ docs = [
     "sphinx~=4.5.0",
     "myst-parser~=0.17.0",
     "sphinx-rtd-theme",
+    "sphinxcontrib-applehelp<1.0.8",
+    "sphinxcontrib-devhelp<1.0.6",
+    "sphinxcontrib-htmlhelp<2.0.5",
+    "sphinxcontrib-serializinghtml<1.1.10",
+    "sphinxcontrib-qthelp<1.0.7",
 ]
 
 [tool.setuptools]
