@@ -1,0 +1,33 @@
+---
+name: Release to PyPI
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Check distributions
+        run: uv publish --dry-run
+
+      - name: Publish to PyPI
+        run: uv publish
