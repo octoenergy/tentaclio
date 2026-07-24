@@ -1,6 +1,6 @@
 # Tentaclio
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/octoenergy/tentaclio/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/octoenergy/tentaclio/tree/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/octopus-energy/tentaclio/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/octopus-energy/tentaclio/tree/main)
 [![Documentation Status](https://readthedocs.org/projects/tentaclio/badge/?version=latest)](https://tentaclio.readthedocs.io/en/latest/)
 
 Python library that simplifies:
@@ -35,7 +35,7 @@ with tentaclio.open(bucket) as reader:
 ```python
 import tentaclio
 
-tentaclio.copy("/home/constantine/data.csv", "sftp://constantine:tentacl3@sftp.octoenergy.com/uploads/data.csv")
+tentaclio.copy("/home/constantine/data.csv", "sftp://constantine:tentacl3@sftp.octopus.energy/uploads/data.csv")
 ```
 ## Delete resources
 ```python
@@ -57,12 +57,12 @@ import os
 
 import tentaclio
 
-print("env ftp credentials", os.getenv("OCTOIO__CONN__OCTOENERGY_FTP"))
-# This prints `sftp://constantine:tentacl3@sftp.octoenergy.com/`
+print("env ftp credentials", os.getenv("TENTACLIO__CONN__OCTOPUS_FTP"))
+# This prints `sftp://constantine:tentacl3@sftp.octopus.energy/`
 
 # Credentials get automatically injected.
 
-with tentaclio.open("sftp://sftp.octoenergy.com/uploads/data.csv") as reader:
+with tentaclio.open("sftp://sftp.octopus.energy/uploads/data.csv") as reader:
     print(reader.read())
 ```
 
@@ -120,6 +120,8 @@ pipenv install tentaclio
 ```sh
 uv install tentaclio
 ```
+
+The installed version is available at runtime as `tentaclio.__version__`.
 
 ## Developing.
 
@@ -265,11 +267,17 @@ when connecting to the database.
 
 ### Automatic credentials injection
 
-1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sfpt://real_user:132ldsf@ftp.octoenergy.com`).
+1. Configure credentials by using environmental variables prefixed with `TENTACLIO__CONN__`  (i.e.  `TENTACLIO__CONN__DATA_FTP=sftp://real_user:132ldsf@ftp.octopus.energy`).
+
+   **This is the recommended way to configure credentials.** One env var per credential is
+   easier to manage in CI/CD and secret managers (no file to write, mount, or gitignore), and
+   rotating or scoping a single credential doesn't require touching a shared YAML file. Prefer
+   this over the [credentials file](#credentials-file) below unless you have many credentials
+   and want them all in one place.
 
 2. Open a stream:
 ```python
-with tentaclio.open("sftp://ftp.octoenergy.com/file.csv") as reader:
+with tentaclio.open("sftp://ftp.octopus.energy/file.csv") as reader:
     reader.read()
 ```
 The credentials get injected into the url.
@@ -292,7 +300,12 @@ Different components of the URL are set differently:
 
 #### Credentials file
 
-You can also set a credentials file that looks like:
+If you have many credentials, an alternative to setting one `TENTACLIO__CONN__` env var per
+credential is a single YAML file. This is still fully supported, but individual
+`TENTACLIO__CONN__` env vars are the recommended default — reach for a credentials file only
+when you need to manage a large number of secrets together.
+
+The file looks like:
 ```
 secrets:
     db_1: postgresql://user1:pass1@myhost.com/database_1
