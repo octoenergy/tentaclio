@@ -7,9 +7,22 @@ from tentaclio.credentials import TentaclioFileError, injection, reader
 
 
 @pytest.fixture
-def no_creds_yaml():
+def empty_creds_yaml():
+    return ""
+
+
+@pytest.fixture
+def creds_yaml_not_key_value_mapping():
     return """
-example: []
+- 1
+- 2
+"""
+
+
+@pytest.fixture
+def no_secrets_block_yaml():
+    return """
+example: {}
 """
 
 
@@ -19,6 +32,30 @@ def creds_yaml():
 secrets:
     local_ftp: ftp://user:password@local.com
     remote_db: postgresql://user_db:password_db@db.com/database
+"""
+
+
+@pytest.fixture
+def creds_yaml_empty_secrets():
+    return """
+secrets:
+"""
+
+
+@pytest.fixture
+def creds_yaml_secrets_bad_indentation():
+    return """
+secrets:
+local_ftp: ftp://user:password@local.com
+"""
+
+
+@pytest.fixture
+def creds_yaml_secrets_not_key_value_mapping():
+    return """
+secrets:
+    - 1
+    - 2
 """
 
 
@@ -50,14 +87,53 @@ secrets:
 
 
 def test_bad_yaml():
-    with pytest.raises(TentaclioFileError):
-        data = io.StringIO("sadfsaf")
+    with pytest.raises(TentaclioFileError, match="Your tentaclio secrets file is malformed"):
+        data = io.StringIO("  a: b\nc: d")
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
 
-def test_no_credentials_in_file(no_creds_yaml):
-    with pytest.raises(TentaclioFileError):
-        data = io.StringIO(no_creds_yaml)
+def test_empty_credentials_file(empty_creds_yaml):
+    with pytest.raises(TentaclioFileError, match="The YAML secrets file is empty"):
+        data = io.StringIO(empty_creds_yaml)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_file_not_key_value_mapping(creds_yaml_not_key_value_mapping):
+    with pytest.raises(
+        TentaclioFileError,
+        match="The YAML secrets file must be a mapping of key-value pairs",
+    ):
+        data = io.StringIO(creds_yaml_not_key_value_mapping)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_no_secrets_block(no_secrets_block_yaml):
+    with pytest.raises(TentaclioFileError, match="No `secrets:` key found in YAML secrets file"):
+        data = io.StringIO(no_secrets_block_yaml)
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_empty_secrets(creds_yaml_empty_secrets):
+    data = io.StringIO(creds_yaml_empty_secrets)
+    with pytest.raises(TentaclioFileError, match="No entries found within the `secrets:` block"):
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_secrets_bad_indentation(creds_yaml_secrets_bad_indentation):
+    data = io.StringIO(creds_yaml_secrets_bad_indentation)
+    with pytest.raises(TentaclioFileError, match="Are the entries indented correctly"):
+        reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
+
+
+def test_credentials_secrets_not_key_value_mapping(creds_yaml_secrets_not_key_value_mapping):
+    data = io.StringIO(creds_yaml_secrets_not_key_value_mapping)
+    with pytest.raises(
+        TentaclioFileError,
+        match=(
+            r"The value returned by `yaml.safe_load\(\)` for the `secrets:` block was not a "
+            r"Python `dict`"
+        ),
+    ):
         reader.add_credentials_from_reader(injection.CredentialsInjector(), data)
 
 

@@ -11,7 +11,7 @@ Python library that simplifies:
 Main considerations in the design:
 * Easy to use: all streams are open via `tentaclio.open`, all database connections through `tentaclio.db`.
 * URLs are the basic resource locator and db connection string.
-* Automagic authentication for protected resources.
+* Automatic authentication for protected resources.
 * Extensible: you can add your own handlers for other schemes.
 * Pandas interaction.
 
@@ -47,7 +47,7 @@ tentaclio.remove("s3://my-bucket/octopus/the-9th-tentacle.txt")
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://my-bucket/path/to/dir"):
     print("Entry", entry)
 ```
 
@@ -57,7 +57,7 @@ import os
 
 import tentaclio
 
-print("env ftp credentials", os.getenv("TENTACLIO__CONN__OCTOPUS_FTP"))
+print("env ftp credentials", os.getenv("TENTACLIO__CONN__OCTOPUS_ENERGY_FTP"))
 # This prints `sftp://constantine:tentacl3@sftp.octopus.energy/`
 
 # Credentials get automatically injected.
@@ -193,7 +193,7 @@ with tentaclio.open("/path/to/my/file") as reader:
 
 [...]
 
-with tentaclio.open("s3::/path/to/my/file", mode='w') as writer:
+with tentaclio.open("s3://my-bucket/path/to/my/file", mode='w') as writer:
     df.to_parquet(writer)
 ```
 `Readers`, `Writers` and their closeable versions can be used anywhere expecting a file-like object; pandas or pickle are examples of such functions.
@@ -208,22 +208,22 @@ To avoid this we can make the stream _empty safe_ so the empty buffer won't be f
 
 
 ```
-with tio.make_empty_safe(tio.open("s3://bucket/file.parquet", mode="wb")) as writer:
+with tio.make_empty_safe(tio.open("s3://my-bucket/file.parquet", mode="wb")) as writer:
     if not df.empty:
         df.to_parquet(writer)
 ```
 
 ### File system like operations to resources
 #### Listing resources
-Some URL schemes allow listing resources in a pythonnic way:
+Some URL schemes allow listing resources in a pythonic way:
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3:://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://my-bucket/path/to/dir"):
     print("Entry", entry)
 ```
 
-Whereas `listdir` might be convinient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octopus-energy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
+Whereas `listdir` might be convenient we also offer `scandir`, which returns a list of [DirEntry](https://github.com/octopus-energy/tentaclio/blob/ddbc28615de4b99106b956556db74a20e4761afe/src/tentaclio/fs/scanner.py#L13)s, and, `walk`. All functions follow as closely as possible their standard library definitions.
 
 
 ### Database access
@@ -296,7 +296,7 @@ Different components of the URL are set differently:
 - Username, password and hostname will be set from the stored credentials.
 - Port will be set from the stored credentials if it exists, otherwise from the URL.
 - Query will be set from the URL if it exists, otherwise from the stored credentials (so it can be
-  overriden)
+  overridden)
 
 #### Credentials file
 
@@ -329,4 +329,4 @@ Tentaclio will search `DB_USER` and `DB_PASS` in the environment and will interp
 
 ## Quick note on protocols structural subtyping.
 
-In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).
+In order to abstract concrete dependencies from the implementation of data related functions (or in any part of the system really) we use typed [protocols](https://mypy.readthedocs.io/en/latest/protocols.html#simple-user-defined-protocols). This allows a more flexible dependency injection than using subclassing or [more complex approaches](http://code.activestate.com/recipes/413268/). This idea is heavily inspired by how this exact thing is done in [go](https://www.youtube.com/watch?v=ifBUfIb7kdo). Learn more about this principle in our [tech blog](https://tech.octopus.energy/news/2019/03/21/python-interfaces-a-la-go.html).

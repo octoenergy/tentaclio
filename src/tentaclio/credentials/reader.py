@@ -71,11 +71,43 @@ def _load_creds_from_yaml(yaml_reader: protocols.Reader) -> dict:
     except yaml.MarkedYAMLError as error:
         raise TentaclioFileError(_process_mark_error(error))
 
+    if loaded_data is None:
+        raise TentaclioFileError(
+            f"The YAML secrets file is empty. It must contain a top-level `{SECRETS}:` key."
+        )
+    if not isinstance(loaded_data, dict):
+        raise TentaclioFileError(
+            "The YAML secrets file must be a mapping of key-value pairs like:\n"
+            f"    {SECRETS}:\n"
+            "        my_creds_name: http://user:password@google.com/path\n"
+            "        my_db: postgresql://user_db:password@octopus.energy/database\n"
+            "The value returned by `yaml.safe_load()` was not a Python `dict`."
+        )
     if SECRETS not in loaded_data:
         raise TentaclioFileError(
-            "No secrets in yaml data. Make sure the file has a `secrets:` element"
+            f"No `{SECRETS}:` key found in YAML secrets file. Make sure the file has a "
+            f"`{SECRETS}:` element."
         )
-    return loaded_data[SECRETS]
+
+    secrets = loaded_data[SECRETS]
+
+    if secrets is None:
+        raise TentaclioFileError(
+            f"No entries found within the `{SECRETS}:` block of the YAML secrets file.\n"
+            f"Are the entries indented correctly or is the `{SECRETS}:` block empty?"
+        )
+    if not isinstance(secrets, dict):
+        raise TentaclioFileError(
+            f"The `{SECRETS}:` block of the YAML secrets file must be a mapping of key-value "
+            "pairs like:\n"
+            f"    {SECRETS}:\n"
+            "        my_creds_name: http://user:password@google.com/path\n"
+            "        my_db: postgresql://user_db:password@octopus.energy/database\n"
+            f"The value returned by `yaml.safe_load()` for the `{SECRETS}:` block was not a "
+            "Python `dict`."
+        )
+
+    return secrets
 
 
 def _load_from_file(
@@ -112,10 +144,10 @@ def add_credentials_from_reader(
 ) -> injection.CredentialsInjector:
     """Read the credentials from a yml.
 
-    The file has the follwing format:
+    The file has the following format:
         secrets:
             my_creds_name: http://user:password@google.com/path
-            my_db: postgres://user_db:password@octoenergy.com/databasek
+            my_db: postgresql://user_db:password@octopus.energy/database
 
     """
     creds = _load_creds_from_yaml(yaml_reader)
