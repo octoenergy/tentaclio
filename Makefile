@@ -13,6 +13,12 @@ clean:
 	find src -type d -name __pycache__ | xargs rm -rf
 	uv clean
 
+lock: ## Lock dependencies
+	uv lock
+
+update: ## Update dependencies (whole tree)
+	uv lock --upgrade
+
 sync:
 	uv sync --dev
 
