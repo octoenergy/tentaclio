@@ -47,7 +47,7 @@ tentaclio.remove("s3://my-bucket/octopus/the-9th-tentacle.txt")
 ```python
 import tentaclio
 
-for entry in tentaclio.listdir("s3://mybucket/path/to/dir"):
+for entry in tentaclio.listdir("s3://my-bucket/path/to/dir"):
     print("Entry", entry)
 ```
 

@@ -53,9 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     for anyone building docs locally or on Read the Docs with an unpinned resolver.
 ### Added
   - Add `Programming Language :: Python :: 3.13` classifier.
-  - Add more validation for tentaclio secrets yaml files, including checks that the top level of
-    the yaml file contains key-value pairs, the `secrets:` block is not empty, the `secrets:` block
-    and subsequent entries are correctly indented, and the `secrets:` block contains key-values
+  - Add more validation for tentaclio secrets YAML files, including checks that the top level of
+    the YAML file contains key-value pairs, the `secrets:` block is not empty, the `secrets:` block
+    and subsequent entries are correctly indented, and the `secrets:` block contains key-value
     pairs. If any of the validation steps fail, `TentaclioFileError`s with helpful error messages
     are raised.
 
