@@ -1,4 +1,4 @@
-"""URL related clasess."""
+"""URL related classes."""
 
 import logging
 from typing import Any, Dict, Optional
