@@ -3,11 +3,9 @@
 This client is used for convinience when using different sql
 providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
 """
-
-from __future__ import annotations
 import contextlib
 import importlib
-from typing import TYPE_CHECKING, Container, Generator, Optional, Union
+from typing import TYPE_CHECKING, Any, Container, Generator, Optional, Union
 
 import pandas as pd
 from sqlalchemy import text
@@ -22,7 +20,9 @@ from . import base_client, decorators
 
 
 if TYPE_CHECKING:
-    import polars as pl
+    from polars import DataFrame as PolarsDataFrame  # pyright: ignore[reportMissingImports]
+else:
+    PolarsDataFrame = Any
 
 
 __all__ = ["SQLAlchemyClient", "bound_session", "atomic_session"]
@@ -157,7 +157,7 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
         return pd.read_sql(sql_query, self.conn, params=params, **kwargs)
 
     @decorators.check_conn
-    def get_pl(self, sql_query: str, **kwargs) -> pl.DataFrame:
+    def get_pl(self, sql_query: str, **kwargs) -> PolarsDataFrame:
         """Run a raw SQL query and return a polars DataFrame."""
         try:
             pl = importlib.import_module("polars")
