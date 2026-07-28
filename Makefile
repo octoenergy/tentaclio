@@ -1,8 +1,10 @@
 SHELL := /bin/bash
 
-.PHONY: all reset clean sync test lint unit integration release check-release package
+.PHONY: all reset clean lock update sync test lint unit functional-ftp functional-sftp format \
+        circleci package check-release release install-docs-deps docs docs-build
 
 all: reset test
+
 
 # Local installation
 
@@ -21,6 +23,7 @@ update: ## Update dependencies (whole tree)
 
 sync:
 	uv sync --dev
+
 
 # Testing
 
@@ -48,20 +51,27 @@ format:
 	uv run isort src
 	uv run isort tests
 
+
 # Deployment
 
 circleci:
 	circleci config validate
 
-release: package
-	uv publish
+
+# Build source distribution and wheel using modern build tools
+
+package:
+	uv build
+
+
+# Release
+
 check-release: package
 	uv publish --dry-run
 
-# Release
-package:
-	# Build source distribution and wheel using modern build tools
-	uv build
+release: package
+	uv publish
+
 
 # Docs
 install-docs-deps:
