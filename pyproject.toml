@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
-    { name = "Octopus Energy", email = "nerds@octoenergy.com" }
+    { name = "Octopus Energy", email = "nerds@octopus.energy" }
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
