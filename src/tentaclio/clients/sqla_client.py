@@ -162,8 +162,8 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
             pl = importlib.import_module("polars")
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
-                "Polars is not installed. Install it with `pip install tentaclio[polars]` or "
-                "`pip install polars` to use the `.get_pl()` method."
+                'Polars is not installed. Install it with `pip install "tentaclio[polars]"` or '
+                '`pip install polars` to use the `.get_pl()` method.'
             ) from exc
 
         return pl.read_database(
