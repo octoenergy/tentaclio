@@ -47,14 +47,12 @@ def test_parsing_postgres_url(
 def test_execute_query(sqlite_url):
     client = SQLAlchemyClient(sqlite_url)
     with client:
-        client.execute(
-            """
+        client.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             );
-            """
-        )
+            """)
         client.execute("""INSERT INTO test_table VALUES (0, 'Javi'), (1, 'Eric'), (2, 'Igor')""")
 
     with client:
@@ -68,14 +66,12 @@ def test_execute_query_polars(sqlite_url):
 
     client = SQLAlchemyClient(sqlite_url)
     with client:
-        client.execute(
-            """
+        client.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             );
-            """
-        )
+            """)
         client.execute("""INSERT INTO test_table VALUES (0, 'Javi'), (1, 'Eric'), (2, 'Igor')""")
 
     with client:
@@ -88,14 +84,12 @@ def test_execute_query_polars(sqlite_url):
 def test_get_pl_raises_when_polars_not_installed(sqlite_url, monkeypatch):
     client = SQLAlchemyClient(sqlite_url)
     with client:
-        client.execute(
-            """
+        client.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             );
-            """
-        )
+            """)
 
     monkeypatch.setitem(sys.modules, "polars", None)
     with client:

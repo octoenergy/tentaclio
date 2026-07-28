@@ -1,4 +1,5 @@
 """URL related clasess."""
+
 import logging
 from typing import Any, Dict, Optional
 from urllib import parse

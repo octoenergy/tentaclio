@@ -10,7 +10,8 @@ The main benefits are:
     * Credentials management that allows a distributed credentials storage.
 """
 
-from importlib.metadata import PackageNotFoundError, version as _version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _version
 
 from .clients import *  # noqa
 from .databases import *  # noqa

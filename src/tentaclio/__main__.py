@@ -1,4 +1,5 @@
 """Helper cli to encode urls."""
+
 import typing
 
 import click

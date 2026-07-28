@@ -1,4 +1,5 @@
 """Define the copiable protocol and registry."""
+
 from typing import ClassVar, Protocol
 
 from tentaclio.registry import URLHandlerRegistry

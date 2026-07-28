@@ -3,8 +3,8 @@
 This client is used for convinience when using different sql
 providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
 """
-from __future__ import annotations
 
+from __future__ import annotations
 import contextlib
 import importlib
 from typing import TYPE_CHECKING, Container, Generator, Optional, Union
@@ -19,6 +19,7 @@ from sqlalchemy.sql.schema import MetaData
 from tentaclio import urls
 
 from . import base_client, decorators
+
 
 if TYPE_CHECKING:
     import polars as pl
@@ -163,12 +164,10 @@ class SQLAlchemyClient(base_client.BaseClient["SQLAlchemyClient"]):
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
                 'Polars is not installed. Install it with `pip install "tentaclio[polars]"` or '
-                '`pip install polars` to use the `.get_pl()` method.'
+                "`pip install polars` to use the `.get_pl()` method."
             ) from exc
 
-        return pl.read_database(
-            sql_query, self.conn, **kwargs
-        )
+        return pl.read_database(sql_query, self.conn, **kwargs)
 
 
 # Session context managers:

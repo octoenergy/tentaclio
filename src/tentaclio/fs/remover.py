@@ -1,4 +1,5 @@
 """Functionality for listing directory-like urls."""
+
 from typing import Callable, ClassVar, ContextManager, Protocol
 
 from tentaclio.registry import URLHandlerRegistry

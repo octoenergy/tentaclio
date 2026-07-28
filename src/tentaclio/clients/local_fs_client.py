@@ -1,4 +1,5 @@
 """Local filesystem client."""
+
 import os
 from typing import Iterable, Union
 

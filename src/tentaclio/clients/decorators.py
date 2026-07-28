@@ -1,4 +1,5 @@
 """Decorators for internal use in clients module."""
+
 import functools
 from typing import Callable, TypeVar
 

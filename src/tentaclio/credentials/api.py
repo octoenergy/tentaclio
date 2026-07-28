@@ -1,4 +1,5 @@
 """Public module functions."""
+
 import functools
 import logging
 

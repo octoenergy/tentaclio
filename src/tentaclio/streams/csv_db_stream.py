@@ -1,4 +1,5 @@
 """Csv to database stream like access."""
+
 import csv
 import io
 from typing import IO, ContextManager, Protocol, Sequence

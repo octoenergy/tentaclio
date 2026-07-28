@@ -1,4 +1,5 @@
 """HTTP Stream client."""
+
 import io
 from typing import Optional, Union
 from urllib import parse

@@ -1,4 +1,5 @@
 """Concrete implementations of dir scanners."""
+
 import logging
 from typing import Callable, ContextManager, Iterable, Protocol
 
