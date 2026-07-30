@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
-    { name = "Octopus Energy", email = "nerds@octoenergy.com" }
+    { name = "Octopus Energy", email = "nerds@octopus.energy" }
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -42,6 +43,7 @@ databricks = ["tentaclio_databricks>=1.0.0"]
 gdrive = ["tentaclio_gdrive"]
 gs = ["tentaclio_gs"]
 snowflake = ["tentaclio_snowflake"]
+polars = ["polars>=0.16"]
 
 [project.urls]
 Homepage = "https://github.com/octopus-energy/tentaclio"
@@ -119,6 +121,7 @@ warn_redundant_casts = true
 ignore_missing_imports = true
 
 [tool.isort]
+profile = "black"
 line_length = 99
 multi_line_output = 3
 lines_after_imports = 2

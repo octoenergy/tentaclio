@@ -1,4 +1,5 @@
 """Define default copier."""
+
 from typing import cast
 
 from tentaclio.protocols import Reader, Writer

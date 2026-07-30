@@ -172,9 +172,7 @@ class TestSFTPClient:
         conn.getfo = lambda _, f: f.write(expected)  # type: ignore[attr-defined]
         buff = io.BytesIO()
         with client:
-            client.conn.stat.return_value = FakeAttr(  # type: ignore[attr-defined]
-                stat.S_IFREG
-            )
+            client.conn.stat.return_value = FakeAttr(stat.S_IFREG)  # type: ignore[attr-defined]
             client.get(buff)
 
         assert buff.getvalue() == expected

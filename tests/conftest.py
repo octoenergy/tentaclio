@@ -3,6 +3,7 @@ Local py.test plugins
 
 https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins
 """
+
 import io
 import os
 from typing import Sequence

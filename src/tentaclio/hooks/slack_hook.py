@@ -1,4 +1,5 @@
 """Slack http hook."""
+
 import io
 import json
 from typing import Optional

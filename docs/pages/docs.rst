@@ -12,7 +12,7 @@ To create an HTML version of the docs, use::
 
     $ cd docs
 
-    $ make html
+    $ uv run --group docs make html
 
 This will generate a static set of HTML files with root `docs/_build/html/index.html`. This can be
 viewed in a browser

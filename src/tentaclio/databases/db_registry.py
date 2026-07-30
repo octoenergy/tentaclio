@@ -1,4 +1,5 @@
 """Stream handler registry to open readers and writers to urls."""
+
 import abc
 import logging
 from typing import Callable, ClassVar, ContextManager, Iterable, Protocol

@@ -1,4 +1,5 @@
 """Base defines a common contract for connecting, closing, managing context for clients."""
+
 import abc
 from typing import Container, ContextManager, TypeVar, Union, cast
 

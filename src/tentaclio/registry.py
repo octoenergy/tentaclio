@@ -1,4 +1,5 @@
 """Base url handler registry."""
+
 import logging
 from typing import Dict, Generic, TypeVar
 

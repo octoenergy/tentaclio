@@ -1,4 +1,5 @@
 """Protocols used in tentaclio."""
+
 from typing import Any, Generic, Protocol, TypeVar, Union
 
 

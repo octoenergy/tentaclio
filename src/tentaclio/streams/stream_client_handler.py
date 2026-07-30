@@ -1,4 +1,5 @@
 """Base handler."""
+
 import io
 import logging
 from typing import Callable

@@ -164,8 +164,10 @@ class TestURL:
     def test_string_hides_keys(self):
         original = urls.URL(
             "scheme://user:password@hostname.com/"
-            "?private_key_path=/path/&private_key_password=password")
+            "?private_key_path=/path/&private_key_password=password"
+        )
         str_url = str(original)
-        assert (str_url == "scheme://user:__secret__word@hostname.com/"
-                           "?private_key_path=__secret__&private_key_password=__secret__")
-
+        assert (
+            str_url == "scheme://user:__secret__word@hostname.com/"
+            "?private_key_path=__secret__&private_key_password=__secret__"
+        )
