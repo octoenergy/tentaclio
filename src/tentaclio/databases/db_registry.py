@@ -36,7 +36,10 @@ class DbRegistry(URLHandlerRegistry[DbFactory]):
     """Registry for databases."""
 
     def get_handler(self, scheme: str) -> DbFactory:
-        """Get the handler for the give scheme. Raise an URLError if no handler is registred."""
+        """Get the handler for the given scheme.
+
+        Returns SQLAlchemyClient if no handler is registered.
+        """
         if scheme not in self.registry:
             logger.info("trying to return the default SQLA client")
             return clients.SQLAlchemyClient

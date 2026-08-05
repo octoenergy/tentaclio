@@ -23,7 +23,7 @@ class HTTPClient(base_client.BaseClient["HTTPClient"]):
     """HTTP stream client.
 
     This client is useful when dealing inputs that may change from local files to http,
-    or from s3 to http in simple usecases. We're not intending to wrap requests or rewrite it.
+    or from s3 to http in simple use cases. We're not intending to wrap requests or rewrite it.
     """
 
     allowed_schemes = ["http", "https"]

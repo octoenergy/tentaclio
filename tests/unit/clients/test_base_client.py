@@ -5,9 +5,7 @@ from tentaclio.urls import URL
 
 
 class FakeClient(base_client.BaseClient):
-    connetion = None
-
-    allowed_schemes = "scheme"
+    allowed_schemes = ["scheme"]
 
     def _connect(self):
         # return a closable

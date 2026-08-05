@@ -1,6 +1,7 @@
 import io
 from typing import Optional
 
+import pandas as pd
 import pytest
 
 from tentaclio import URL, Reader, Writer
@@ -31,6 +32,7 @@ def test_open_reader_for_string():
     handler = StreamURLHandler(FakeClient)
     reader = handler.open_reader_for(URL("scheme://my/path"), mode="t", extras={})
     assert "hello" == reader.read()
+    assert reader.mode == "r"
 
 
 def test_open_reader_for_bytes():
@@ -38,6 +40,7 @@ def test_open_reader_for_bytes():
     handler = StreamURLHandler(FakeClient)
     reader = handler.open_reader_for(URL("scheme://my/path"), mode="b", extras={})
     assert message == reader.read()
+    assert reader.mode == "rb"
 
 
 def test_open_writer_for_string():
@@ -49,6 +52,19 @@ def test_open_writer_for_string():
     writer.close()
 
     assert client._writer.getvalue().decode("utf-8") == "test"
+    assert writer.mode == "w"
+
+
+def test_open_writer_for_string_supports_pandas_to_csv():
+    url = URL("scheme://my/path")
+    client = FakeClient(url)
+    handler = StreamURLHandler(lambda url, **kwargs: client)
+    writer = handler.open_writer_for(url, mode="w", extras={})
+
+    pd.DataFrame({"a": [1, 2], "b": [3, 4]}).to_csv(writer, index=False)
+    writer.close()
+
+    assert client._writer.getvalue().decode("utf-8") == "a,b\n1,3\n2,4\n"
 
 
 def test_open_writer_for_bytes():
@@ -62,6 +78,7 @@ def test_open_writer_for_bytes():
     writer.close()
 
     assert client._writer.getvalue() == message
+    assert writer.mode == "wb"
 
 
 @pytest.mark.parametrize("extras, expected", [({}, "utf-8"), ({"encoding": "latin1"}, "latin1")])

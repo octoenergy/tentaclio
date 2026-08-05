@@ -1,7 +1,7 @@
 """The client module defines stream and query based clients.
 
 Stream clients allow to read and write from stream based sources with ease,
-and in an interchangable manner.
+and in an interchangeable manner.
 
 Query based clients unify how to access databases leveraging from sqlalchemy.
 """

@@ -1,7 +1,7 @@
 """Provide sql connection using sqlalchemy.
 
-This client is used for convinience when using different sql
-providers and unifying the client creation. We do not intent to rewriter sqlalchemy.
+This client is used for convenience when using different sql
+providers and unifying the client creation. We do not intend to rewrite sqlalchemy.
 """
 import contextlib
 import importlib

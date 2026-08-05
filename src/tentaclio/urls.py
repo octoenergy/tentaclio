@@ -42,7 +42,7 @@ class URL:
     _query_string: Optional[str] = None
 
     def __init__(self, url: str) -> None:
-        """Create a url by parsing the parametre."""
+        """Create a url by parsing the parameter."""
         self._url = url
         self._parse_url()
 
@@ -133,7 +133,7 @@ class URL:
         return URL(url)
 
     def __str__(self):
-        """Return a string representation of the url hidding compromising credentials."""
+        """Return a string representation of the url hiding compromising credentials."""
         password = self.password
         if password:
             password = "__secret__" + password[-4:]

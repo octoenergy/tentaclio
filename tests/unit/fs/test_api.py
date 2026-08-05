@@ -51,7 +51,7 @@ def fake_registry():
     registry = FakeScanner()
     add_credentials_from_env(
         load_credentials_injector(),
-        {"TENTACLIO__CONN__TEST": "scantest://costantine:tentacl3@mytest/"},
+        {"TENTACLIO__CONN__TEST": "scantest://constantine:tentacl3@mytest/"},
     )
     SCANNER_REGISTRY.register("scantest", registry)
     return registry
@@ -62,7 +62,7 @@ def fake_registry_with_depth():
     registry = FakeScannerWithDepth()
     add_credentials_from_env(
         load_credentials_injector(),
-        {"TENTACLIO__CONN__TEST": "scantest+depth://costantine-depth:tentacl3@mytest/"},
+        {"TENTACLIO__CONN__TEST": "scantest+depth://constantine-depth:tentacl3@mytest/"},
     )
     SCANNER_REGISTRY.register("scantest+depth", registry)
     return registry
@@ -72,7 +72,7 @@ def test_authenticate_scandir(fake_registry):
     api.scandir("scantest://mytest/")
 
     url = fake_registry.scanned_url
-    assert url.username == "costantine"
+    assert url.username == "constantine"
     assert url.password == "tentacl3"
 
 
@@ -87,7 +87,7 @@ def test_authenticate_listdir(fake_registry):
     api.listdir("scantest://mytest/")
 
     url = fake_registry.scanned_url
-    assert url.username == "costantine"
+    assert url.username == "constantine"
     assert url.password == "tentacl3"
 
 
@@ -102,7 +102,7 @@ def test_authenticate_walk(fake_registry_with_depth):
     api.walk("scantest+depth://mytest/")
 
     url = fake_registry_with_depth.scanned_url
-    assert url.username == "costantine-depth"
+    assert url.username == "constantine-depth"
     assert url.password == "tentacl3"
 
 

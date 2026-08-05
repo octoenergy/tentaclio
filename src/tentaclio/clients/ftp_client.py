@@ -49,7 +49,7 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
 
         Arguments:
             :file_path: The path of the remote file if not passed
-                in the costructor as part of the url.
+                in the constructor as part of the url.
         """
         remote_path = file_path or self.url.path
         if remote_path == "":
@@ -66,10 +66,10 @@ class FTPClient(base_client.BaseClient["FTPClient"]):
 
         Arguments:
             :file_path: The path of the remote file if not passed
-                in the costructor as part of the url.
+                in the constructor as part of the url.
         """
         remote_path = file_path or self.url.path
-        # storebinary only works with io.BytesIO
+        # storbinary only works with io.BytesIO
         buff = io.BytesIO(bytearray(reader.read()))
         self.conn.storbinary(f"STOR {remote_path}", buff)
 
@@ -209,7 +209,7 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
 
         Arguments:
             :file_path: The path of the remote file if not passed
-                in the costructor as part of the url.
+                in the constructor as part of the url.
         """
         remote_path = file_path or self.url.path
         if remote_path == "":
@@ -231,7 +231,7 @@ class SFTPClient(base_client.BaseClient["SFTPClient"]):
 
         Arguments:
             :file_path: The path of the remote file if not passed
-                in the costructor as part of the url.
+                in the constructor as part of the url.
         """
         remote_path = file_path or self.url.path
         if remote_path == "":

@@ -80,7 +80,7 @@ def make_empty_safe(
 
 
 def _assert_mode(mode: str):
-    """Check if a mode is valid or raise an error otherwise."""
+    """Check if a mode is valid and raises a ValueError if not."""
     if mode not in VALID_MODES:
         valid_modes = ",".join(VALID_MODES)
         raise ValueError(f"Mode {mode} is not allowed. Valid modes are  {valid_modes}")
