@@ -21,7 +21,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
     #   sphinx
-cryptography==49.0.0
+cryptography==50.0.0
     # via paramiko
 docutils==0.21.2 ; python_full_version < '3.11'
     # via
