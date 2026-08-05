@@ -1,6 +1,7 @@
 import io
 from typing import Optional
 
+import pandas as pd
 import pytest
 
 from tentaclio import URL, Reader, Writer
@@ -49,6 +50,18 @@ def test_open_writer_for_string():
     writer.close()
 
     assert client._writer.getvalue().decode("utf-8") == "test"
+
+
+def test_open_writer_for_string_supports_pandas_to_csv():
+    url = URL("scheme://my/path")
+    client = FakeClient(url)
+    handler = StreamURLHandler(lambda url, **kwargs: client)
+    writer = handler.open_writer_for(url, mode="w", extras={})
+
+    pd.DataFrame({"a": [1, 2], "b": [3, 4]}).to_csv(writer, index=False)
+    writer.close()
+
+    assert client._writer.getvalue().decode("utf-8") == "a,b\n1,3\n2,4\n"
 
 
 def test_open_writer_for_bytes():
