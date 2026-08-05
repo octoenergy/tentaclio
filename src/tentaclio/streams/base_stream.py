@@ -59,6 +59,7 @@ class StreamBaseIO:
     """
 
     buffer: IO
+    _mode = "rb"
 
     def __init__(self, buffer: IO):
         """Create a StreamBase which wraps the provided buffer."""
@@ -66,8 +67,8 @@ class StreamBaseIO:
 
     @property
     def mode(self) -> str:
-        """Return the mode of the underlying buffer."""
-        return getattr(self.buffer, "mode", "rb")
+        """Return the mode represented by this stream."""
+        return self._mode
 
     @property
     def closed(self) -> bool:
@@ -110,6 +111,8 @@ class StreamerWriter(StreamBaseIO):
     Offer a IO stream interface to clients while maintaining the
     connection atomic.
     """
+
+    _mode = "wb"
 
     def __init__(self, client: StreamerContextManager, buffer: IO):
         """Create a new writer based on a stream client and a buffer."""
@@ -155,6 +158,7 @@ class DirtyStreamerWriter(StreamerWriter):
         # the buffer is the buffer for the underlying stream
         super().__init__(writer.client, writer.buffer)
         self.writer = writer
+        self._mode = writer.mode
 
     def write(self, contents: Any) -> int:
         """Write the contents to the underlying buffer."""
@@ -212,6 +216,7 @@ class StringToBytesClientReader(StreamerReader):
     """
 
     inner_buffer: io.BytesIO
+    _mode = "r"
 
     def __init__(self, client: StreamerContextManager, encoding: str = "utf-8"):
         """Create a byte based reader that will read from the given client."""
@@ -238,6 +243,7 @@ class StringToBytesClientWriter(StreamerWriter):
     """
 
     inner_buffer: io.BytesIO
+    _mode = "w"
 
     def __init__(self, client: StreamerContextManager, encoding: str = "utf-8"):
         """Create a byte based write that will read from the given client."""

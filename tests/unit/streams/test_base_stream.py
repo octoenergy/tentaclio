@@ -22,6 +22,13 @@ class TestStreamerWriter:
         assert buff.closed
         client.put.assert_called()
 
+    def test_mode(self, mocker):
+        client = mocker.MagicMock()
+
+        writer = base_stream.StreamerWriter(client, io.BytesIO())
+
+        assert writer.mode == "wb"
+
 
 class TestDirtyStreamerWriter:
     def test_write_dirty(self, mocker):
@@ -43,6 +50,14 @@ class TestDirtyStreamerWriter:
 
         assert buff.closed
         client.put.assert_not_called()
+
+    def test_mode_matches_wrapped_writer(self, mocker):
+        client = mocker.MagicMock()
+        wrapped_writer = base_stream.StreamerWriter(client, io.BytesIO())
+
+        writer = base_stream.DirtyStreamerWriter(wrapped_writer)
+
+        assert writer.mode == "wb"
 
 
 class TestStreamerReader:
@@ -114,3 +129,22 @@ class TestStreamerReader:
         assert hasattr(reader, "mode")
         assert isinstance(reader.read(), bytes)
         assert isinstance(reader.mode, str)
+
+
+class TestStringToBytesClientReader:
+    def test_mode(self, mocker):
+        client = mocker.MagicMock()
+        client.get = lambda f: f.write(b"data")
+
+        reader = base_stream.StringToBytesClientReader(client)
+
+        assert reader.mode == "r"
+
+
+class TestStringToBytesClientWriter:
+    def test_mode(self, mocker):
+        client = mocker.MagicMock()
+
+        writer = base_stream.StringToBytesClientWriter(client)
+
+        assert writer.mode == "w"
