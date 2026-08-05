@@ -101,7 +101,7 @@ class StreamBaseIO:
         return True
 
     def flush(self):
-        """Flush stream, to be overriden if necessary."""
+        """Flush stream, to be overridden if necessary."""
         ...
 
 
@@ -142,14 +142,14 @@ class DirtyStreamerWriter(StreamerWriter):
     connection atomic.
 
     It only flushes if the stream is dirty
-    ** WARNING ** this breaks the python's `open` contract
-    but this is extreamily useful for not breaking downstream
-    systems when the no data is been written (i.e. spark or athena)
+    ** WARNING ** this breaks the Python's `open` contract
+    but this is extremely useful for not breaking downstream
+    systems when no data is written (i.e. spark or athena)
 
     """
 
-    # wrapped_writer to delegate io functionality
-    wrapped_writer: StreamerWriter
+    # wrapped writer to delegate io functionality
+    writer: StreamerWriter
     # Flag to indicate that the stream is dirty
     dirty = False
 

@@ -14,22 +14,22 @@ class TestLocalFileScanner(object):
         scandir.return_value = [
             FakeOsDirEntry(
                 name="file.txt",
-                path="/home/costantine/file.txt",
+                path="/home/constantine/file.txt",
                 is_dir=lambda: False,
                 is_file=lambda: True,
             ),
             FakeOsDirEntry(
                 name=".ssh",
-                path="/home/costantine/.ssh",
+                path="/home/constantine/.ssh",
                 is_dir=lambda: True,
                 is_file=lambda: False,
             ),
         ]
         expected_values = [
-            DirEntry(url=URL("file:///home/costantine/file.txt"), is_dir=False, is_file=True),
-            DirEntry(url=URL("file:///home/costantine/.ssh"), is_dir=True, is_file=False),
+            DirEntry(url=URL("file:///home/constantine/file.txt"), is_dir=False, is_file=True),
+            DirEntry(url=URL("file:///home/constantine/.ssh"), is_dir=True, is_file=False),
         ]
-        entries = LocalFSClient("file://home/costantine").scandir()
+        entries = LocalFSClient("file:///home/constantine").scandir()
         for entry, expected in zip(entries, expected_values):
             assert entry.url == expected.url
             assert entry.is_dir == expected.is_dir

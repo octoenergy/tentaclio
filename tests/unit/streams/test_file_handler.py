@@ -20,12 +20,12 @@ def temp_filename():
 
 
 def test_file_empty_scheme():
-    url = URL("/path/to/my/file")  # would crash if no hander
+    url = URL("/path/to/my/file")  # would crash if no handler
     assert url.path == "/path/to/my/file"
 
 
 def test_file_scheme():
-    url = URL("file:///path/to/my/file")  # would crash if no hander
+    url = URL("file:///path/to/my/file")  # would crash if no handler
     assert url.path == "/path/to/my/file"
 
 

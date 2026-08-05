@@ -26,7 +26,7 @@ class URLHandlerRegistry(Generic[T]):
             self.registry[scheme] = url_handler
 
     def get_handler(self, scheme: str) -> T:
-        """Get the handler for the give scheme. Raise an URLError if no handler is registred."""
+        """Get the handler for the given scheme. Raises a KeyError if no handler is registered."""
         if scheme not in self.registry:
             msg = f"Scheme {scheme} not found in the registry"
             logger.error(msg)

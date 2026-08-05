@@ -30,8 +30,8 @@ class ClientDirScanner:
     def __init__(self, client_factory: ManagedDirScannerFactory):
         """Create a new client dir scanner.
 
-        The spected argument is class that has a context manager and a scandir method.
-        i.e. tentaclio.clietns.s3_client.S3Client
+        The specified argument is a class that has a context manager and a scandir method,
+        e.g. tentaclio.clients.s3_client.S3Client
         """
         self.client_factory = client_factory
 

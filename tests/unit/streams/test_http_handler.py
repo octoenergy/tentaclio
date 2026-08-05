@@ -37,7 +37,7 @@ def test_open_http_url_reading(mode, content, expected_content, mocker):
     mocked_session_call.assert_called_once()
 
 
-@pytest.mark.skip("This is actually implmented. Write test")
+@pytest.mark.skip("This is actually implemented. Write test")
 @pytest.mark.parametrize(
     "mode,content", [("wb", bytes(TEST_PAYLOAD, "utf-8")), ("wt", TEST_PAYLOAD)]
 )

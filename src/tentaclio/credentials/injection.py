@@ -61,7 +61,7 @@ _URLSimilarity = collections.namedtuple("_URLSimilarity", ["url", "similarity"])
 
 
 def _filter_by_path(url: urls.URL, to_match: List[urls.URL]) -> List[urls.URL]:
-    # compute the similarties between the path of the url and the list to match
+    # compute the similarities between the path of the url and the list to match
     similarities = map(lambda cred: _similarity(url.path, cred.path), to_match)
     url_similarities = itertools.starmap(_URLSimilarity, zip(to_match, similarities))
     # filter out the urls without any similarity
@@ -96,7 +96,7 @@ def _similarity(path_1: str, path_2: str) -> float:
     "" and "" have similarity index 0.5
     "/mypath" and "" have 0.5 similarity index.
 
-    Similarity is not symetrical:
+    Similarity is not symmetrical:
     "" and "/mypath" have similarity 0.
     This is because
     url: "ftp://hostname/file.txt" creds: "ftp://user@hostname/" should inject to

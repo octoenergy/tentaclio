@@ -31,7 +31,7 @@ def listdir(url: str) -> Iterable[str]:
     """List a directory-like url returning its entries.
 
     Return an iterator string containing the urls
-    to the entries in the directory given by url passed as parametre. The entries
+    to the entries in the directory given by url passed as parameter. The entries
     are yielded in arbitrary order,
     and the special entries '.' and '..' are not included.
 

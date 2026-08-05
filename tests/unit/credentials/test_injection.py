@@ -93,7 +93,7 @@ def test_simple_authenticate(with_creds, raw, expected):
         ("path_elem_1/path_elem_2", "path_elem_1/path_elem_2", 2),
     ],
 )
-def test_similarites(path_1, path_2, expected):
+def test_similarities(path_1, path_2, expected):
     result = injection._similarity(path_1, path_2)
     assert result == expected
 
