@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-08-05
+### Fixed
+  - Breaking regression from https://github.com/octopus-energy/tentaclio/pull/241 which caused
+    pandas `DataFrame.to_csv()` to fail with `TypeError: write() argument must be str, not bytes`
+    when supplied with a tentaclio `mode="w"` writer
+    (https://github.com/octopus-energy/tentaclio/issues/248).
+  - Some code comment spelling mistakes.
+
 ## [1.5.0] - 2026-07-30
 ### Changed
   - Bump the minimum supported Python from 3.9 (EOL) to 3.10; drop the `importlib_metadata`
